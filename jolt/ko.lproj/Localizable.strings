@@ -1,0 +1,635 @@
+/* Localizable.strings (Korean)
+  jolt
+
+  Korean translations - Action-Oriented, Anti-Hoarding Tone
+*/
+
+// MARK: - Common
+"common.done" = "완료";
+"common.cancel" = "취소";
+"common.save" = "Jolt하기";
+"common.delete" = "삭제";
+"common.edit" = "편집";
+"common.close" = "닫기";
+"common.settings" = "설정";
+"common.loading" = "점화 중...";
+"common.error" = "결함";
+"common.success" = "성공";
+"common.retry" = "재시도";
+"common.share" = "공유";
+"common.copy" = "복사";
+"common.archive" = "보관";
+"common.snooze" = "미루기";
+"common.clear" = "지우기";
+"common.exporting" = "내보내는 중...";
+
+// MARK: - Focus Screen
+"focus.title" = "포커스";
+"focus.empty.title" = "모두 완료!";
+"focus.empty.subtitle" = "야수에게 먹이를 주세요. 링크를 공유하여 시작하세요.";
+"focus.later" = "나중에";
+"focus.later.count" = "(%d)";
+"focus.allCaughtUp" = "인박스 제로";
+"focus.articles.count" = "%d 아이템";
+"focus.totalTime" = "약 %d분 남음";
+"focus.filter.all" = "전체";
+"focus.filter.5min" = "5분";
+"focus.filter.15min" = "15분";
+"focus.filter.title" = "시간별 필터";
+"focus.tapToRead" = "탭하여 소화하기";
+"focus.pullForward" = "앞당기기";
+"focus.hero.more" = "외 + %d 개";
+"focus.addFromClipboard" = "클립보드에서 추가";
+"focus.generateTestData" = "테스트 데이터 생성";
+"focus.clearAll" = "모두 지우기";
+
+// MARK: - Snooze Options
+"snooze.title" = "미루기 설정...";
+"snooze.nextRoutine" = "다음 루틴";
+"snooze.1hour" = "1시간 후";
+
+// MARK: - Tab Bar
+"tab.focus" = "포커스";
+"tab.library" = "저장고";
+"tab.pulse" = "펄스";
+"tab.settings" = "설정";
+"snooze.2hours" = "3시간 후";
+"snooze.tomorrow" = "내일 아침";
+"snooze.custom" = "사용자 지정";
+
+// MARK: - Reader
+"reader.joltIt" = "JOLT하기";
+"reader.joltCompleted" = "Jolt 완료!";
+"reader.openInBrowser" = "웹 보기";
+"reader.copyLink" = "링크 복사";
+"reader.shareLink" = "링크 공유";
+"reader.readingTime" = "읽기 시간 %d분";
+"reader.scrollProgress" = "%d%% 완료";
+"reader.archived" = "보관됨";
+"reader.addNote" = "노트 추가";
+"reader.moveToCollection" = "컬렉션으로 이동";
+"reader.settings.title" = "리더 설정";
+"reader.lineSpacing.compact" = "좁게";
+"reader.lineSpacing.normal" = "보통";
+"reader.lineSpacing.relaxed" = "넓게";
+
+// MARK: - Library
+"library.title" = "저장고";
+"library.subtitle" = "나만의 지식 기지";
+"library.search.placeholder" = "저장고 검색...";
+"library.newCollection" = "새 컬렉션";
+"library.allBookmarks" = "모든 아이템";
+"library.empty.title" = "저장고 비어 있음";
+"library.empty.subtitle" = "링크를 Jolt하여 채워보세요.";
+"library.recentlyRead" = "최근 소화함";
+"library.favorites" = "즐겨찾기";
+"library.archived" = "보관함";
+"library.selectAll" = "모두 선택";
+"library.deselectAll" = "선택 해제";
+"library.deleteSelected" = "선택 항목 삭제";
+
+// MARK: - Pulse (Stats)
+"pulse.title" = "펄스";
+"pulse.subtitle" = "독서 리듬";
+"pulse.dayStreak" = "일일 연속";
+"pulse.currentStreak" = "현재 연속";
+"pulse.longestStreak" = "최장 기록";
+"pulse.totalJolts" = "총 Jolt";
+"pulse.thisWeek" = "이번 주";
+"pulse.today" = "오늘";
+"pulse.achievements" = "배지";
+"pulse.insights" = "인사이트";
+"pulse.yourStats" = "내 통계";
+"pulse.readingTime" = "포커스 시간";
+"pulse.averagePerDay" = "일일 평균";
+"pulse.bestDay" = "최고의 날";
+"pulse.articlesRead" = "소화한 아이템";
+"pulse.personalBest" = "개인 최고: %d일";
+"pulse.timeInvested" = "투자 시간";
+"pulse.wordsPerMin" = "분당 단어 수";
+"pulse.collections" = "컬렉션";
+"pulse.joltsCount" = "%d Jolts";
+"pulse.topSources" = "상위 출처";
+"pulse.favoriteTime" = "골든 타임";
+"pulse.dailyGoal" = "일일 목표";
+"pulse.motivation.start" = "오늘 여정을 점화하세요!";
+"pulse.motivation.day1" = "좋은 시작! 마음을 계속 채우세요 🌱";
+"pulse.motivation.days2_3" = "탄력을 받고 있어요! 💪";
+"pulse.motivation.days4_6" = "거의 일주일! 불타오르고 있네요 🔥";
+"pulse.motivation.week" = "주간 전사! 대단해요! 🏆";
+"pulse.motivation.twoWeeks" = "2주 달성! 전설입니다! ⚡";
+"pulse.motivation.unstoppable" = "멈출 수 없어요! 소화 머신이네요! 🚀";
+"pulse.avgReadTime" = "평균 시간";
+"pulse.contentMix" = "콘텐츠 비율";
+
+// MARK: - Settings
+"settings.title" = "설정";
+"settings.readingGoals" = "목표";
+"settings.dailyGoal" = "일일 타겟";
+"settings.dailyGoal.description" = "속도를 설정하세요. 일일 목표 위젯으로 기세를 추적하세요.";
+"settings.articlesCount" = "%d 아이템";
+"settings.storageCache" = "저장 공간 및 캐시";
+"settings.imageCache" = "이미지 캐시";
+"settings.articleCache" = "텍스트 콘텐츠 (HTML)";
+"settings.clearCache" = "지우기";
+"settings.clearCache.description" = "콘텐츠를 지우면 오프라인 데이터가 삭제됩니다. 온라인에서는 계속 읽을 수 있습니다.";
+"settings.dataManagement" = "데이터";
+"settings.exportData" = "데이터 내보내기 (JSON)";
+"settings.export.description" = "데이터를 가져가세요. 모두 JSON으로 내보냅니다.";
+"settings.routines" = "루틴";
+"settings.account" = "계정";
+"settings.logout" = "로그아웃";
+"settings.notifications" = "알림";
+"settings.appearance" = "화면 스타일";
+"settings.about" = "앱 정보";
+"settings.more" = "추가 설정";
+"settings.storageDataCache" = "저장 공간, 데이터 및 캐시";
+"settings.version" = "버전 %@";
+"settings.privacy" = "개인정보 처리방침";
+"settings.terms" = "이용 약관";
+"settings.language" = "언어";
+"settings.language.system" = "시스템 기본값";
+"settings.language.select" = "언어 선택";
+"settings.language.restart" = "적용하려면 재시작이 필요합니다.";
+
+// MARK: - Routines
+"routines.title" = "루틴";
+"routines.morning" = "아침";
+"routines.evening" = "저녁";
+"routines.weekend" = "주말";
+"routines.custom" = "사용자 지정";
+"routines.enabled" = "켜짐";
+"routines.disabled" = "꺼짐";
+"routines.time" = "시간";
+"routines.days" = "요일";
+"routines.addRoutine" = "루틴 추가";
+"routines.editRoutine" = "루틴 편집";
+"routines.name" = "루틴 이름";
+"routines.name.morning" = "아침 연료";
+"routines.name.evening" = "저녁 리뷰";
+"routines.name.weekend" = "주말 몰입";
+"routines.details" = "세부 정보";
+"routines.icon" = "아이콘";
+
+// MARK: - Widgets
+"widget.streak.title" = "연속 기록";
+"widget.streak.description" = "기세를 유지하세요.";
+"widget.focus.title" = "다음 할 일";
+"widget.focus.description" = "다음 타겟입니다.";
+"widget.dailyGoal.description" = "일일 소화량을 추적하세요.";
+"widget.stats.title" = "통계";
+"widget.stats.description" = "주간 성과입니다.";
+"widget.quote.title" = "일일 연료";
+"widget.quote.description" = "지속하기 위한 동기부여.";
+"widget.dayStreak" = "일 연속";
+"widget.daysStreak" = "일 연속";
+"widget.nextUp" = "다음";
+"widget.allCaughtUp" = "모두 완료!";
+"widget.tapToRead" = "탭하여 소화하기";
+"widget.weekly" = "주간";
+"widget.thisWeek" = "이번 주";
+"widget.total" = "합계";
+"widget.streak" = "연속";
+"widget.best" = "최고";
+"widget.dailyInspiration" = "일일 연료";
+"widget.joltsToday" = "오늘의 Jolt";
+"widget.goal.start" = "연속 기록 점화!";
+"widget.goal.halfway" = "절반 달성!";
+"widget.goal.almost" = "거의 다 왔어요!";
+"widget.goal.complete" = "타겟 격파! 🎉";
+
+// MARK: - Share Extension
+"share.saveToJolt" = "Jolt에 저장";
+"share.schedule" = "예약";
+"share.collection" = "컬렉션";
+"share.note" = "메모";
+"share.notePlaceholder" = "생각 추가...";
+"share.morning" = "아침";
+"share.evening" = "저녁";
+"share.weekend" = "주말";
+"share.inbox" = "인박스";
+"share.saved" = "저장됨!";
+"share.saving" = "저장 중...";
+"share.none" = "없음";
+"share.now" = "지금";
+
+// MARK: - Collections
+"collection.create" = "컬렉션 생성";
+"collection.edit" = "컬렉션 편집";
+"collection.name" = "이름";
+"collection.namePlaceholder" = "컬렉션 이름";
+"collection.color" = "색상";
+"collection.icon" = "아이콘";
+"collection.delete" = "컬렉션 삭제";
+"collection.deleteConfirm" = "이 컬렉션을 삭제하시겠습니까? 아이템은 저장고에 남습니다.";
+
+// MARK: - Time
+"time.minute" = "분";
+"time.minutes" = "분";
+"time.hour" = "시간";
+"time.hours" = "시간";
+"time.day" = "일";
+"time.days" = "일";
+"time.week" = "주";
+"time.today" = "오늘";
+"time.tomorrow" = "내일";
+"time.yesterday" = "어제";
+"time.now" = "지금";
+"time.later" = "나중에";
+"time.inHours" = "%d시간 후";
+"time.inMinutes" = "%d분 후";
+
+// MARK: - Days of Week
+"day.monday" = "월요일";
+"day.tuesday" = "화요일";
+"day.wednesday" = "수요일";
+"day.thursday" = "목요일";
+"day.friday" = "금요일";
+"day.saturday" = "토요일";
+"day.sunday" = "일요일";
+"day.mon" = "월";
+"day.tue" = "화";
+"day.wed" = "수";
+"day.thu" = "목";
+"day.fri" = "금";
+"day.sat" = "토";
+"day.sun" = "일";
+
+// MARK: - Errors
+"error.network" = "오프라인. 신호를 확인하세요.";
+"error.loadingFailed" = "로드 실패.";
+"error.saveFailed" = "저장 실패.";
+"error.unknown" = "문제가 발생했습니다.";
+"error.invalidURL" = "잘못된 링크.";
+"error.parsingFailed" = "내용을 해독할 수 없습니다.";
+
+// MARK: - Alerts
+"alert.clearImageCache.title" = "이미지 캐시 지우기?";
+"alert.clearImageCache.message" = "공간을 확보합니다. 이미지는 필요할 때 다시 로드됩니다.";
+"alert.clearArticleCache.title" = "텍스트 내용 지우기?";
+"alert.clearArticleCache.message" = "오프라인 텍스트를 제거합니다. 다시 읽으려면 인터넷이 필요합니다.";
+"alert.deleteConfirm.title" = "아이템 삭제?";
+"alert.deleteConfirm.message" = "영구적으로 사라집니다. 확실합니까?";
+"alert.logout.title" = "로그아웃?";
+"alert.logout.message" = "모든 로컬 데이터가 제거됩니다.";
+
+// MARK: - Toast Messages
+"toast.copiedToClipboard" = "복사됨";
+"toast.bookmarkArchived" = "보관됨";
+"toast.bookmarkSnoozed" = "미뤄짐";
+"toast.undo" = "실행 취소";
+"toast.alreadySaved" = "이미 저장고에 있음";
+"toast.linkDetected" = "링크 감지됨";
+"toast.savedSuccessfully" = "저장됨";
+
+// MARK: - Clipboard Toast
+"clipboard.newLink" = "새 링크 감지됨";
+"clipboard.existingUnread" = "이미 대기열에 있음";
+"clipboard.existingArchived" = "이미 소화됨";
+"clipboard.addToQueue" = "대기열에 추가";
+"clipboard.open" = "열기";
+"clipboard.linkDetected" = "클립보드에 링크가 있습니다";
+"clipboard.alreadyInList" = "이 링크는 이미 목록에 있습니다";
+"clipboard.alreadyRead" = "이미 읽은 항목입니다";
+"clipboard.invalidContent" = "⚠️ 유효하지 않은 콘텐츠";
+"clipboard.jolted" = "Jolted! ⚡️";
+"clipboard.error.invalidContent" = "클립보드에서 유효한 웹 또는 PDF 링크를 찾을 수 없습니다.";
+"clipboard.action.jolt" = "졸트";
+"clipboard.action.show" = "보기";
+"clipboard.action.rejolt" = "다시 졸트";
+"clipboard.action.undo" = "실행 취소";
+
+// MARK: - Push Notifications
+"notification.timeToRead.title" = "읽을 시간입니다 ⚡️";
+"notification.timeToRead.body" = "준비 완료: %@";
+"notification.queueReady.title" = "대기열이 준비되었습니다 ⚡️";
+"notification.queueReady.body" = "지금 %d개의 항목이 예약되어 있습니다.";
+
+// MARK: - Siri Shortcuts
+"siri.openFocus" = "포커스 열기";
+"siri.showNextBookmark" = "다음";
+"siri.getStreak" = "연속 기록 확인";
+"siri.getTodayStats" = "오늘 통계";
+"siri.getPendingCount" = "대기 건수";
+"siri.weeklySummary" = "주간 보고서";
+"siri.motivateMe" = "동기부여";
+"siri.snoozeNext" = "다음 미루기";
+
+// MARK: - Siri Responses
+"siri.response.streak" = "%d일 연속. 흐름을 유지하세요!";
+"siri.response.streakNone" = "아직 연속 기록이 없어요. 읽기 시작하세요!";
+"siri.response.todayStats" = "오늘 %d 아이템을 소화했습니다. 훌륭해요.";
+"siri.response.todayNone" = "오늘 아직 읽은 게 없네요. 시작해봅시다!";
+"siri.response.pending" = "%d 아이템 대기 중.";
+"siri.response.pendingNone" = "대기열이 비었습니다. 멋져요!";
+"siri.response.weekly" = "이번 주 %d 아이템 격파. 평균 %.1f/일.";
+"siri.response.motivation" = "한 번에 하나씩. 할 수 있어요.";
+"siri.response.snoozed" = "미뤄짐.";
+
+// MARK: - Pluralization (used with .stringsdict)
+"plural.articles" = "%d 아이템";
+"plural.days" = "%d 일";
+"plural.minutes" = "%d 분";
+"plural.hours" = "%d 시간";
+"plural.bookmarks" = "%d 아이템";
+
+// MARK: - Accessibility
+"a11y.focus.heroCard" = "%@, 출처 %@, 읽기 시간 %d분";
+"a11y.focus.openReader" = "두 번 탭하여 열기";
+"a11y.focus.archive" = "왼쪽으로 스와이프하여 보관";
+"a11y.focus.snooze" = "오른쪽으로 스와이프하여 미루기";
+"a11y.focus.pullForward" = "두 번 탭하여 현재 대기열로 가져오기";
+"a11y.focus.empty" = "모두 완료. 링크를 공유하여 콘텐츠 추가.";
+"a11y.reader.progress" = "독서 진행률: %d 퍼센트";
+"a11y.reader.joltButton" = "Jolt하기, 완료로 표시";
+"a11y.reader.backHint" = "이전 페이지로 이동";
+"a11y.reader.backDisabled" = "뒤로 갈 수 없음";
+"a11y.reader.forwardHint" = "다음 페이지로 이동";
+"a11y.reader.forwardDisabled" = "앞으로 갈 수 없음";
+"a11y.library.bookmark" = "%@, 출처 %@, 읽은 날짜 %@";
+"a11y.pulse.streak" = "현재 연속: %d일";
+"a11y.widget.streak" = "독서 연속: %d일";
+"a11y.widget.nextUp" = "다음 아이템: %@";
+
+// MARK: - Motivational Quotes
+"quote.1" = "오늘 읽는 것이 내일의 무기다.";
+"quote.2" = "독서는 마음을 위한 운동이다.";
+"quote.3" = "모든 기사는 새로운 문이다.";
+"quote.4" = "5분이면 충분하다. 일단 시작해라!";
+"quote.5" = "그 무덤을 치워라!";
+"quote.6" = "지식은 지렛대다.";
+"quote.7" = "작은 발걸음, 거대한 결과.";
+"quote.8" = "소비자는 읽는다. 리더는 실행한다.";
+"quote.9" = "오늘 무엇을 배웠나?";
+"quote.10" = "호기심은 엔진이다.";
+"quote.11" = "매일 조금씩 더 낫게.";
+"quote.12" = "독서는 자유를 준다.";
+"quote.13" = "하나의 아이디어가 모든 것을 바꿀 수 있다.";
+"quote.14" = "마음에 영양분을.";
+"quote.15" = "시작이 가장 어렵다.";
+
+// MARK: - Empty States
+"empty.focus.title" = "예정된 것 없음";
+"empty.focus.subtitle" = "링크를 공유하여 줄을 세우세요.";
+"empty.library.title" = "저장고 비어 있음";
+"empty.library.subtitle" = "읽기 시작하여 무기고를 구축하세요.";
+"empty.collections.title" = "컬렉션 없음";
+"empty.collections.subtitle" = "여기서 지식을 그룹화하세요.";
+"empty.search.title" = "결과 없음";
+"empty.search.subtitle" = "다른 단어로 시도해보세요.";
+
+// MARK: - Achievements
+"achievement.first_jolt.title" = "첫 Jolt";
+"achievement.first_jolt.description" = "첫 번째 Jolt 완료";
+"achievement.five_jolts.title" = "시작";
+"achievement.five_jolts.description" = "5 Jolts 완료";
+"achievement.twentyfive_jolts.title" = "반오십";
+"achievement.twentyfive_jolts.description" = "25 Jolts 완료";
+"achievement.fifty_jolts.title" = "반백";
+"achievement.fifty_jolts.description" = "50 Jolts 완료";
+"achievement.centurion.title" = "백인대장";
+"achievement.centurion.description" = "100 Jolts 완료";
+"achievement.week_streak.title" = "주간 전사";
+"achievement.week_streak.description" = "7일 연속 독서";
+"achievement.two_week_streak.title" = "2주 파이터";
+"achievement.two_week_streak.description" = "14일 연속 독서";
+"achievement.month_streak.title" = "월간 마스터";
+"achievement.month_streak.description" = "30일 연속 독서";
+"achievement.speed_reader.title" = "속독가";
+"achievement.speed_reader.description" = "하루에 5+ Jolts 완료";
+"achievement.night_owl.title" = "올빼미";
+"achievement.night_owl.description" = "밤 10시 이후 독서";
+"achievement.early_bird.title" = "얼리 버드";
+"achievement.early_bird.description" = "아침 7시 이전 독서";
+"achievement.curator.title" = "큐레이터";
+"achievement.curator.description" = "5개 컬렉션 생성";
+"achievement.social_butterfly.title" = "소셜 나비";
+"achievement.social_butterfly.description" = "소셜 미디어 게시물 10개 Jolt";
+"achievement.bookworm.title" = "책벌레";
+"achievement.bookworm.description" = "30개 이상 기사 소화";
+
+// MARK: - Library Filters
+"library.filter.all" = "전체";
+"library.filter.unread" = "읽지 않음";
+"library.filter.read" = "읽음";
+"library.filter.starred" = "별표됨";
+"library.sort.title" = "정렬";
+"library.sort.newest" = "최신순";
+"library.sort.oldest" = "오래된순";
+"library.sort.az" = "가나다순";
+"library.sort.readingTime" = "포커스 시간";
+"library.sort.progress" = "진행률";
+"library.deleteSelected.title" = "선택 항목 삭제?";
+"library.deleteSelected.confirm" = "삭제 (%d)";
+"library.action.move" = "이동";
+"library.action.star" = "별표 하기";
+"library.action.unstar" = "별표 해제";
+"library.empty.starred" = "별표 항목 없음";
+"library.empty.starredHint" = "항목에 별표를 하여 빠르게 찾으세요";
+"library.empty.type" = "%@ 없음";
+
+// MARK: - Collection Actions
+"collection.delete.title" = "컬렉션 삭제?";
+"collection.delete.keepItems" = "아이템 유지 (인박스로 이동)";
+"collection.delete.deleteAll" = "모두 삭제";
+"collection.deleteConfirm.title" = "컬렉션 삭제?";
+"collection.deleteConfirm.keepItems" = "아이템 유지 (인박스로 이동)";
+"collection.deleteConfirm.deleteAll" = "모두 삭제";
+
+// MARK: - Focus Debug (Development Only)
+"focus.debug.title" = "디버그";
+"focus.debug.addTestData" = "테스트 데이터 추가";
+"focus.debug.clearAll" = "모두 지우기";
+
+// MARK: - Watch App
+"watch.dayStreak" = "일일 연속";
+"watch.today" = "오늘";
+"watch.pending" = "대기열";
+"watch.nextUp" = "다음";
+"watch.allCaughtUp" = "인박스 제로!";
+"watch.openOnIPhone" = "iPhone에서 열기";
+
+// MARK: - Share Extension
+"shareExtension.joltIt" = "Jolt하기";
+"shareExtension.alreadySaved" = "이미 저장고에 있음";
+"shareExtension.saved" = "저장됨";
+
+// MARK: - Live Activity
+"liveActivity.reading" = "소화 중";
+"liveActivity.minutesRemaining" = "약 %d분";
+"liveActivity.percentComplete" = "%d%% 완료";
+
+// MARK: - Onboarding Screens
+"onboarding.intro.question" = "북마크 무덤이\n계속 늘어나고 있나요?";
+"onboarding.intro.answer" = "안타깝게도, 네";
+"onboarding.problem.tabs" = "열린 탭";
+"onboarding.problem.saved" = "\"나중에 읽기\" 아이템";
+"onboarding.problem.read" = "실제로 읽음";
+"onboarding.solution.save" = "Jolt하기";
+"onboarding.solution.saveHint" = "→ 언제 읽을 건가요?";
+"onboarding.solution.remind" = "적절한 때에 넛지";
+"onboarding.solution.remindHint" = "→ 소화";
+"onboarding.solution.finish" = "완료, 정리, 이동";
+"onboarding.solution.finishHint" = "→ JOLT!";
+"onboarding.philosophy.title" = "저장소가 아닙니다.\n소비 엔진입니다.";
+"onboarding.philosophy.subtitle" = "읽고, Jolt하고, 나아가세요.";
+"onboarding.unread.title" = "읽지 않은 북마크는\n죽은 짐입니다.";
+"onboarding.unread.action" = "해결하기";
+"onboarding.capture.title" = "어디서든 포착";
+"onboarding.capture.subtitle" = "X, YouTube, Reddit...\n머신에 먹이를 주세요.";
+"onboarding.capture.example" = "medium.com/article...";
+"onboarding.capture.save" = "Jolt하기";
+"onboarding.capture.understood" = "알겠습니다";
+"onboarding.capture.morning" = "아침";
+"onboarding.capture.evening" = "저녁";
+"onboarding.capture.weekend" = "주말";
+"onboarding.routine.title" = "언제 넛지해드릴까요?";
+"onboarding.routine.subtitle" = "하루 두 번. 한가할 때만.\n스팸은 없습니다, 약속해요.";
+"onboarding.routine.example" = "주말 자동 오전 11:00";
+"onboarding.routine.continue" = "루틴 설정";
+"onboarding.routine.morning" = "아침 루틴";
+"onboarding.routine.morningDesc" = "커피 휴식, 통근 시간";
+"onboarding.routine.evening" = "저녁 루틴";
+"onboarding.routine.eveningDesc" = "취침 전, 휴식 시간";
+"onboarding.notification.title" = "알림 약속:";
+"onboarding.notification.subtitle" = "스팸 제로. 오직 신호만.";
+"onboarding.notification.allow" = "넛지 허용";
+"onboarding.notification.later" = "나중에 결정";
+"onboarding.notification.promise1" = "선택한 시간에만";
+"onboarding.notification.promise2" = "대기열이 비어있으면 조용히";
+"onboarding.notification.promise3" = "하루 최대 2번 넛지";
+"onboarding.widgets.title" = "홈 화면에서\n추적하세요";
+"onboarding.widgets.subtitle" = "빠른 접근을 위한 위젯과 Siri";
+"onboarding.widgets.streak" = "연속 기록";
+"onboarding.widgets.focus" = "다음 할 일 보기";
+"onboarding.widgets.goal" = "일일 목표";
+"onboarding.widgets.siriTitle" = "음성 사용";
+"onboarding.widgets.siriExample1" = "\"Siri야, 내 Jolt 연속 기록은?\"";
+"onboarding.widgets.siriExample2" = "\"Siri야, Jolt 다음 할 일은?\"";
+"onboarding.widgets.continue" = "계속";
+"onboarding.complete.title" = "준비 완료! ⚡";
+"onboarding.complete.subtitle" = "이제 어떤 앱에서든\nJolt에 콘텐츠를 추가할 수 있습니다.";
+"onboarding.complete.lastStep" = "마지막 단계";
+"onboarding.complete.lastStepDesc" = "첫 링크를 추가하세요. 의미 있게.";
+"onboarding.complete.tip1" = "아무 앱에서나 콘텐츠 찾기";
+"onboarding.complete.tip2" = "공유 버튼 탭하기";
+"onboarding.complete.tip3" = "Jolt 선택, 시간 설정, 저장";
+"onboarding.complete.ready" = "준비됐어요";
+"onboarding.complete.letsGo" = "가봅시다";
+
+// MARK: - Collection Detail
+"collectionDetail.empty" = "아직 콘텐츠 없음";
+"collectionDetail.emptyDesc" = "여기로 콘텐츠를 옮겨 무기고를 정리하세요.";
+"collectionDetail.itemsCount" = "%d 아이템";
+
+// MARK: - Edit Collection
+"editCollection.name" = "컬렉션 이름";
+"editCollection.color" = "색상";
+"editCollection.icon" = "아이콘";
+"editCollection.deleteCollection" = "컬렉션 삭제";
+"editCollection.statsReady" = "포커스에서 격파 준비된 %d 아이템.";
+"editCollection.statsTotal" = "이 컬렉션은 총 %d 아이템.";
+
+// MARK: - Routines Settings
+"routinesSettings.empty" = "루틴 없음. 하나 추가하여 시작하세요.";
+"routinesSettings.title" = "내 루틴";
+"routinesSettings.subtitle" = "이 시간들을 기준으로 콘텐츠를 계획합니다.";
+"routinesSettings.off" = "꺼짐";
+
+// MARK: - Collection Picker
+"collectionPicker.inbox" = "인박스";
+
+// MARK: - Create Collection
+"createCollection.name" = "컬렉션 이름";
+"createCollection.color" = "색상";
+"createCollection.icon" = "아이콘";
+"createCollection.create" = "컬렉션 생성";
+
+// MARK: - Pulse View
+"pulse.repairStreak" = "어제 읽었어요! (연속 기록 복구)";
+"pulse.unlockedAchievements" = "%d/%d";
+"pulse.madeWith" = "⚡️로 제작됨";
+
+// MARK: - Pulse View Accessibility
+"a11y.pulse.repairStreak" = "연속 기록 복구";
+"a11y.pulse.repairStreakHint" = "어제 읽은 것을 확인하여 연속 기록을 복구합니다. 이전 기록: %d일.";
+
+// MARK: - Focus View Accessibility
+"a11y.focus.debugMenu" = "디버그 메뉴";
+"a11y.focus.addFromClipboard" = "클립보드에서 링크 추가";
+"a11y.focus.addFromClipboardHint" = "클립보드의 URL을 새 콘텐츠로 추가합니다";
+
+// MARK: - Library View
+"library.deleteConfirm" = "%d 아이템을 영구 삭제하시겠습니까?";
+"library.collectionItems" = "'%@'에 %d 아이템 있음.";
+"library.selectedCount" = "%d 선택됨";
+"library.quickAccess" = "빠른 접근";
+"library.collections" = "컬렉션";
+"library.new" = "신규";
+"library.items" = "%d 아이템";
+"library.read" = "소화됨";
+
+// MARK: - Reader View
+"reader.minutesLeft" = "약 %d분 남음";
+"reader.minutesRead" = "%d분";
+"reader.progressPercent" = "%d%%";
+"reader.textSize" = "글자 크기";
+"reader.theme" = "테마";
+"reader.lineSpacing" = "줄 간격";
+"reader.unableToLoadPDF" = "PDF 로드 불가";
+
+// MARK: - Reader View Accessibility
+"a11y.reader.back" = "뒤로";
+"a11y.reader.alreadyRead" = "이 콘텐츠는 이미 읽음으로 표시됨";
+"a11y.reader.forward" = "앞으로";
+"a11y.reader.progressValue" = "%d 퍼센트 읽음";
+
+// MARK: - Quick Capture
+"quickCapture.joltIt" = "Jolt하기";
+"quickCapture.alreadySaved" = "이미 저장됨";
+
+// MARK: - Accessibility Test
+"a11y.test.dynamicType" = "다이내믹 타입 테스트";
+
+// MARK: - Share Extension Template
+"shareTemplate.schedule" = "언제 소화하시겠습니까?";
+"shareTemplate.cancel" = "취소";
+
+// MARK: - Widget Descriptions
+"widget.focus.nextUp" = "다음";
+"widget.focus.morePending" = "외 +%d 건";
+"widget.focus.minutesRead" = "%d분";
+"widget.focus.allCaughtUp" = "모두 완료!";
+"widget.focus.shareToAdd" = "야수에게 먹이를";
+"widget.focus.tapToRead" = "탭하여 소화하기";
+"widget.focus.minutesReadLong" = "독서 %d분";
+
+// MARK: - Daily Goal Widget
+"widget.dailyGoal.today" = "오늘";
+"widget.dailyGoal.title" = "일일 목표";
+"widget.goal.dailyComplete" = "목표 격파!";
+"widget.goal.streakInfo" = "%d일 연속";
+"widget.goal.remaining" = "%d 남음";
+
+// MARK: - Streak Widget
+"widget.streak.dayStreak" = "일일 연속";
+"widget.streak.today" = "오늘";
+"widget.streak.total" = "합계";
+"widget.streak.dayStreakCount" = "%d일 연속";
+"widget.streak.joltsToday" = "오늘의 Jolt %d";
+
+// MARK: - Quote Widget
+"widget.quote.jolt" = "Jolt";
+"widget.quote.dailyInspiration" = "일일 연료";
+"widget.quote.joltsToday" = "%d";
+"widget.quote.todayLabel" = "오늘";
+"widget.quote.startReading" = "시작하세요!";
+
+// MARK: - Stats Widget
+"widget.stats.weekly" = "주간";
+"widget.stats.thisWeek" = "이번 주 %d";
+
+// MARK: - Reader Content Status
+"reader.status.protected" = "보호된 콘텐츠. 보안 뷰를 엽니다.";
+"reader.status.paywall" = "구독 콘텐츠. 원본을 엽니다.";
+"reader.status.webViewRequired" = "봇 액세스 거부됨. 브라우저로 전환합니다.";

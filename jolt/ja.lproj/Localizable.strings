@@ -1,0 +1,635 @@
+/* Localizable.strings (Japanese)
+  jolt
+
+  Japanese translations - Action-Oriented, Anti-Hoarding Tone
+*/
+
+// MARK: - Common
+"common.done" = "完了";
+"common.cancel" = "キャンセル";
+"common.save" = "Joltする";
+"common.delete" = "削除";
+"common.edit" = "編集";
+"common.close" = "閉じる";
+"common.settings" = "設定";
+"common.loading" = "点火中...";
+"common.error" = "不具合";
+"common.success" = "成功";
+"common.retry" = "再試行";
+"common.share" = "共有";
+"common.copy" = "コピー";
+"common.archive" = "アーカイブ";
+"common.snooze" = "スヌーズ";
+"common.clear" = "一掃";
+"common.exporting" = "エクスポート中...";
+
+// MARK: - Focus Screen
+"focus.title" = "フォーカス";
+"focus.empty.title" = "すべて完了！";
+"focus.empty.subtitle" = "野獣にエサを。リンクを共有して開始。";
+"focus.later" = "後で";
+"focus.later.count" = "(%d)";
+"focus.allCaughtUp" = "インボックスゼロ";
+"focus.articles.count" = "%d アイテム";
+"focus.totalTime" = "残り ~%d 分";
+"focus.filter.all" = "すべて";
+"focus.filter.5min" = "5分";
+"focus.filter.15min" = "15分";
+"focus.filter.title" = "時間でフィルター";
+"focus.tapToRead" = "タップして消化";
+"focus.pullForward" = "前倒し";
+"focus.hero.more" = "他 + %d 件";
+"focus.addFromClipboard" = "クリップボードから追加";
+"focus.generateTestData" = "テストデータ生成";
+"focus.clearAll" = "すべて消去";
+
+// MARK: - Snooze Options
+"snooze.title" = "スヌーズ設定...";
+"snooze.nextRoutine" = "次のルーチン";
+"snooze.1hour" = "1時間後";
+
+// MARK: - Tab Bar
+"tab.focus" = "フォーカス";
+"tab.library" = "貯蔵庫";
+"tab.pulse" = "パルス";
+"tab.settings" = "設定";
+"snooze.2hours" = "3時間後";
+"snooze.tomorrow" = "明日の朝";
+"snooze.custom" = "カスタム";
+
+// MARK: - Reader
+"reader.joltIt" = "JOLTする";
+"reader.joltCompleted" = "Jolt完了！";
+"reader.openInBrowser" = "ウェブで開く";
+"reader.copyLink" = "リンクをコピー";
+"reader.shareLink" = "リンクを共有";
+"reader.readingTime" = "読了時間 %d分";
+"reader.scrollProgress" = "%d%% 完了";
+"reader.archived" = "アーカイブ済み";
+"reader.addNote" = "メモを追加";
+"reader.moveToCollection" = "コレクションへ移動";
+"reader.settings.title" = "リーダー設定";
+"reader.lineSpacing.compact" = "狭い";
+"reader.lineSpacing.normal" = "標準";
+"reader.lineSpacing.relaxed" = "広い";
+
+// MARK: - Library
+"library.title" = "貯蔵庫";
+"library.subtitle" = "あなたの知識ベース";
+"library.search.placeholder" = "貯蔵庫を検索...";
+"library.newCollection" = "新規コレクション";
+"library.allBookmarks" = "全アイテム";
+"library.empty.title" = "貯蔵庫は空です";
+"library.empty.subtitle" = "リンクをJoltして満たそう。";
+"library.recentlyRead" = "最近消化済み";
+"library.favorites" = "お気に入り";
+"library.archived" = "アーカイブ";
+"library.selectAll" = "すべて選択";
+"library.deselectAll" = "選択解除";
+"library.deleteSelected" = "選択項目を削除";
+
+// MARK: - Pulse (Stats)
+"pulse.title" = "パルス";
+"pulse.subtitle" = "読書のリズム";
+"pulse.dayStreak" = "連続日数";
+"pulse.currentStreak" = "現在の連続";
+"pulse.longestStreak" = "最長記録";
+"pulse.totalJolts" = "合計Jolt数";
+"pulse.thisWeek" = "今週";
+"pulse.today" = "今日";
+"pulse.achievements" = "バッジ";
+"pulse.insights" = "インサイト";
+"pulse.yourStats" = "統計データ";
+"pulse.readingTime" = "フォーカス時間";
+"pulse.averagePerDay" = "1日平均";
+"pulse.bestDay" = "ベストデー";
+"pulse.articlesRead" = "消化アイテム数";
+"pulse.personalBest" = "自己ベスト: %d日";
+"pulse.timeInvested" = "投資時間";
+"pulse.wordsPerMin" = "文字数/分";
+"pulse.collections" = "コレクション";
+"pulse.joltsCount" = "%d Jolts";
+"pulse.topSources" = "トップソース";
+"pulse.favoriteTime" = "ゴールデンタイム";
+"pulse.dailyGoal" = "デイリー目標";
+"pulse.motivation.start" = "今日から旅を始めよう！";
+"pulse.motivation.day1" = "良いスタート！心を養い続けよう 🌱";
+"pulse.motivation.days2_3" = "勢いがついてきた！ 💪";
+"pulse.motivation.days4_6" = "もうすぐ1週間！燃えているね 🔥";
+"pulse.motivation.week" = "週間戦士！すごい！ 🏆";
+"pulse.motivation.twoWeeks" = "2週間達成！レジェンドだ！ ⚡";
+"pulse.motivation.unstoppable" = "止まらない！消化マシンだ！ 🚀";
+"pulse.avgReadTime" = "平均時間";
+"pulse.contentMix" = "コンテンツ比率";
+
+// MARK: - Settings
+"settings.title" = "設定";
+"settings.readingGoals" = "目標";
+"settings.dailyGoal" = "デイリーターゲット";
+"settings.dailyGoal.description" = "ペースを設定しよう。デイリー目標ウィジェットで勢いを追跡。";
+"settings.articlesCount" = "%d アイテム";
+"settings.storageCache" = "ストレージとキャッシュ";
+"settings.imageCache" = "画像キャッシュ";
+"settings.articleCache" = "テキストコンテンツ (HTML)";
+"settings.clearCache" = "一掃";
+"settings.clearCache.description" = "コンテンツを一掃するとオフラインデータが削除されます。オンラインでは引き続き読めます。";
+"settings.dataManagement" = "データ";
+"settings.exportData" = "データのエクスポート (JSON)";
+"settings.export.description" = "データを持ち出そう。すべてをJSONでエクスポート。";
+"settings.routines" = "ルーチン";
+"settings.account" = "アカウント";
+"settings.logout" = "ログアウト";
+"settings.notifications" = "通知";
+"settings.appearance" = "外観";
+"settings.about" = "アプリについて";
+"settings.more" = "詳細設定";
+"settings.storageDataCache" = "ストレージ、データ、キャッシュ";
+"settings.version" = "バージョン %@";
+"settings.privacy" = "プライバシー";
+"settings.terms" = "利用規約";
+"settings.language" = "言語";
+"settings.language.system" = "システム";
+"settings.language.select" = "言語を選択";
+"settings.language.restart" = "適用には再起動が必要です。";
+
+// MARK: - Routines
+"routines.title" = "ルーチン";
+"routines.morning" = "朝";
+"routines.evening" = "夜";
+"routines.weekend" = "週末";
+"routines.custom" = "カスタム";
+"routines.enabled" = "オン";
+"routines.disabled" = "オフ";
+"routines.time" = "時間";
+"routines.days" = "曜日";
+"routines.addRoutine" = "ルーチンを追加";
+"routines.editRoutine" = "ルーチンを編集";
+"routines.name" = "ルーチン名";
+"routines.name.morning" = "朝の燃料";
+"routines.name.evening" = "夜の振り返り";
+"routines.name.weekend" = "週末の没頭";
+"routines.details" = "詳細";
+"routines.icon" = "アイコン";
+
+// MARK: - Widgets
+"widget.streak.title" = "連続記録";
+"widget.streak.description" = "勢いを維持しよう。";
+"widget.focus.title" = "次はこれ";
+"widget.focus.description" = "次のターゲット。";
+"widget.dailyGoal.description" = "日々の消化を追跡。";
+"widget.stats.title" = "統計";
+"widget.stats.description" = "週間パフォーマンス。";
+"widget.quote.title" = "日々の燃料";
+"widget.quote.description" = "続けるためのモチベーション。";
+"widget.dayStreak" = "日連続";
+"widget.daysStreak" = "日連続";
+"widget.nextUp" = "次はこれ";
+"widget.allCaughtUp" = "すべて完了！";
+"widget.tapToRead" = "タップして消化";
+"widget.weekly" = "週間";
+"widget.thisWeek" = "今週";
+"widget.total" = "合計";
+"widget.streak" = "連続";
+"widget.best" = "ベスト";
+"widget.dailyInspiration" = "日々の燃料";
+"widget.joltsToday" = "今日のJolt";
+"widget.goal.start" = "連続記録に点火せよ！";
+"widget.goal.halfway" = "折り返し地点！";
+"widget.goal.almost" = "あと少し！";
+"widget.goal.complete" = "ターゲット粉砕！ 🎉";
+
+// MARK: - Share Extension
+"share.saveToJolt" = "Joltに保存";
+"share.schedule" = "スケジュール";
+"share.collection" = "コレクション";
+"share.note" = "メモ";
+"share.notePlaceholder" = "考えを追加...";
+"share.morning" = "朝";
+"share.evening" = "夜";
+"share.weekend" = "週末";
+"share.inbox" = "インボックス";
+"share.saved" = "保存完了！";
+"share.saving" = "保存中...";
+"share.none" = "なし";
+"share.now" = "今すぐ";
+
+// MARK: - Collections
+"collection.create" = "コレクション作成";
+"collection.edit" = "コレクション編集";
+"collection.name" = "名前";
+"collection.namePlaceholder" = "コレクション名";
+"collection.color" = "カラー";
+"collection.icon" = "アイコン";
+"collection.delete" = "コレクション削除";
+"collection.deleteConfirm" = "このコレクションを削除しますか？アイテムは貯蔵庫に残ります。";
+
+// MARK: - Time
+"time.minute" = "分";
+"time.minutes" = "分";
+"time.hour" = "時間";
+"time.hours" = "時間";
+"time.day" = "日";
+"time.days" = "日";
+"time.week" = "週";
+"time.today" = "今日";
+"time.tomorrow" = "明日";
+"time.yesterday" = "昨日";
+"time.now" = "今すぐ";
+"time.later" = "後で";
+"time.inHours" = "%d時間後";
+"time.inMinutes" = "%d分後";
+
+// MARK: - Days of Week
+"day.monday" = "月曜日";
+"day.tuesday" = "火曜日";
+"day.wednesday" = "水曜日";
+"day.thursday" = "木曜日";
+"day.friday" = "金曜日";
+"day.saturday" = "土曜日";
+"day.sunday" = "日曜日";
+"day.mon" = "月";
+"day.tue" = "火";
+"day.wed" = "水";
+"day.thu" = "木";
+"day.fri" = "金";
+"day.sat" = "土";
+"day.sun" = "日";
+
+// MARK: - Errors
+"error.network" = "オフライン。通信を確認してください。";
+"error.loadingFailed" = "読み込み失敗。";
+"error.saveFailed" = "保存失敗。";
+"error.unknown" = "何かがおかしいです。";
+"error.invalidURL" = "無効なリンク。";
+"error.parsingFailed" = "内容を解読できません。";
+
+// MARK: - Alerts
+"alert.clearImageCache.title" = "画像キャッシュを一掃？";
+"alert.clearImageCache.message" = "空き容量を増やします。画像は必要時に再読み込みされます。";
+"alert.clearArticleCache.title" = "テキスト内容を一掃？";
+"alert.clearArticleCache.message" = "オフラインテキストを削除します。再読にはインターネットが必要です。";
+"alert.deleteConfirm.title" = "アイテムを削除？";
+"alert.deleteConfirm.message" = "永遠に消えます。本当ですか？";
+"alert.logout.title" = "ログアウト？";
+"alert.logout.message" = "これにより、すべてのローカルデータが削除されます。";
+
+// MARK: - Toast Messages
+"toast.copiedToClipboard" = "コピーしました";
+"toast.bookmarkArchived" = "アーカイブしました";
+"toast.bookmarkSnoozed" = "スヌーズしました";
+"toast.undo" = "元に戻す";
+"toast.alreadySaved" = "既に貯蔵庫にあります";
+"toast.linkDetected" = "リンクを検知";
+"toast.savedSuccessfully" = "保存しました";
+
+// MARK: - Clipboard Toast
+"clipboard.newLink" = "新しいリンクを検知";
+"clipboard.existingUnread" = "既にキューにあります";
+"clipboard.existingArchived" = "既に消化済み";
+"clipboard.addToQueue" = "キューに追加";
+"clipboard.open" = "開く";
+"clipboard.linkDetected" = "クリップボードにリンクがあります";
+"clipboard.alreadyInList" = "このリンクは既にリストにあります";
+"clipboard.alreadyRead" = "これは既に読んでいます";
+"clipboard.invalidContent" = "⚠️ 無効なコンテンツ";
+"clipboard.jolted" = "Jolted! ⚡️";
+"clipboard.error.invalidContent" = "クリップボードに有効なWebまたはPDFリンクが見つかりませんでした。";
+"clipboard.action.jolt" = "ジョルト";
+"clipboard.action.show" = "表示";
+"clipboard.action.rejolt" = "再ジョルト";
+"clipboard.action.undo" = "元に戻す";
+
+// MARK: - Push Notifications
+"notification.timeToRead.title" = "読書の時間です ⚡️";
+"notification.timeToRead.body" = "準備完了: %@";
+"notification.queueReady.title" = "キューが準備できました ⚡️";
+"notification.queueReady.body" = "今%d件のアイテムが予定されています。";
+
+// MARK: - Siri Shortcuts
+"siri.openFocus" = "フォーカスを開く";
+"siri.showNextBookmark" = "次はこれ";
+"siri.getStreak" = "連続記録を確認";
+"siri.getTodayStats" = "今日の統計";
+"siri.getPendingCount" = "未消化数";
+"siri.weeklySummary" = "週間レポート";
+"siri.motivateMe" = "モチベーションを上げて";
+"siri.snoozeNext" = "次をスヌーズ";
+
+// MARK: - Siri Responses
+"siri.response.streak" = "%d日連続。流れを止めないで！";
+"siri.response.streakNone" = "まだ連続記録なし。読み始めよう！";
+"siri.response.todayStats" = "今日%dアイテムを消化。堅実だね。";
+"siri.response.todayNone" = "今日はまだ何も読んでない。取り掛かろう！";
+"siri.response.pending" = "%dアイテム待機中。";
+"siri.response.pendingNone" = "キューは空っぽ。素晴らしい！";
+"siri.response.weekly" = "今週%dアイテムを粉砕。平均 %.1f/日。";
+"siri.response.motivation" = "一度に一つずつ。君ならできる。";
+"siri.response.snoozed" = "スヌーズしました。";
+
+// MARK: - Pluralization (used with .stringsdict)
+"plural.articles" = "%d アイテム";
+"plural.days" = "%d 日";
+"plural.minutes" = "%d 分";
+"plural.hours" = "%d 時間";
+"plural.bookmarks" = "%d アイテム";
+
+// MARK: - Accessibility
+"a11y.focus.heroCard" = "%@、%@ より、読了時間 %d 分";
+"a11y.focus.openReader" = "ダブルタップして開く";
+"a11y.focus.archive" = "左スワイプでアーカイブ";
+"a11y.focus.snooze" = "右スワイプでスヌーズ";
+"a11y.focus.pullForward" = "ダブルタップで現在のキューに移動";
+"a11y.focus.empty" = "すべて完了。リンクを共有してコンテンツを追加。";
+"a11y.reader.progress" = "読書進捗: %d パーセント";
+"a11y.reader.joltButton" = "Joltして完了にする";
+"a11y.reader.backHint" = "前のページへ";
+"a11y.reader.backDisabled" = "戻れません";
+"a11y.reader.forwardHint" = "次のページへ";
+"a11y.reader.forwardDisabled" = "進めません";
+"a11y.library.bookmark" = "%@、%@ より、%@ に読了";
+"a11y.pulse.streak" = "現在の連続: %d 日";
+"a11y.widget.streak" = "読書連続: %d 日";
+"a11y.widget.nextUp" = "次のアイテム: %@";
+
+// MARK: - Motivational Quotes
+"quote.1" = "今日読むことは、明日のアドバンテージになる。";
+"quote.2" = "読書は心の運動だ。";
+"quote.3" = "すべての記事は新しい扉だ。";
+"quote.4" = "5分で十分。とにかく始めよう！";
+"quote.5" = "その墓場を片付けろ！";
+"quote.6" = "知識はレバレッジだ。";
+"quote.7" = "小さな一歩、巨大な結果。";
+"quote.8" = "消費者は読む。リーダーは実行する。";
+"quote.9" = "今日何を学んだ？";
+"quote.10" = "好奇心はエンジンだ。";
+"quote.11" = "毎日少しずつ良くする。";
+"quote.12" = "読書は君を自由にする。";
+"quote.13" = "一つのアイデアがすべてを変える。";
+"quote.14" = "心を養え。";
+"quote.15" = "始めるのが一番難しい。";
+
+// MARK: - Empty States
+"empty.focus.title" = "予定なし";
+"empty.focus.subtitle" = "リンクを共有してキューに入れよう。";
+"empty.library.title" = "貯蔵庫は空";
+"empty.library.subtitle" = "読み始めて、自分の武器庫を築こう。";
+"empty.collections.title" = "コレクションなし";
+"empty.collections.subtitle" = "知識をここでグループ化。";
+"empty.search.title" = "結果なし";
+"empty.search.subtitle" = "別の言葉を試して。";
+
+// MARK: - Achievements
+"achievement.first_jolt.title" = "初Jolt";
+"achievement.first_jolt.description" = "最初のJoltを完了";
+"achievement.five_jolts.title" = "始まり";
+"achievement.five_jolts.description" = "5 Jolts完了";
+"achievement.twentyfive_jolts.title" = "四半世紀";
+"achievement.twentyfive_jolts.description" = "25 Jolts完了";
+"achievement.fifty_jolts.title" = "半世紀";
+"achievement.fifty_jolts.description" = "50 Jolts完了";
+"achievement.centurion.title" = "百人隊長";
+"achievement.centurion.description" = "100 Jolts完了";
+"achievement.week_streak.title" = "週間戦士";
+"achievement.week_streak.description" = "7日連続読書";
+"achievement.two_week_streak.title" = "二週間ファイター";
+"achievement.two_week_streak.description" = "14日連続読書";
+"achievement.month_streak.title" = "月間マスター";
+"achievement.month_streak.description" = "30日連続読書";
+"achievement.speed_reader.title" = "スピードリーダー";
+"achievement.speed_reader.description" = "1日で5 Jolts以上完了";
+"achievement.night_owl.title" = "夜更かし";
+"achievement.night_owl.description" = "22時以降に読む";
+"achievement.early_bird.title" = "早起き";
+"achievement.early_bird.description" = "7時前に読む";
+"achievement.curator.title" = "キュレーター";
+"achievement.curator.description" = "5つのコレクションを作成";
+"achievement.social_butterfly.title" = "社交家";
+"achievement.social_butterfly.description" = "SNS投稿を10件Jolt";
+"achievement.bookworm.title" = "本の虫";
+"achievement.bookworm.description" = "30以上の記事を消化";
+
+// MARK: - Library Filters
+"library.filter.all" = "すべて";
+"library.filter.unread" = "未読";
+"library.filter.read" = "既読";
+"library.filter.starred" = "スター付き";
+"library.sort.title" = "並び替え";
+"library.sort.newest" = "新しい順";
+"library.sort.oldest" = "古い順";
+"library.sort.az" = "A-Z";
+"library.sort.readingTime" = "フォーカス時間";
+"library.sort.progress" = "進捗";
+"library.deleteSelected.title" = "選択項目を削除？";
+"library.deleteSelected.confirm" = "削除 (%d)";
+"library.action.move" = "移動";
+"library.action.star" = "スター";
+"library.action.unstar" = "スター解除";
+"library.empty.starred" = "スター付きなし";
+"library.empty.starredHint" = "アイテムにスターを付けて素早くアクセス";
+"library.empty.type" = "%@ なし";
+
+// MARK: - Collection Actions
+"collection.delete.title" = "コレクション削除？";
+"collection.delete.keepItems" = "アイテム保持（インボックスへ）";
+"collection.delete.deleteAll" = "すべて削除";
+"collection.deleteConfirm.title" = "コレクション削除？";
+"collection.deleteConfirm.keepItems" = "アイテム保持（インボックスへ）";
+"collection.deleteConfirm.deleteAll" = "すべて削除";
+
+// MARK: - Focus Debug (Development Only)
+"focus.debug.title" = "デバッグ";
+"focus.debug.addTestData" = "テストデータ追加";
+"focus.debug.clearAll" = "すべてクリア";
+
+// MARK: - Watch App
+"watch.dayStreak" = "連続日数";
+"watch.today" = "今日";
+"watch.pending" = "キュー";
+"watch.nextUp" = "次はこれ";
+"watch.allCaughtUp" = "インボックスゼロ！";
+"watch.openOnIPhone" = "iPhoneで開く";
+
+// MARK: - Share Extension
+"shareExtension.joltIt" = "Joltする";
+"shareExtension.alreadySaved" = "既に貯蔵庫にあり";
+"shareExtension.saved" = "保存完了";
+
+// MARK: - Live Activity
+"liveActivity.reading" = "消化中";
+"liveActivity.minutesRemaining" = "残り ~%d分";
+"liveActivity.percentComplete" = "%d%% 完了";
+
+// MARK: - Onboarding Screens
+"onboarding.intro.question" = "ブックマークの墓場は\n増え続けていますか？";
+"onboarding.intro.answer" = "残念ながら、イエス";
+"onboarding.problem.tabs" = "開いたタブ";
+"onboarding.problem.saved" = "「後で読む」アイテム";
+"onboarding.problem.read" = "実際に読んだ";
+"onboarding.solution.save" = "Joltする";
+"onboarding.solution.saveHint" = "→ いつ読みますか？";
+"onboarding.solution.remind" = "適切なタイミングで通知";
+"onboarding.solution.remindHint" = "→ 消化";
+"onboarding.solution.finish" = "完了、消去、次へ";
+"onboarding.solution.finishHint" = "→ JOLT！";
+"onboarding.philosophy.title" = "保管庫ではない。\n消費エンジンだ。";
+"onboarding.philosophy.subtitle" = "読み、Joltし、次へ進む。";
+"onboarding.unread.title" = "未読のブックマークは\n死んだ重りだ。";
+"onboarding.unread.action" = "これを解決";
+"onboarding.capture.title" = "どこからでも捕獲";
+"onboarding.capture.subtitle" = "X、YouTube、Reddit...\nマシンにエサを。";
+"onboarding.capture.example" = "medium.com/article...";
+"onboarding.capture.save" = "Joltする";
+"onboarding.capture.understood" = "了解";
+"onboarding.capture.morning" = "朝";
+"onboarding.capture.evening" = "夜";
+"onboarding.capture.weekend" = "週末";
+"onboarding.routine.title" = "いつ通知しますか？";
+"onboarding.routine.subtitle" = "1日2回。あなたが空いている時だけ。\nスパムなし、約束します。";
+"onboarding.routine.example" = "週末は自動的に11:00";
+"onboarding.routine.continue" = "ルーチン設定";
+"onboarding.routine.morning" = "朝のルーチン";
+"onboarding.routine.morningDesc" = "コーヒー休憩、通勤";
+"onboarding.routine.evening" = "夜のルーチン";
+"onboarding.routine.eveningDesc" = "就寝前、リラックス";
+"onboarding.notification.title" = "通知の約束:";
+"onboarding.notification.subtitle" = "スパムゼロ。シグナルのみ。";
+"onboarding.notification.allow" = "通知を許可";
+"onboarding.notification.later" = "後で決める";
+"onboarding.notification.promise1" = "選んだ時間だけ";
+"onboarding.notification.promise2" = "キューが空なら静かにします";
+"onboarding.notification.promise3" = "1日最大2回";
+"onboarding.widgets.title" = "ホーム画面から\n追跡";
+"onboarding.widgets.subtitle" = "ウィジェットとSiriで高速アクセス";
+"onboarding.widgets.streak" = "連続記録";
+"onboarding.widgets.focus" = "次を見る";
+"onboarding.widgets.goal" = "デイリー目標";
+"onboarding.widgets.siriTitle" = "声を使う";
+"onboarding.widgets.siriExample1" = "「Hey Siri、Joltの連続記録は？」";
+"onboarding.widgets.siriExample2" = "「Hey Siri、Joltの次は？」";
+"onboarding.widgets.continue" = "続ける";
+"onboarding.complete.title" = "準備完了！ ⚡";
+"onboarding.complete.subtitle" = "どのアプリからでも\nJoltにコンテンツを追加できます。";
+"onboarding.complete.lastStep" = "最後の一歩";
+"onboarding.complete.lastStepDesc" = "最初のリンクを追加。意味あるものに。";
+"onboarding.complete.tip1" = "任意のアプリでコンテンツを見つける";
+"onboarding.complete.tip2" = "共有ボタンをタップ";
+"onboarding.complete.tip3" = "Joltを選択、時間を設定、保存";
+"onboarding.complete.ready" = "準備できた";
+"onboarding.complete.letsGo" = "行こう";
+
+// MARK: - Collection Detail
+"collectionDetail.empty" = "まだコンテンツなし";
+"collectionDetail.emptyDesc" = "ここにコンテンツを移動して整理。";
+"collectionDetail.itemsCount" = "%d アイテム";
+
+// MARK: - Edit Collection
+"editCollection.name" = "コレクション名";
+"editCollection.color" = "カラー";
+"editCollection.icon" = "アイコン";
+"editCollection.deleteCollection" = "コレクション削除";
+"editCollection.statsReady" = "フォーカスで粉砕準備完了の %d アイテム。";
+"editCollection.statsTotal" = "このコレクションは合計 %d アイテム。";
+
+// MARK: - Routines Settings
+"routinesSettings.empty" = "ルーチンなし。追加して開始。";
+"routinesSettings.title" = "あなたのルーチン";
+"routinesSettings.subtitle" = "これらの時間に基づいてコンテンツを計画します。";
+"routinesSettings.off" = "オフ";
+
+// MARK: - Collection Picker
+"collectionPicker.inbox" = "インボックス";
+
+// MARK: - Create Collection
+"createCollection.name" = "コレクション名";
+"createCollection.color" = "カラー";
+"createCollection.icon" = "アイコン";
+"createCollection.create" = "コレクション作成";
+
+// MARK: - Pulse View
+"pulse.repairStreak" = "昨日読みました！ (連続記録を修復)";
+"pulse.unlockedAchievements" = "%d/%d";
+"pulse.madeWith" = "Made with ⚡️";
+
+// MARK: - Pulse View Accessibility
+"a11y.pulse.repairStreak" = "連続記録を修復";
+"a11y.pulse.repairStreakHint" = "昨日読んだことを確認して連続記録を復元。以前の記録: %d日。";
+
+// MARK: - Focus View Accessibility
+"a11y.focus.debugMenu" = "デバッグメニュー";
+"a11y.focus.addFromClipboard" = "クリップボードからリンク追加";
+"a11y.focus.addFromClipboardHint" = "クリップボードのURLを新規コンテンツとして追加";
+
+// MARK: - Library View
+"library.deleteConfirm" = "%d アイテムを完全に削除しますか？";
+"library.collectionItems" = "'%@' には %d アイテムあります。";
+"library.selectedCount" = "%d 選択中";
+"library.quickAccess" = "クイックアクセス";
+"library.collections" = "コレクション";
+"library.new" = "新規";
+"library.items" = "%d アイテム";
+"library.read" = "読了";
+
+// MARK: - Reader View
+"reader.minutesLeft" = "残り ~%d分";
+"reader.minutesRead" = "%d分";
+"reader.progressPercent" = "%d%%";
+"reader.textSize" = "文字サイズ";
+"reader.theme" = "テーマ";
+"reader.lineSpacing" = "行間";
+"reader.unableToLoadPDF" = "PDFを読み込めません";
+
+// MARK: - Reader View Accessibility
+"a11y.reader.back" = "戻る";
+"a11y.reader.alreadyRead" = "このコンテンツは既に読了済みです";
+"a11y.reader.forward" = "進む";
+"a11y.reader.progressValue" = "%d パーセント読了";
+
+// MARK: - Quick Capture
+"quickCapture.joltIt" = "Joltする";
+"quickCapture.alreadySaved" = "保存済み";
+
+// MARK: - Accessibility Test
+"a11y.test.dynamicType" = "ダイナミックタイプテスト";
+
+// MARK: - Share Extension Template
+"shareTemplate.schedule" = "いつ消化しますか？";
+"shareTemplate.cancel" = "キャンセル";
+
+// MARK: - Widget Descriptions
+"widget.focus.nextUp" = "次はこれ";
+"widget.focus.morePending" = "他 +%d 件";
+"widget.focus.minutesRead" = "%d分";
+"widget.focus.allCaughtUp" = "すべて完了！";
+"widget.focus.shareToAdd" = "野獣にエサを";
+"widget.focus.tapToRead" = "タップして消化";
+"widget.focus.minutesReadLong" = "読書 %d分";
+
+// MARK: - Daily Goal Widget
+"widget.dailyGoal.today" = "今日";
+"widget.dailyGoal.title" = "デイリー目標";
+"widget.goal.dailyComplete" = "目標粉砕！";
+"widget.goal.streakInfo" = "%d日連続";
+"widget.goal.remaining" = "残り %d";
+
+// MARK: - Streak Widget
+"widget.streak.dayStreak" = "連続日数";
+"widget.streak.today" = "今日";
+"widget.streak.total" = "合計";
+"widget.streak.dayStreakCount" = "%d日連続";
+"widget.streak.joltsToday" = "今日のJolt %d";
+
+// MARK: - Quote Widget
+"widget.quote.jolt" = "Jolt";
+"widget.quote.dailyInspiration" = "日々の燃料";
+"widget.quote.joltsToday" = "%d";
+"widget.quote.todayLabel" = "今日";
+"widget.quote.startReading" = "始めよう！";
+
+// MARK: - Stats Widget
+"widget.stats.weekly" = "週間";
+"widget.stats.thisWeek" = "今週 %d";
+
+// MARK: - Reader Content Status
+"reader.status.protected" = "保護されたコンテンツ。安全なビューを開きます。";
+"reader.status.paywall" = "サブスクリプションコンテンツ。ソースを開きます。";
+"reader.status.webViewRequired" = "ボットアクセス拒否。ブラウザに切り替えます。";

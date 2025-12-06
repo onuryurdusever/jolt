@@ -1,0 +1,635 @@
+/* Localizable.strings (Spanish)
+  jolt
+
+  Spanish translations - Action-Oriented, Anti-Hoarding Tone
+*/
+
+// MARK: - Common
+"common.done" = "Listo";
+"common.cancel" = "Cancelar";
+"common.save" = "Joltear";
+"common.delete" = "Eliminar";
+"common.edit" = "Editar";
+"common.close" = "Cerrar";
+"common.settings" = "Ajustes";
+"common.loading" = "Encendiendo...";
+"common.error" = "Fallo";
+"common.success" = "Logrado";
+"common.retry" = "Reintentar";
+"common.share" = "Compartir";
+"common.copy" = "Copiar";
+"common.archive" = "Archivar";
+"common.snooze" = "Posponer";
+"common.clear" = "Limpiar";
+"common.exporting" = "Exportando...";
+
+// MARK: - Focus Screen
+"focus.title" = "Foco";
+"focus.empty.title" = "¡Todo limpio!";
+"focus.empty.subtitle" = "Alimenta a la bestia. Comparte un enlace para empezar.";
+"focus.later" = "Luego";
+"focus.later.count" = "(%d)";
+"focus.allCaughtUp" = "Bandeja Cero";
+"focus.articles.count" = "%d ítems";
+"focus.totalTime" = "~%d min restantes";
+"focus.filter.all" = "Todo";
+"focus.filter.5min" = "5 min";
+"focus.filter.15min" = "15 min";
+"focus.filter.title" = "Filtrar por Duración";
+"focus.tapToRead" = "Toca para Consumir";
+"focus.pullForward" = "Adelantar";
+"focus.hero.more" = "+ %d más";
+"focus.addFromClipboard" = "Añadir del Portapapeles";
+"focus.generateTestData" = "Generar Datos de Prueba";
+"focus.clearAll" = "Borrar Todo";
+
+// MARK: - Snooze Options
+"snooze.title" = "Posponer hasta...";
+"snooze.nextRoutine" = "Siguiente Rutina";
+"snooze.1hour" = "En 1 Hora";
+
+// MARK: - Tab Bar
+"tab.focus" = "Foco";
+"tab.library" = "Depósito";
+"tab.pulse" = "Pulso";
+"tab.settings" = "Ajustes";
+"snooze.2hours" = "En 3 Horas";
+"snooze.tomorrow" = "Mañana por la mañana";
+"snooze.custom" = "Hora Personalizada";
+
+// MARK: - Reader
+"reader.joltIt" = "JOLTÉALO";
+"reader.joltCompleted" = "¡Jolteado!";
+"reader.openInBrowser" = "Vista Web";
+"reader.copyLink" = "Copiar Enlace";
+"reader.shareLink" = "Compartir Enlace";
+"reader.readingTime" = "%d min lectura";
+"reader.scrollProgress" = "%d%% hecho";
+"reader.archived" = "Archivado";
+"reader.addNote" = "Añadir Nota";
+"reader.moveToCollection" = "Mover a Colección";
+"reader.settings.title" = "Ajustes de Lectura";
+"reader.lineSpacing.compact" = "Compacto";
+"reader.lineSpacing.normal" = "Normal";
+"reader.lineSpacing.relaxed" = "Relajado";
+
+// MARK: - Library
+"library.title" = "DEPÓSITO";
+"library.subtitle" = "Tu Arsenal";
+"library.search.placeholder" = "Buscar en depósito...";
+"library.newCollection" = "Nueva Colección";
+"library.allBookmarks" = "Todos los Ítems";
+"library.empty.title" = "Depósito Vacío";
+"library.empty.subtitle" = "Joltea algunos enlaces para llenarlo.";
+"library.recentlyRead" = "Recién Consumido";
+"library.favorites" = "Favoritos";
+"library.archived" = "Archivo";
+"library.selectAll" = "Seleccionar Todo";
+"library.deselectAll" = "Deseleccionar Todo";
+"library.deleteSelected" = "Eliminar Selección";
+
+// MARK: - Pulse (Stats)
+"pulse.title" = "PULSO";
+"pulse.subtitle" = "Tu Ritmo";
+"pulse.dayStreak" = "RACHA DIARIA";
+"pulse.currentStreak" = "Racha Actual";
+"pulse.longestStreak" = "Mejor Racha";
+"pulse.totalJolts" = "Total Jolts";
+"pulse.thisWeek" = "Esta Semana";
+"pulse.today" = "Hoy";
+"pulse.achievements" = "Insignias";
+"pulse.insights" = "Insights";
+"pulse.yourStats" = "Tus Estadísticas";
+"pulse.readingTime" = "Tiempo Foco";
+"pulse.averagePerDay" = "Promedio Diario";
+"pulse.bestDay" = "Mejor Día";
+"pulse.articlesRead" = "Ítems Liquidados";
+"pulse.personalBest" = "Récord: %d días";
+"pulse.timeInvested" = "Tiempo Invertido";
+"pulse.wordsPerMin" = "Palabras/min";
+"pulse.collections" = "Colecciones";
+"pulse.joltsCount" = "%d jolts";
+"pulse.topSources" = "Top Fuentes";
+"pulse.favoriteTime" = "Hora Prime";
+"pulse.dailyGoal" = "Objetivo Diario";
+"pulse.motivation.start" = "¡Enciende tu viaje hoy!";
+"pulse.motivation.day1" = "¡Buen comienzo! Sigue alimentando la mente 🌱";
+"pulse.motivation.days2_3" = "¡Ganando impulso! 💪";
+"pulse.motivation.days4_6" = "¡Casi una semana! Estás en llamas 🔥";
+"pulse.motivation.week" = "¡Guerrero semanal! ¡Increíble! 🏆";
+"pulse.motivation.twoWeeks" = "¡Dos semanas fuerte! ¡Leyenda! ⚡";
+"pulse.motivation.unstoppable" = "¡Imparable! ¡Eres una máquina! 🚀";
+"pulse.avgReadTime" = "Tiempo Promedio";
+"pulse.contentMix" = "Mix de Contenido";
+
+// MARK: - Settings
+"settings.title" = "Ajustes";
+"settings.readingGoals" = "Objetivos";
+"settings.dailyGoal" = "Objetivo Diario";
+"settings.dailyGoal.description" = "Marca tu ritmo. Sigue tu impulso con el widget de Objetivo Diario.";
+"settings.articlesCount" = "%d ítems";
+"settings.storageCache" = "Almacenamiento y Caché";
+"settings.imageCache" = "Caché de Imágenes";
+"settings.articleCache" = "Contenido de Texto (HTML)";
+"settings.clearCache" = "Limpiar";
+"settings.clearCache.description" = "Limpiar contenido elimina datos offline. Aún puedes leer online.";
+"settings.dataManagement" = "Datos";
+"settings.exportData" = "Exportar Datos (JSON)";
+"settings.export.description" = "Lleva tus datos contigo. Exporta todo como JSON.";
+"settings.routines" = "Rutinas";
+"settings.account" = "Cuenta";
+"settings.logout" = "Cerrar Sesión";
+"settings.notifications" = "Notificaciones";
+"settings.appearance" = "Apariencia";
+"settings.about" = "Acerca de";
+"settings.more" = "Más Ajustes";
+"settings.storageDataCache" = "Almacenamiento, Datos y Caché";
+"settings.version" = "Versión %@";
+"settings.privacy" = "Privacidad";
+"settings.terms" = "Términos de Servicio";
+"settings.language" = "Idioma";
+"settings.language.system" = "Sistema";
+"settings.language.select" = "Seleccionar Idioma";
+"settings.language.restart" = "Reinicio necesario para aplicar cambios.";
+
+// MARK: - Routines
+"routines.title" = "Rutinas";
+"routines.morning" = "Mañana";
+"routines.evening" = "Noche";
+"routines.weekend" = "Finde";
+"routines.custom" = "Personalizado";
+"routines.enabled" = "Activado";
+"routines.disabled" = "Desactivado";
+"routines.time" = "Hora";
+"routines.days" = "Días";
+"routines.addRoutine" = "Añadir Rutina";
+"routines.editRoutine" = "Editar Rutina";
+"routines.name" = "Nombre de Rutina";
+"routines.name.morning" = "Combustible Matutino";
+"routines.name.evening" = "Repaso Nocturno";
+"routines.name.weekend" = "Inmersión de Finde";
+"routines.details" = "Detalles";
+"routines.icon" = "Icono";
+
+// MARK: - Widgets
+"widget.streak.title" = "Racha";
+"widget.streak.description" = "Mantén el impulso.";
+"widget.focus.title" = "Siguiente";
+"widget.focus.description" = "Tu próximo objetivo.";
+"widget.dailyGoal.description" = "Sigue tu consumo diario.";
+"widget.stats.title" = "Estadísticas";
+"widget.stats.description" = "Tu rendimiento semanal.";
+"widget.quote.title" = "Combustible Diario";
+"widget.quote.description" = "Motivación para seguir.";
+"widget.dayStreak" = "días racha";
+"widget.daysStreak" = "días racha";
+"widget.nextUp" = "SIGUIENTE";
+"widget.allCaughtUp" = "¡Todo limpio!";
+"widget.tapToRead" = "Toca para consumir";
+"widget.weekly" = "SEMANAL";
+"widget.thisWeek" = "esta semana";
+"widget.total" = "Total";
+"widget.streak" = "Racha";
+"widget.best" = "Mejor";
+"widget.dailyInspiration" = "Combustible Diario";
+"widget.joltsToday" = "jolts hoy";
+"widget.goal.start" = "¡Enciende la racha!";
+"widget.goal.halfway" = "¡A mitad de camino!";
+"widget.goal.almost" = "¡Casi listo!";
+"widget.goal.complete" = "¡Objetivo liquidado! 🎉";
+
+// MARK: - Share Extension
+"share.saveToJolt" = "Guardar en Jolt";
+"share.schedule" = "Programar";
+"share.collection" = "Colección";
+"share.note" = "Nota";
+"share.notePlaceholder" = "Añade un pensamiento...";
+"share.morning" = "Mañana";
+"share.evening" = "Noche";
+"share.weekend" = "Finde";
+"share.inbox" = "Bandeja de Entrada";
+"share.saved" = "¡Guardado!";
+"share.saving" = "Guardando...";
+"share.none" = "Ninguna";
+"share.now" = "Ahora";
+
+// MARK: - Collections
+"collection.create" = "Crear Colección";
+"collection.edit" = "Editar Colección";
+"collection.name" = "Nombre";
+"collection.namePlaceholder" = "Nombre de colección";
+"collection.color" = "Color";
+"collection.icon" = "Icono";
+"collection.delete" = "Eliminar Colección";
+"collection.deleteConfirm" = "¿Eliminar esta colección? Los ítems permanecerán en el depósito.";
+
+// MARK: - Time
+"time.minute" = "min";
+"time.minutes" = "min";
+"time.hour" = "h";
+"time.hours" = "h";
+"time.day" = "día";
+"time.days" = "días";
+"time.week" = "sem";
+"time.today" = "Hoy";
+"time.tomorrow" = "Mañana";
+"time.yesterday" = "Ayer";
+"time.now" = "Ahora";
+"time.later" = "Luego";
+"time.inHours" = "en %d h";
+"time.inMinutes" = "en %d min";
+
+// MARK: - Days of Week
+"day.monday" = "Lunes";
+"day.tuesday" = "Martes";
+"day.wednesday" = "Miércoles";
+"day.thursday" = "Jueves";
+"day.friday" = "Viernes";
+"day.saturday" = "Sábado";
+"day.sunday" = "Domingo";
+"day.mon" = "Lun";
+"day.tue" = "Mar";
+"day.wed" = "Mié";
+"day.thu" = "Jue";
+"day.fri" = "Vie";
+"day.sat" = "Sáb";
+"day.sun" = "Dom";
+
+// MARK: - Errors
+"error.network" = "Offline. Revisa tu señal.";
+"error.loadingFailed" = "Fallo al cargar.";
+"error.saveFailed" = "Fallo al guardar.";
+"error.unknown" = "Algo salió mal.";
+"error.invalidURL" = "Enlace roto.";
+"error.parsingFailed" = "Contenido ilegible.";
+
+// MARK: - Alerts
+"alert.clearImageCache.title" = "¿Limpiar Caché de Imágenes?";
+"alert.clearImageCache.message" = "Libera espacio. Las imágenes se recargarán si es necesario.";
+"alert.clearArticleCache.title" = "¿Limpiar Contenido de Texto?";
+"alert.clearArticleCache.message" = "Elimina textos offline. Necesitarás internet para leerlos de nuevo.";
+"alert.deleteConfirm.title" = "¿Eliminar Ítem?";
+"alert.deleteConfirm.message" = "Se irá para siempre. ¿Seguro?";
+"alert.logout.title" = "¿Cerrar Sesión?";
+"alert.logout.message" = "Esto elimina todos los datos locales.";
+
+// MARK: - Toast Messages
+"toast.copiedToClipboard" = "Copiado";
+"toast.bookmarkArchived" = "Archivado";
+"toast.bookmarkSnoozed" = "Pospuesto";
+"toast.undo" = "Deshacer";
+"toast.alreadySaved" = "Ya en depósito";
+"toast.linkDetected" = "Enlace detectado";
+"toast.savedSuccessfully" = "Guardado";
+
+// MARK: - Clipboard Toast
+"clipboard.newLink" = "Nuevo enlace detectado";
+"clipboard.existingUnread" = "Ya en cola";
+"clipboard.existingArchived" = "Ya liquidado";
+"clipboard.addToQueue" = "Añadir a Cola";
+"clipboard.open" = "Abrir";
+"clipboard.linkDetected" = "Enlace en el portapapeles";
+"clipboard.alreadyInList" = "Este enlace ya está en tu lista";
+"clipboard.alreadyRead" = "Ya leíste esto antes";
+"clipboard.invalidContent" = "⚠️ Contenido inválido";
+"clipboard.jolted" = "¡Jolted! ⚡️";
+"clipboard.error.invalidContent" = "No se encontró un enlace Web o PDF válido en el portapapeles.";
+"clipboard.action.jolt" = "Joltear";
+"clipboard.action.show" = "Mostrar";
+"clipboard.action.rejolt" = "Re-Joltear";
+"clipboard.action.undo" = "Deshacer";
+
+// MARK: - Push Notifications
+"notification.timeToRead.title" = "Hora de leer ⚡️";
+"notification.timeToRead.body" = "Listo para ti: %@";
+"notification.queueReady.title" = "Tu cola está lista ⚡️";
+"notification.queueReady.body" = "Tienes %d elementos programados para ahora.";
+
+// MARK: - Siri Shortcuts
+"siri.openFocus" = "Abrir Foco";
+"siri.showNextBookmark" = "Siguiente";
+"siri.getStreak" = "Ver Racha";
+"siri.getTodayStats" = "Estadísticas de Hoy";
+"siri.getPendingCount" = "Conteo Pendiente";
+"siri.weeklySummary" = "Reporte Semanal";
+"siri.motivateMe" = "Motívame";
+"siri.snoozeNext" = "Posponer Siguiente";
+
+// MARK: - Siri Responses
+"siri.response.streak" = "Racha de %d días. ¡Mantén el flujo!";
+"siri.response.streakNone" = "Aún sin racha. ¡Empieza a leer!";
+"siri.response.todayStats" = "Liquidaste %d ítems hoy. Sólido.";
+"siri.response.todayNone" = "Nada leído hoy. ¡A darle!";
+"siri.response.pending" = "%d ítems esperando.";
+"siri.response.pendingNone" = "Cola vacía. ¡Buen trabajo!";
+"siri.response.weekly" = "Liquidaste %d ítems esta semana. Prom. %.1f/día.";
+"siri.response.motivation" = "Un ítem a la vez. Tú puedes.";
+"siri.response.snoozed" = "Pospuesto.";
+
+// MARK: - Pluralization (used with .stringsdict)
+"plural.articles" = "%d ítems";
+"plural.days" = "%d días";
+"plural.minutes" = "%d minutos";
+"plural.hours" = "%d horas";
+"plural.bookmarks" = "%d ítems";
+
+// MARK: - Accessibility
+"a11y.focus.heroCard" = "%@, de %@, %d minutos de lectura";
+"a11y.focus.openReader" = "Doble toque para abrir";
+"a11y.focus.archive" = "Desliza a izquierda para archivar";
+"a11y.focus.snooze" = "Desliza a derecha para posponer";
+"a11y.focus.pullForward" = "Doble toque para traer a cola actual";
+"a11y.focus.empty" = "Todo hecho. Comparte un enlace para añadir contenido.";
+"a11y.reader.progress" = "Progreso de lectura: %d por ciento";
+"a11y.reader.joltButton" = "Joltear, marcar como hecho";
+"a11y.reader.backHint" = "Ir a página anterior";
+"a11y.reader.backDisabled" = "No se puede retroceder";
+"a11y.reader.forwardHint" = "Ir a página siguiente";
+"a11y.reader.forwardDisabled" = "No se puede avanzar";
+"a11y.library.bookmark" = "%@, de %@, leído el %@";
+"a11y.pulse.streak" = "Racha actual: %d días";
+"a11y.widget.streak" = "Racha de lectura: %d días";
+"a11y.widget.nextUp" = "Siguiente ítem: %@";
+
+// MARK: - Motivational Quotes
+"quote.1" = "Lo que lees hoy es tu ventaja mañana.";
+"quote.2" = "Leer es ejercicio para la mente.";
+"quote.3" = "Cada artículo es una puerta nueva.";
+"quote.4" = "5 minutos bastan. ¡Solo empieza!";
+"quote.5" = "¡Limpia ese cementerio!";
+"quote.6" = "El conocimiento es palanca.";
+"quote.7" = "Pequeños pasos, resultados masivos.";
+"quote.8" = "Consumidores leen. Líderes ejecutan.";
+"quote.9" = "¿Qué aprendiste hoy?";
+"quote.10" = "La curiosidad es el motor.";
+"quote.11" = "Mejor cada día.";
+"quote.12" = "Leer te hace libre.";
+"quote.13" = "Una idea puede cambiarlo todo.";
+"quote.14" = "Alimenta tu mente.";
+"quote.15" = "Empezar es la parte difícil.";
+
+// MARK: - Empty States
+"empty.focus.title" = "Nada Programado";
+"empty.focus.subtitle" = "Comparte enlaces para ponerlos en cola.";
+"empty.library.title" = "Depósito Vacío";
+"empty.library.subtitle" = "Empieza a leer para construir tu arsenal.";
+"empty.collections.title" = "Sin Colecciones";
+"empty.collections.subtitle" = "Agrupa tu conocimiento aquí.";
+"empty.search.title" = "Sin resultados";
+"empty.search.subtitle" = "Prueba otra palabra.";
+
+// MARK: - Achievements
+"achievement.first_jolt.title" = "Primer Jolt";
+"achievement.first_jolt.description" = "Completa tu primer jolt";
+"achievement.five_jolts.title" = "Comienzo";
+"achievement.five_jolts.description" = "Completa 5 jolts";
+"achievement.twentyfive_jolts.title" = "Cuarto de Siglo";
+"achievement.twentyfive_jolts.description" = "Completa 25 jolts";
+"achievement.fifty_jolts.title" = "Medio Siglo";
+"achievement.fifty_jolts.description" = "Completa 50 jolts";
+"achievement.centurion.title" = "Centurión";
+"achievement.centurion.description" = "Completa 100 jolts";
+"achievement.week_streak.title" = "Guerrero Semanal";
+"achievement.week_streak.description" = "Racha de 7 días";
+"achievement.two_week_streak.title" = "Luchador Quincenal";
+"achievement.two_week_streak.description" = "Racha de 14 días";
+"achievement.month_streak.title" = "Maestro Mensual";
+"achievement.month_streak.description" = "Racha de 30 días";
+"achievement.speed_reader.title" = "Lector Veloz";
+"achievement.speed_reader.description" = "Completa 5+ jolts en un día";
+"achievement.night_owl.title" = "Búho Nocturno";
+"achievement.night_owl.description" = "Lee después de las 10 PM";
+"achievement.early_bird.title" = "Madrugador";
+"achievement.early_bird.description" = "Lee antes de las 7 AM";
+"achievement.curator.title" = "Curador";
+"achievement.curator.description" = "Crea 5 colecciones";
+"achievement.social_butterfly.title" = "Mariposa Social";
+"achievement.social_butterfly.description" = "Joltea 10 posts de redes sociales";
+"achievement.bookworm.title" = "Ratón de Biblioteca";
+"achievement.bookworm.description" = "Consume 30+ artículos";
+
+// MARK: - Library Filters
+"library.filter.all" = "Todo";
+"library.filter.unread" = "No leídos";
+"library.filter.read" = "Leídos";
+"library.filter.starred" = "Destacados";
+"library.sort.title" = "Ordenar por";
+"library.sort.newest" = "Más Reciente";
+"library.sort.oldest" = "Más Antiguo";
+"library.sort.az" = "A-Z";
+"library.sort.readingTime" = "Tiempo Foco";
+"library.sort.progress" = "Progreso";
+"library.deleteSelected.title" = "¿Eliminar Selección?";
+"library.deleteSelected.confirm" = "Eliminar (%d)";
+"library.action.move" = "Mover";
+"library.action.star" = "Destacar";
+"library.action.unstar" = "Quitar Destacado";
+"library.empty.starred" = "Sin Ítems Destacados";
+"library.empty.starredHint" = "Destaca ítems para hallarlos rápido";
+"library.empty.type" = "No hay %@";
+
+// MARK: - Collection Actions
+"collection.delete.title" = "¿Eliminar Colección?";
+"collection.delete.keepItems" = "Mantener Ítems (Mover a Bandeja)";
+"collection.delete.deleteAll" = "Eliminar Todo";
+"collection.deleteConfirm.title" = "¿Eliminar Colección?";
+"collection.deleteConfirm.keepItems" = "Mantener Ítems (Mover a Bandeja)";
+"collection.deleteConfirm.deleteAll" = "Eliminar Todo";
+
+// MARK: - Focus Debug (Development Only)
+"focus.debug.title" = "Debug";
+"focus.debug.addTestData" = "Añadir Datos Prueba";
+"focus.debug.clearAll" = "Limpiar Todo";
+
+// MARK: - Watch App
+"watch.dayStreak" = "Racha Diaria";
+"watch.today" = "Hoy";
+"watch.pending" = "Cola";
+"watch.nextUp" = "SIGUIENTE";
+"watch.allCaughtUp" = "¡Bandeja Cero!";
+"watch.openOnIPhone" = "Abrir en iPhone";
+
+// MARK: - Share Extension
+"shareExtension.joltIt" = "Joltéalo";
+"shareExtension.alreadySaved" = "Ya en depósito";
+"shareExtension.saved" = "Guardado";
+
+// MARK: - Live Activity
+"liveActivity.reading" = "Consumiendo";
+"liveActivity.minutesRemaining" = "~%d m";
+"liveActivity.percentComplete" = "%d%% hecho";
+
+// MARK: - Onboarding Screens
+"onboarding.intro.question" = "¿Tu cementerio de marcadores\nsigue creciendo?";
+"onboarding.intro.answer" = "Por desgracia, sí";
+"onboarding.problem.tabs" = "pestañas abiertas";
+"onboarding.problem.saved" = "ítems \"para luego\"";
+"onboarding.problem.read" = "leído de verdad";
+"onboarding.solution.save" = "Joltéalo";
+"onboarding.solution.saveHint" = "→ ¿Cuándo lo leerás?";
+"onboarding.solution.remind" = "Empujar a tiempo";
+"onboarding.solution.remindHint" = "→ Consumir";
+"onboarding.solution.finish" = "Acabar, limpiar, seguir";
+"onboarding.solution.finishHint" = "→ ¡JOLT!";
+"onboarding.philosophy.title" = "No un almacén.\nUn motor de consumo.";
+"onboarding.philosophy.subtitle" = "Lee, Joltea, sigue.";
+"onboarding.unread.title" = "Los marcadores sin leer\nson peso muerto.";
+"onboarding.unread.action" = "Arregla esto";
+"onboarding.capture.title" = "Captura desde donde sea";
+"onboarding.capture.subtitle" = "X, YouTube, Reddit...\nAlimenta la máquina.";
+"onboarding.capture.example" = "medium.com/articulo...";
+"onboarding.capture.save" = "Joltéalo";
+"onboarding.capture.understood" = "Entendido";
+"onboarding.capture.morning" = "Mañana";
+"onboarding.capture.evening" = "Noche";
+"onboarding.capture.weekend" = "Finde";
+"onboarding.routine.title" = "¿Cuándo deberíamos\nempujarte?";
+"onboarding.routine.subtitle" = "Dos veces al día. Solo si estás libre.\nSin spam, promesa.";
+"onboarding.routine.example" = "Fines de semana automático a las 11:00";
+"onboarding.routine.continue" = "Fijar Rutina";
+"onboarding.routine.morning" = "Rutina matutina";
+"onboarding.routine.morningDesc" = "Pausa café, trayecto";
+"onboarding.routine.evening" = "Rutina nocturna";
+"onboarding.routine.eveningDesc" = "Antes de dormir, relax";
+"onboarding.notification.title" = "Nuestra promesa de notificaciones:";
+"onboarding.notification.subtitle" = "Cero spam. Solo señal.";
+"onboarding.notification.allow" = "Permitir Empujones";
+"onboarding.notification.later" = "Decidir luego";
+"onboarding.notification.promise1" = "Solo a tus horas elegidas";
+"onboarding.notification.promise2" = "Silencio si tu cola está vacía";
+"onboarding.notification.promise3" = "Máximo 2 empujones al día";
+"onboarding.widgets.title" = "Síguelo desde tu\nPantalla de Inicio";
+"onboarding.widgets.subtitle" = "Widgets y Siri para acceso rápido";
+"onboarding.widgets.streak" = "Racha";
+"onboarding.widgets.focus" = "Mira qué sigue";
+"onboarding.widgets.goal" = "Objetivo Diario";
+"onboarding.widgets.siriTitle" = "Usa tu voz";
+"onboarding.widgets.siriExample1" = "\"Oye Siri, ¿cuál es mi racha Jolt?\"";
+"onboarding.widgets.siriExample2" = "\"Oye Siri, ¿qué sigue en Jolt?\"";
+"onboarding.widgets.continue" = "Continuar";
+"onboarding.complete.title" = "¡Estás listo! ⚡";
+"onboarding.complete.subtitle" = "Ahora puedes añadir contenido a Jolt\ndesde cualquier app.";
+"onboarding.complete.lastStep" = "Un último paso";
+"onboarding.complete.lastStepDesc" = "Añade tu primer enlace. Haz que cuente.";
+"onboarding.complete.tip1" = "Halla contenido en cualquier app";
+"onboarding.complete.tip2" = "Toca el botón compartir";
+"onboarding.complete.tip3" = "Elige Jolt, pon hora, guarda";
+"onboarding.complete.ready" = "Estoy listo";
+"onboarding.complete.letsGo" = "Vamos";
+
+// MARK: - Collection Detail
+"collectionDetail.empty" = "Sin contenido aún";
+"collectionDetail.emptyDesc" = "Mueve contenido aquí para organizar tu arsenal.";
+"collectionDetail.itemsCount" = "%d ítems";
+
+// MARK: - Edit Collection
+"editCollection.name" = "Nombre Colección";
+"editCollection.color" = "Color";
+"editCollection.icon" = "Icono";
+"editCollection.deleteCollection" = "Eliminar Colección";
+"editCollection.statsReady" = "%d ítems listos para liquidar en Foco.";
+"editCollection.statsTotal" = "Esta colección tiene %d ítems total.";
+
+// MARK: - Routines Settings
+"routinesSettings.empty" = "Sin rutinas. Añade una para empezar.";
+"routinesSettings.title" = "Tus Rutinas";
+"routinesSettings.subtitle" = "Programaremos contenido según estos horarios.";
+"routinesSettings.off" = "Apagado";
+
+// MARK: - Collection Picker
+"collectionPicker.inbox" = "Bandeja de Entrada";
+
+// MARK: - Create Collection
+"createCollection.name" = "Nombre Colección";
+"createCollection.color" = "Color";
+"createCollection.icon" = "Icono";
+"createCollection.create" = "Crear Colección";
+
+// MARK: - Pulse View
+"pulse.repairStreak" = "¡Leí ayer! (Reparar Racha)";
+"pulse.unlockedAchievements" = "%d/%d";
+"pulse.madeWith" = "Hecho con ⚡️";
+
+// MARK: - Pulse View Accessibility
+"a11y.pulse.repairStreak" = "Reparar racha";
+"a11y.pulse.repairStreakHint" = "Restaura tu racha confirmando que leíste ayer. Racha previa: %d días.";
+
+// MARK: - Focus View Accessibility
+"a11y.focus.debugMenu" = "Menú debug";
+"a11y.focus.addFromClipboard" = "Añadir enlace del portapapeles";
+"a11y.focus.addFromClipboardHint" = "Añade la URL de tu portapapeles como nuevo contenido";
+
+// MARK: - Library View
+"library.deleteConfirm" = "¿Eliminar %d ítems permanentemente?";
+"library.collectionItems" = "'%@' tiene %d ítems.";
+"library.selectedCount" = "%d Seleccionado";
+"library.quickAccess" = "Acceso Rápido";
+"library.collections" = "Colecciones";
+"library.new" = "Nuevo";
+"library.items" = "%d ítems";
+"library.read" = "Leído";
+
+// MARK: - Reader View
+"reader.minutesLeft" = "~%d m quedan";
+"reader.minutesRead" = "%d min";
+"reader.progressPercent" = "%d%%";
+"reader.textSize" = "Tamaño Texto";
+"reader.theme" = "Tema";
+"reader.lineSpacing" = "Interlineado";
+"reader.unableToLoadPDF" = "No se pudo cargar PDF";
+
+// MARK: - Reader View Accessibility
+"a11y.reader.back" = "Atrás";
+"a11y.reader.alreadyRead" = "Este contenido ya está marcado como leído";
+"a11y.reader.forward" = "Adelante";
+"a11y.reader.progressValue" = "%d por ciento leído";
+
+// MARK: - Quick Capture
+"quickCapture.joltIt" = "Joltéalo";
+"quickCapture.alreadySaved" = "Ya guardado";
+
+// MARK: - Accessibility Test
+"a11y.test.dynamicType" = "Prueba Tipo Dinámico";
+
+// MARK: - Share Extension Template
+"shareTemplate.schedule" = "¿Cuándo consumirás esto?";
+"shareTemplate.cancel" = "Cancelar";
+
+// MARK: - Widget Descriptions
+"widget.focus.nextUp" = "SIGUIENTE";
+"widget.focus.morePending" = "+%d pendiente";
+"widget.focus.minutesRead" = "%dm";
+"widget.focus.allCaughtUp" = "¡Todo limpio!";
+"widget.focus.shareToAdd" = "Alimenta a la bestia";
+"widget.focus.tapToRead" = "TOCA PARA CONSUMIR";
+"widget.focus.minutesReadLong" = "%d min lectura";
+
+// MARK: - Daily Goal Widget
+"widget.dailyGoal.today" = "Hoy";
+"widget.dailyGoal.title" = "Objetivo Diario";
+"widget.goal.dailyComplete" = "¡Objetivo liquidado!";
+"widget.goal.streakInfo" = "Racha de %d días";
+"widget.goal.remaining" = "Faltan %d";
+
+// MARK: - Streak Widget
+"widget.streak.dayStreak" = "RACHA DIARIA";
+"widget.streak.today" = "Hoy";
+"widget.streak.total" = "Total";
+"widget.streak.dayStreakCount" = "Racha de %d días";
+"widget.streak.joltsToday" = "jolts hoy %d";
+
+// MARK: - Quote Widget
+"widget.quote.jolt" = "Jolt";
+"widget.quote.dailyInspiration" = "Combustible Diario";
+"widget.quote.joltsToday" = "%d";
+"widget.quote.todayLabel" = "hoy";
+"widget.quote.startReading" = "¡Empieza!";
+
+// MARK: - Stats Widget
+"widget.stats.weekly" = "SEMANAL";
+"widget.stats.thisWeek" = "%d esta semana";
+
+// MARK: - Reader Content Status
+"reader.status.protected" = "Contenido protegido. Abriendo vista segura.";
+"reader.status.paywall" = "Contenido de suscripción. Abriendo fuente.";
+"reader.status.webViewRequired" = "Acceso bot denegado. Cambiando a Navegador.";

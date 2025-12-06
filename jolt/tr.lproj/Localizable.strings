@@ -1,0 +1,625 @@
+/* Localizable.strings (Turkish)
+  jolt
+
+  Turkish translations - Natural, Motivational, Action-Oriented Tone
+*/
+
+// MARK: - Common
+"common.done" = "Bitti";
+"common.cancel" = "Vazgeç";
+"common.save" = "Jolt'la";
+"common.delete" = "Sil";
+"common.edit" = "Düzenle";
+"common.close" = "Kapat";
+"common.settings" = "Ayarlar";
+"common.loading" = "Hazırlanıyor...";
+"common.error" = "Hata";
+"common.success" = "Başarılı";
+"common.retry" = "Tekrar Dene";
+"common.share" = "Paylaş";
+"common.copy" = "Kopyala";
+"common.archive" = "Arşivle";
+"common.snooze" = "Ertele";
+"common.clear" = "Temizle";
+"common.exporting" = "Dışa aktarılıyor...";
+
+// MARK: - Focus Screen
+"focus.title" = "Odak";
+"focus.empty.title" = "Her şey yolunda!";
+"focus.empty.subtitle" = "Okumaya başlamak için herhangi bir uygulamadan link paylaş.";
+"focus.later" = "Sonra";
+"focus.later.count" = "(%d)";
+"focus.allCaughtUp" = "Hepsi Tamam";
+"focus.articles.count" = "%d içerik";
+"focus.totalTime" = "~%d dk kaldı";
+"focus.filter.all" = "Tümü";
+"focus.filter.5min" = "5 dk";
+"focus.filter.15min" = "15 dk";
+"focus.filter.title" = "Süreye Göre Filtrele";
+"focus.tapToRead" = "Okumak için dokun";
+"focus.pullForward" = "Öne Çek";
+"focus.hero.more" = "+ %d daha";
+"focus.addFromClipboard" = "Panodan Ekle";
+"focus.generateTestData" = "Test Verisi Oluştur";
+"focus.clearAll" = "Tümünü Temizle";
+
+// MARK: - Snooze Options
+"snooze.title" = "Şuna kadar ertele...";
+"snooze.nextRoutine" = "Sonraki Rutin";
+"snooze.1hour" = "1 Saat Sonra";
+
+// MARK: - Tab Bar
+"tab.focus" = "Odak";
+"tab.library" = "Kütüphane";
+"tab.pulse" = "Nabız";
+"tab.settings" = "Ayarlar";
+"snooze.2hours" = "3 Saat Sonra";
+"snooze.tomorrow" = "Yarın Sabah";
+"snooze.custom" = "Özel Zaman";
+
+// MARK: - Reader
+"reader.joltIt" = "JOLT'LA";
+"reader.joltCompleted" = "Jolt'landı!";
+"reader.openInBrowser" = "Web Görünümü";
+"reader.copyLink" = "Linki Kopyala";
+"reader.shareLink" = "Linki Paylaş";
+"reader.readingTime" = "%d dk okuma";
+"reader.scrollProgress" = "%%%d okundu";
+"reader.archived" = "Arşivlendi";
+"reader.addNote" = "Not Ekle";
+"reader.moveToCollection" = "Koleksiyona Taşı";
+"reader.settings.title" = "Okuma Ayarları";
+"reader.lineSpacing.compact" = "Sıkışık";
+"reader.lineSpacing.normal" = "Normal";
+"reader.lineSpacing.relaxed" = "Geniş";
+
+// MARK: - Library
+"library.title" = "KÜTÜPHANE";
+"library.subtitle" = "Bilgi Bankan";
+"library.search.placeholder" = "Ara...";
+"library.newCollection" = "Yeni Koleksiyon";
+"library.allBookmarks" = "Tüm İçerikler";
+"library.empty.title" = "Henüz içerik yok";
+"library.empty.subtitle" = "Burayı doldurmak için linkleri Jolt'la.";
+"library.recentlyRead" = "Son Okunanlar";
+"library.favorites" = "Favoriler";
+"library.archived" = "Arşiv";
+"library.selectAll" = "Tümünü Seç";
+"library.deselectAll" = "Seçimi Kaldır";
+"library.deleteSelected" = "Seçilenleri Sil";
+
+// MARK: - Pulse (Stats)
+"pulse.title" = "NABIZ";
+"pulse.subtitle" = "Okuma Ritmin";
+"pulse.dayStreak" = "GÜNLÜK SERİ";
+"pulse.currentStreak" = "Mevcut Seri";
+"pulse.longestStreak" = "En Uzun Seri";
+"pulse.totalJolts" = "Toplam Jolt";
+"pulse.thisWeek" = "Bu Hafta";
+"pulse.today" = "Bugün";
+"pulse.achievements" = "Başarılar";
+"pulse.insights" = "İçgörüler";
+"pulse.yourStats" = "İstatistiklerin";
+"pulse.readingTime" = "Odaklanma Süresi";
+"pulse.averagePerDay" = "Günlük Ort.";
+"pulse.bestDay" = "En İyi Gün";
+"pulse.articlesRead" = "Okunanlar";
+"pulse.personalBest" = "Kişisel rekor: %d gün";
+"pulse.timeInvested" = "Ayırılan Süre";
+"pulse.wordsPerMin" = "Kelime/dk";
+"pulse.collections" = "Koleksiyonlar";
+"pulse.joltsCount" = "%d jolt";
+"pulse.topSources" = "En İyi Kaynaklar";
+"pulse.favoriteTime" = "Favori Zaman";
+"pulse.dailyGoal" = "Günlük Hedef";
+"pulse.motivation.start" = "Bugün okumaya başla!";
+"pulse.motivation.day1" = "Harika başlangıç! Zihnini beslemeye devam et 🌱";
+"pulse.motivation.days2_3" = "Ritim yakalıyorsun! 💪";
+"pulse.motivation.days4_6" = "Neredeyse bir hafta! Harikasın 🔥";
+"pulse.motivation.week" = "Bir haftayı devirdin! İnanılmaz! 🏆";
+"pulse.motivation.twoWeeks" = "İki hafta oldu! Efsanesin! ⚡";
+"pulse.motivation.unstoppable" = "Durdurulamazsın! Tam bir okuma makinesisin! 🚀";
+"pulse.avgReadTime" = "Ort. Süre";
+"pulse.contentMix" = "İçerik Dağılımı";
+
+// MARK: - Settings
+"settings.title" = "Ayarlar";
+"settings.readingGoals" = "Hedefler";
+"settings.dailyGoal" = "Günlük Hedef";
+"settings.dailyGoal.description" = "Hızını belirle. İlerlemeni Günlük Hedef bileşeniyle takip et.";
+"settings.articlesCount" = "%d içerik";
+"settings.storageCache" = "Depolama ve Önbellek";
+"settings.imageCache" = "Görsel Önbelleği";
+"settings.articleCache" = "Metin İçeriği (HTML)";
+"settings.clearCache" = "Temizle";
+"settings.clearCache.description" = "İçeriği temizlemek çevrimdışı verileri siler. Online olarak okumaya devam edebilirsin.";
+"settings.dataManagement" = "Veri";
+"settings.exportData" = "Verileri Dışa Aktar (JSON)";
+"settings.export.description" = "Verilerini yanında götür. Her şeyi JSON olarak dışa aktar.";
+"settings.routines" = "Rutinler";
+"settings.account" = "Hesap";
+"settings.logout" = "Çıkış Yap";
+"settings.notifications" = "Bildirimler";
+"settings.appearance" = "Görünüm";
+"settings.about" = "Hakkında";
+"settings.more" = "Daha Fazla Ayar";
+"settings.storageDataCache" = "Depolama, Veri ve Önbellek";
+"settings.version" = "Sürüm %@";
+"settings.privacy" = "Gizlilik Politikası";
+"settings.terms" = "Kullanım Şartları";
+"settings.language" = "Dil";
+"settings.language.system" = "Sistem Varsayılanı";
+"settings.language.select" = "Dil Seç";
+"settings.language.restart" = "Değişikliklerin uygulanması için yeniden başlatma gerekir.";
+
+// MARK: - Routines
+"routines.title" = "Rutinler";
+"routines.morning" = "Sabah";
+"routines.evening" = "Akşam";
+"routines.weekend" = "Hafta Sonu";
+"routines.custom" = "Özel";
+"routines.enabled" = "Açık";
+"routines.disabled" = "Kapalı";
+"routines.time" = "Zaman";
+"routines.days" = "Günler";
+"routines.addRoutine" = "Rutin Ekle";
+"routines.editRoutine" = "Rutini Düzenle";
+"routines.name" = "Rutin Adı";
+"routines.name.morning" = "Sabah Okuması";
+"routines.name.evening" = "Akşam Özeti";
+"routines.name.weekend" = "Hafta Sonu Keyfi";
+"routines.details" = "Detaylar";
+"routines.icon" = "Simge";
+
+// MARK: - Widgets
+"widget.streak.title" = "Seri";
+"widget.streak.description" = "Okuma serini koru.";
+"widget.focus.title" = "Sıradaki";
+"widget.focus.description" = "Bir sonraki içeriğin.";
+"widget.dailyGoal.description" = "Günlük okuma takibi.";
+"widget.stats.title" = "İstatistikler";
+"widget.stats.description" = "Haftalık performansın.";
+"widget.quote.title" = "Günün Sözü";
+"widget.quote.description" = "Okumaya devam etmek için ilham.";
+"widget.dayStreak" = "günlük seri";
+"widget.daysStreak" = "günlük seri";
+"widget.nextUp" = "SIRADAKİ";
+"widget.allCaughtUp" = "Hepsi Tamam!";
+"widget.tapToRead" = "Okumak için dokun";
+"widget.weekly" = "HAFTALIK";
+"widget.thisWeek" = "bu hafta";
+"widget.total" = "Toplam";
+"widget.streak" = "Seri";
+"widget.best" = "En İyi";
+"widget.dailyInspiration" = "Günün İlhamı";
+"widget.joltsToday" = "bugünkü okuma";
+"widget.goal.start" = "Okumaya başla!";
+"widget.goal.halfway" = "Yarısı bitti!";
+"widget.goal.almost" = "Az kaldı!";
+"widget.goal.complete" = "Hedef tamamlandı! 🎉";
+
+// MARK: - Share Extension
+"share.saveToJolt" = "Jolt'a Kaydet";
+"share.schedule" = "Zamanla";
+"share.collection" = "Koleksiyon";
+"share.note" = "Not";
+"share.notePlaceholder" = "Bir not ekle...";
+"share.morning" = "Sabah";
+"share.evening" = "Akşam";
+"share.weekend" = "Hafta Sonu";
+"share.inbox" = "Gelen Kutusu";
+"share.saved" = "Kaydedildi!";
+"share.saving" = "Kaydediliyor...";
+"share.none" = "Yok";
+"share.now" = "Şimdi";
+
+// MARK: - Collections
+"collection.create" = "Koleksiyon Oluştur";
+"collection.edit" = "Koleksiyonu Düzenle";
+"collection.name" = "İsim";
+"collection.namePlaceholder" = "Koleksiyon adı";
+"collection.color" = "Renk";
+"collection.icon" = "Simge";
+"collection.delete" = "Koleksiyonu Sil";
+"collection.deleteConfirm" = "Bu koleksiyonu silmek istediğine emin misin? İçerikler kütüphanede kalacak.";
+
+// MARK: - Time
+"time.minute" = "dk";
+"time.minutes" = "dk";
+"time.hour" = "saat";
+"time.hours" = "saat";
+"time.day" = "gün";
+"time.days" = "gün";
+"time.week" = "hafta";
+"time.today" = "Bugün";
+"time.tomorrow" = "Yarın";
+"time.yesterday" = "Dün";
+"time.now" = "Şimdi";
+"time.later" = "Sonra";
+"time.inHours" = "%d saat içinde";
+"time.inMinutes" = "%d dk içinde";
+
+// MARK: - Days of Week
+"day.monday" = "Pazartesi";
+"day.tuesday" = "Salı";
+"day.wednesday" = "Çarşamba";
+"day.thursday" = "Perşembe";
+"day.friday" = "Cuma";
+"day.saturday" = "Cumartesi";
+"day.sunday" = "Pazar";
+"day.mon" = "Pzt";
+"day.tue" = "Sal";
+"day.wed" = "Çar";
+"day.thu" = "Per";
+"day.fri" = "Cum";
+"day.sat" = "Cmt";
+"day.sun" = "Paz";
+
+// MARK: - Errors
+"error.network" = "Çevrimdışı. Bağlantını kontrol et.";
+"error.loadingFailed" = "Yüklenemedi.";
+"error.saveFailed" = "Kaydedilemedi.";
+"error.unknown" = "Bir şeyler ters gitti.";
+"error.invalidURL" = "Geçersiz Link.";
+"error.parsingFailed" = "İçerik okunamadı.";
+
+// MARK: - Alerts
+"alert.clearImageCache.title" = "Görsel Önbelleğini Temizle?";
+"alert.clearImageCache.message" = "Bu işlem yer açar. Görseller gerektiğinde yeniden indirilir.";
+"alert.clearArticleCache.title" = "Metin İçeriğini Temizle?";
+"alert.clearArticleCache.message" = "Çevrimdışı metinleri siler. Bunları tekrar okumak için internet gerekir.";
+"alert.deleteConfirm.title" = "İçeriği Sil?";
+"alert.deleteConfirm.message" = "Kalıcı olarak silinecek. Emin misin?";
+"alert.logout.title" = "Çıkış Yap?";
+"alert.logout.message" = "Bu işlem tüm yerel verileri siler.";
+
+// MARK: - Toast Messages
+"toast.copiedToClipboard" = "Kopyalandı";
+"toast.bookmarkArchived" = "Arşivlendi";
+"toast.bookmarkSnoozed" = "Ertelendi";
+"toast.undo" = "Geri Al";
+"toast.alreadySaved" = "Zaten kütüphanede";
+"toast.linkDetected" = "Link tespit edildi";
+"toast.savedSuccessfully" = "Kaydedildi";
+
+// MARK: - Clipboard Toast
+"clipboard.newLink" = "Yeni link tespit edildi";
+"clipboard.existingUnread" = "Zaten sırada";
+"clipboard.existingArchived" = "Daha önce okundu";
+"clipboard.addToQueue" = "Sıraya Ekle";
+"clipboard.open" = "Aç";
+
+// MARK: - Push Notifications
+"notification.timeToRead.title" = "Okuma Vakti ⚡️";
+"notification.timeToRead.body" = "Seni bekliyor: %@";
+"notification.queueReady.title" = "Kuyruğun Hazır ⚡️";
+"notification.queueReady.body" = "Şu an için %d öğe planlanmış.";
+
+// MARK: - Siri Shortcuts
+"siri.openFocus" = "Odağı Aç";
+"siri.showNextBookmark" = "Sıradakini Göster";
+"siri.getStreak" = "Seriyi Kontrol Et";
+"siri.getTodayStats" = "Bugünün İstatistikleri";
+"siri.getPendingCount" = "Bekleyen Sayısı";
+"siri.weeklySummary" = "Haftalık Rapor";
+"siri.motivateMe" = "Beni Motive Et";
+"siri.snoozeNext" = "Sıradakini Ertele";
+
+// MARK: - Siri Responses
+"siri.response.streak" = "%d günlük seri. Aynen devam!";
+"siri.response.streakNone" = "Henüz seri yok. Okumaya başla!";
+"siri.response.todayStats" = "Bugün %d içerik okudun. Harika.";
+"siri.response.todayNone" = "Bugün henüz bir şey okumadın. Başlayalım!";
+"siri.response.pending" = "%d içerik bekliyor.";
+"siri.response.pendingNone" = "Sıran boş. Harika iş!";
+"siri.response.weekly" = "Bu hafta %d içerik bitirdin. Ort. %.1f/gün.";
+"siri.response.motivation" = "Her seferinde bir tane. Yapabilirsin.";
+"siri.response.snoozed" = "Ertelendi.";
+
+// MARK: - Pluralization (used with .stringsdict)
+"plural.articles" = "%d içerik";
+"plural.days" = "%d gün";
+"plural.minutes" = "%d dakika";
+"plural.hours" = "%d saat";
+"plural.bookmarks" = "%d içerik";
+
+// MARK: - Accessibility
+"a11y.focus.heroCard" = "%@, %@ kaynağından, %d dakika okuma";
+"a11y.focus.openReader" = "Açmak için çift dokun";
+"a11y.focus.archive" = "Arşivlemek için sola kaydır";
+"a11y.focus.snooze" = "Ertelemek için sağa kaydır";
+"a11y.focus.pullForward" = "Mevcut sıraya taşımak için çift dokun";
+"a11y.focus.empty" = "Hepsi bitti. Yeni içerik eklemek için bir link paylaş.";
+"a11y.reader.progress" = "Okuma ilerlemesi: yüzde %d";
+"a11y.reader.joltButton" = "Jolt'la, okundu olarak işaretle";
+"a11y.reader.backHint" = "Önceki sayfaya git";
+"a11y.reader.backDisabled" = "Geri gidilemez";
+"a11y.reader.forwardHint" = "Sonraki sayfaya git";
+"a11y.reader.forwardDisabled" = "İleri gidilemez";
+"a11y.library.bookmark" = "%@, %@ kaynağından, %@ tarihinde okundu";
+"a11y.pulse.streak" = "Mevcut seri: %d gün";
+"a11y.widget.streak" = "Okuma serisi: %d gün";
+"a11y.widget.nextUp" = "Sonraki içerik: %@";
+
+// MARK: - Motivational Quotes
+"quote.1" = "Bugün okudukların yarın sana avantaj sağlar.";
+"quote.2" = "Okumak zihin için egzersizdir.";
+"quote.3" = "Her makale yeni bir kapıdır.";
+"quote.4" = "5 dakika yeterli. Sadece başla.";
+"quote.5" = "O birikmiş listeyi temizle.";
+"quote.6" = "Bilgi güçtür.";
+"quote.7" = "Küçük adımlar, büyük sonuçlar.";
+"quote.8" = "Okumak, öğrenmenin en hızlı yoludur.";
+"quote.9" = "Bugün ne öğrendin?";
+"quote.10" = "Merak seni ileri taşır.";
+"quote.11" = "Her gün daha iyiye.";
+"quote.12" = "Okumak seni özgürleştirir.";
+"quote.13" = "Tek bir fikir her şeyi değiştirebilir.";
+"quote.14" = "Zihnini besle.";
+"quote.15" = "En zoru başlamaktır.";
+
+// MARK: - Empty States
+"empty.focus.title" = "Planlanmış Bir Şey Yok";
+"empty.focus.subtitle" = "Sıraya eklemek için link paylaş.";
+"empty.library.title" = "Kütüphane Boş";
+"empty.library.subtitle" = "Kütüphaneni oluşturmak için okumaya başla.";
+"empty.collections.title" = "Koleksiyon Yok";
+"empty.collections.subtitle" = "Bilgilerini burada grupla.";
+"empty.search.title" = "Sonuç yok";
+"empty.search.subtitle" = "Farklı bir kelime dene.";
+
+// MARK: - Achievements
+"achievement.first_jolt.title" = "İlk Jolt";
+"achievement.first_jolt.description" = "İlk okumanı tamamla";
+"achievement.five_jolts.title" = "Başlangıç";
+"achievement.five_jolts.description" = "5 içerik tamamla";
+"achievement.twentyfive_jolts.title" = "Çeyrek Dalya";
+"achievement.twentyfive_jolts.description" = "25 içerik tamamla";
+"achievement.fifty_jolts.title" = "Yarı Dalya";
+"achievement.fifty_jolts.description" = "50 içerik tamamla";
+"achievement.centurion.title" = "Dalya";
+"achievement.centurion.description" = "100 içerik tamamla";
+"achievement.week_streak.title" = "Haftalık Seri";
+"achievement.week_streak.description" = "7 gün üst üste okuma";
+"achievement.two_week_streak.title" = "İki Haftalık Seri";
+"achievement.two_week_streak.description" = "14 gün üst üste okuma";
+"achievement.month_streak.title" = "Aylık Seri";
+"achievement.month_streak.description" = "30 gün üst üste okuma";
+"achievement.speed_reader.title" = "Hızlı Okuyucu";
+"achievement.speed_reader.description" = "Bir günde 5+ içerik tamamla";
+"achievement.night_owl.title" = "Gece Kuşu";
+"achievement.night_owl.description" = "22:00'den sonra oku";
+"achievement.early_bird.title" = "Erkenci Kuş";
+"achievement.early_bird.description" = "07:00'den önce oku";
+"achievement.curator.title" = "Küratör";
+"achievement.curator.description" = "5 koleksiyon oluştur";
+"achievement.social_butterfly.title" = "Sosyal Kelebek";
+"achievement.social_butterfly.description" = "10 sosyal medya gönderisi oku";
+"achievement.bookworm.title" = "Kitap Kurdu";
+"achievement.bookworm.description" = "30+ makale oku";
+
+// MARK: - Library Filters
+"library.filter.all" = "Tümü";
+"library.filter.unread" = "Okunmamış";
+"library.filter.read" = "Okunmuş";
+"library.filter.starred" = "Yıldızlı";
+"library.sort.title" = "Sırala";
+"library.sort.newest" = "En Yeni";
+"library.sort.oldest" = "En Eski";
+"library.sort.az" = "A-Z";
+"library.sort.readingTime" = "Okuma Süresi";
+"library.sort.progress" = "İlerleme";
+"library.deleteSelected.title" = "Seçilenleri Sil?";
+"library.deleteSelected.confirm" = "Sil (%d)";
+"library.action.move" = "Taşı";
+"library.action.star" = "Yıldızla";
+"library.action.unstar" = "Yıldızı Kaldır";
+"library.empty.starred" = "Yıldızlı İçerik Yok";
+"library.empty.starredHint" = "Hızlı bulmak için içerikleri yıldızla";
+"library.empty.type" = "%@ Yok";
+
+// MARK: - Collection Actions
+"collection.delete.title" = "Koleksiyonu Sil?";
+"collection.delete.keepItems" = "İçerikleri Tut (Gelen Kutusuna Taşı)";
+"collection.delete.deleteAll" = "Her Şeyi Sil";
+"collection.deleteConfirm.title" = "Koleksiyonu Sil?";
+"collection.deleteConfirm.keepItems" = "İçerikleri Tut (Gelen Kutusuna Taşı)";
+"collection.deleteConfirm.deleteAll" = "Her Şeyi Sil";
+
+// MARK: - Focus Debug (Development Only)
+"focus.debug.title" = "Debug";
+"focus.debug.addTestData" = "Test Verisi Ekle";
+"focus.debug.clearAll" = "Hepsini Sil";
+
+// MARK: - Watch App
+"watch.dayStreak" = "Günlük Seri";
+"watch.today" = "Bugün";
+"watch.pending" = "Sıradaki";
+"watch.nextUp" = "SIRADAKİ";
+"watch.allCaughtUp" = "Hepsi Tamam!";
+"watch.openOnIPhone" = "iPhone'da Aç";
+
+// MARK: - Share Extension
+"shareExtension.joltIt" = "Jolt'la";
+"shareExtension.alreadySaved" = "Zaten kütüphanede";
+"shareExtension.saved" = "Kaydedildi";
+
+// MARK: - Live Activity
+"liveActivity.reading" = "Okunuyor";
+"liveActivity.minutesRemaining" = "~%d dk";
+"liveActivity.percentComplete" = "%%%d bitti";
+
+// MARK: - Onboarding Screens
+"onboarding.intro.question" = "Okuma listen\nkontrolden mi çıkıyor?";
+"onboarding.intro.answer" = "Maalesef öyle";
+"onboarding.problem.tabs" = "açık sekmeler";
+"onboarding.problem.saved" = "\"sonra okurum\" dediklerin";
+"onboarding.problem.read" = "gerçekten okunan";
+"onboarding.solution.save" = "Jolt'la";
+"onboarding.solution.saveHint" = "→ Ne zaman okuyacaksın?";
+"onboarding.solution.remind" = "Zamanı gelince hatırlat";
+"onboarding.solution.remindHint" = "→ Oku";
+"onboarding.solution.finish" = "Bitir, temizle, devam et";
+"onboarding.solution.finishHint" = "→ JOLT!";
+"onboarding.philosophy.title" = "Depolama değil.\nOkuma aracı.";
+"onboarding.philosophy.subtitle" = "Oku, Jolt'la, Devam Et.";
+"onboarding.unread.title" = "Okunmamış içerikler\nsadece yüktür.";
+"onboarding.unread.action" = "Bunu düzelt";
+"onboarding.capture.title" = "Her yerden yakala";
+"onboarding.capture.subtitle" = "Twitter, YouTube, Reddit...\nListene ekle.";
+"onboarding.capture.example" = "medium.com/makale...";
+"onboarding.capture.save" = "Jolt'la";
+"onboarding.capture.understood" = "Anladım";
+"onboarding.capture.morning" = "Sabah";
+"onboarding.capture.evening" = "Akşam";
+"onboarding.capture.weekend" = "Hafta Sonu";
+"onboarding.routine.title" = "Sana ne zaman\nhatırlatalım?";
+"onboarding.routine.subtitle" = "Günde iki kez. Sadece müsaitsen.\nSpam yok, söz.";
+"onboarding.routine.example" = "Hafta sonları 11:00'de";
+"onboarding.routine.continue" = "Rutini Ayarla";
+"onboarding.routine.morning" = "Sabah rutini";
+"onboarding.routine.morningDesc" = "Kahve molası, yolda";
+"onboarding.routine.evening" = "Akşam rutini";
+"onboarding.routine.eveningDesc" = "Yatmadan önce, kafa dağıtma";
+"onboarding.notification.title" = "Bildirim sözümüz:";
+"onboarding.notification.subtitle" = "Spam yok. Sadece önemli şeyler.";
+"onboarding.notification.allow" = "Bildirimlere İzin Ver";
+"onboarding.notification.later" = "Sonra karar ver";
+"onboarding.notification.promise1" = "Sadece seçtiğin saatlerde";
+"onboarding.notification.promise2" = "Sıran boşsa sessiz kalırız";
+"onboarding.notification.promise3" = "Günde maksimum 2 bildirim";
+"onboarding.widgets.title" = "Ana Ekranından\nTakip Et";
+"onboarding.widgets.subtitle" = "Hızlı erişim için Widget'lar ve Siri";
+"onboarding.widgets.streak" = "Seri";
+"onboarding.widgets.focus" = "Sıradakini gör";
+"onboarding.widgets.goal" = "Günlük Hedef";
+"onboarding.widgets.siriTitle" = "Sesini kullan";
+"onboarding.widgets.siriExample1" = "\"Hey Siri, Jolt serim kaç?\"";
+"onboarding.widgets.siriExample2" = "\"Hey Siri, Jolt'ta sırada ne var?\"";
+"onboarding.widgets.continue" = "Devam Et";
+"onboarding.complete.title" = "Hazırsın! ⚡";
+"onboarding.complete.subtitle" = "Artık herhangi bir uygulamadan\nJolt'a içerik ekleyebilirsin.";
+"onboarding.complete.lastStep" = "Son bir adım";
+"onboarding.complete.lastStepDesc" = "İlk linkini ekle. Değsin.";
+"onboarding.complete.tip1" = "Herhangi bir uygulamada içerik bul";
+"onboarding.complete.tip2" = "Paylaş butonuna dokun";
+"onboarding.complete.tip3" = "Jolt'u seç, zamanı ayarla, kaydet";
+"onboarding.complete.ready" = "Hazırım";
+"onboarding.complete.letsGo" = "Başlayalım";
+
+// MARK: - Collection Detail
+"collectionDetail.empty" = "Henüz içerik yok";
+"collectionDetail.emptyDesc" = "Kütüphaneni düzenlemek için içeriği buraya taşı.";
+"collectionDetail.itemsCount" = "%d içerik";
+
+// MARK: - Edit Collection
+"editCollection.name" = "Koleksiyon Adı";
+"editCollection.color" = "Renk";
+"editCollection.icon" = "Simge";
+"editCollection.deleteCollection" = "Koleksiyonu Sil";
+"editCollection.statsReady" = "Odak'ta okumaya hazır %d içerik.";
+"editCollection.statsTotal" = "Bu koleksiyonda toplam %d içerik var.";
+
+// MARK: - Routines Settings
+"routinesSettings.empty" = "Rutin yok. Ritmini belirlemek için bir tane ekle.";
+"routinesSettings.title" = "Rutinlerin";
+"routinesSettings.subtitle" = "İçeriği bu zamanlara göre planlayacağız.";
+"routinesSettings.off" = "Kapalı";
+
+// MARK: - Collection Picker
+"collectionPicker.inbox" = "Gelen Kutusu";
+
+// MARK: - Create Collection
+"createCollection.name" = "Koleksiyon Adı";
+"createCollection.color" = "Renk";
+"createCollection.icon" = "Simge";
+"createCollection.create" = "Koleksiyon Oluştur";
+
+// MARK: - Pulse View
+"pulse.repairStreak" = "Dün okudum! (Seriyi Onar)";
+"pulse.unlockedAchievements" = "%d/%d";
+"pulse.madeWith" = "⚡️ ile yapıldı";
+
+// MARK: - Pulse View Accessibility
+"a11y.pulse.repairStreak" = "Seriyi onar";
+"a11y.pulse.repairStreakHint" = "Dün okuduğunu onaylayarak serini geri getir. Önceki seri: %d gün.";
+
+// MARK: - Focus View Accessibility
+"a11y.focus.debugMenu" = "Debug menüsü";
+"a11y.focus.addFromClipboard" = "Panodan link ekle";
+"a11y.focus.addFromClipboardHint" = "Panondaki URL'i yeni içerik olarak ekler";
+
+// MARK: - Library View
+"library.deleteConfirm" = "%d içerik kalıcı olarak silinsin mi?";
+"library.collectionItems" = "'%@' içinde %d içerik var.";
+"library.selectedCount" = "%d Seçildi";
+"library.quickAccess" = "Hızlı Erişim";
+"library.collections" = "Koleksiyonlar";
+"library.new" = "Yeni";
+"library.items" = "%d içerik";
+"library.read" = "Okundu";
+
+// MARK: - Reader View
+"reader.minutesLeft" = "~%dk kaldı";
+"reader.minutesRead" = "%d dk";
+"reader.progressPercent" = "%%%d";
+"reader.textSize" = "Metin Boyutu";
+"reader.theme" = "Tema";
+"reader.lineSpacing" = "Satır Aralığı";
+"reader.unableToLoadPDF" = "PDF yüklenemedi";
+
+// MARK: - Reader View Accessibility
+"a11y.reader.back" = "Geri";
+"a11y.reader.alreadyRead" = "Bu içerik zaten okundu olarak işaretlendi";
+"a11y.reader.forward" = "İleri";
+"a11y.reader.progressValue" = "yüzde %d okundu";
+
+// MARK: - Quick Capture
+"quickCapture.joltIt" = "Jolt'la";
+"quickCapture.alreadySaved" = "Zaten kütüphanede";
+
+// MARK: - Accessibility Test
+"a11y.test.dynamicType" = "Dinamik Tip Testi";
+
+// MARK: - Share Extension Template
+"shareTemplate.schedule" = "Bunu ne zaman okuyacaksın?";
+"shareTemplate.cancel" = "Vazgeç";
+
+// MARK: - Widget Descriptions
+"widget.focus.nextUp" = "SIRADAKİ";
+"widget.focus.morePending" = "+%d bekleyen";
+"widget.focus.minutesRead" = "%ddk";
+"widget.focus.allCaughtUp" = "Tertemiz!";
+"widget.focus.shareToAdd" = "Canavarı besle";
+"widget.focus.tapToRead" = "OKUMAK İÇİN DOKUN";
+"widget.focus.minutesReadLong" = "%d dk okuma";
+
+// MARK: - Daily Goal Widget
+"widget.dailyGoal.today" = "Bugün";
+"widget.dailyGoal.title" = "Günlük Hedef";
+"widget.goal.dailyComplete" = "Hedef tamamlandı!";
+"widget.goal.streakInfo" = "%d günlük seri";
+"widget.goal.remaining" = "%d kaldı";
+
+// MARK: - Streak Widget
+"widget.streak.dayStreak" = "GÜNLÜK SERİ";
+"widget.streak.today" = "Bugün";
+"widget.streak.total" = "Toplam";
+"widget.streak.dayStreakCount" = "%d günlük seri";
+"widget.streak.joltsToday" = "bugünkü okuma: %d";
+
+// MARK: - Quote Widget
+"widget.quote.jolt" = "Jolt";
+"widget.quote.dailyInspiration" = "Günün Sözü";
+"widget.quote.joltsToday" = "%d";
+"widget.quote.todayLabel" = "bugün";
+"widget.quote.startReading" = "Okumaya Başla!";
+
+// MARK: - Stats Widget
+"widget.stats.weekly" = "HAFTALIK";
+"widget.stats.thisWeek" = "bu hafta %d";
+
+// MARK: - Reader Content Status
+"reader.status.protected" = "Korumalı içerik. Güvenli görünüm açılıyor.";
+"reader.status.paywall" = "Abonelik içeriği. Kaynak açılıyor.";
+"reader.status.webViewRequired" = "Bot erişimi reddedildi. Tarayıcıya geçiliyor.";
