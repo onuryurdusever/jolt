@@ -94,6 +94,7 @@ export function createWebviewFallback(
     error?: ParseError;
     excerpt?: string;
     coverImage?: string;
+    readingTime?: number;
   } = {}
 ): ParseResult {
   const domain = new URL(url).hostname;
@@ -103,7 +104,7 @@ export function createWebviewFallback(
     excerpt: options.excerpt || null,
     content_html: null,
     cover_image: options.coverImage || null,
-    reading_time_minutes: 0,
+    reading_time_minutes: options.readingTime || 0,
     domain,
     metadata: null,
     protected: options.protected,
@@ -125,6 +126,7 @@ export function createMetaOnlyResult(
   options: {
     paywalled?: boolean;
     error?: ParseError;
+    readingTime?: number;
   } = {}
 ): ParseResult {
   const domain = new URL(url).hostname;
@@ -134,7 +136,7 @@ export function createMetaOnlyResult(
     excerpt,
     content_html: null,
     cover_image: coverImage,
-    reading_time_minutes: 0,
+    reading_time_minutes: options.readingTime || 0,
     domain,
     metadata: null,
     paywalled: options.paywalled,

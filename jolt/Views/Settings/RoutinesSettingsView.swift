@@ -11,7 +11,7 @@ struct RoutinesSettingsView: View {
         List {
             Section {
                 if routines.isEmpty {
-                    Text("routinesSettings.empty".localized)
+                    Text("deliverySettings.empty".localized)
                         .foregroundColor(.gray)
                 } else {
                     ForEach(routines) { routine in
@@ -24,12 +24,12 @@ struct RoutinesSettingsView: View {
                     .onDelete(perform: deleteRoutine)
                 }
             } header: {
-                Text("routinesSettings.title".localized)
+                Text("deliverySettings.title".localized)
             } footer: {
-                Text("routinesSettings.subtitle".localized)
+                Text("deliverySettings.subtitle".localized)
             }
         }
-        .navigationTitle("routines.title".localized)
+        .navigationTitle("delivery.title".localized)
         .toolbar {
             Button {
                 showAddRoutine = true
@@ -39,9 +39,12 @@ struct RoutinesSettingsView: View {
         }
         .sheet(isPresented: $showAddRoutine) {
             EditRoutineView(routine: nil)
+                .presentationDetents([.large])
         }
         .sheet(item: $editingRoutine) { routine in
             EditRoutineView(routine: routine)
+                .id(routine.id) // Force view recreation for each routine
+                .presentationDetents([.large])
         }
         .onAppear {
             if routines.isEmpty {
@@ -54,6 +57,9 @@ struct RoutinesSettingsView: View {
         for index in offsets {
             modelContext.delete(routines[index])
         }
+        
+        // Post notification for centralized scheduling
+        NotificationCenter.default.post(name: .routinesDidChange, object: nil)
     }
     
     private func initDefaultRoutines() {
@@ -87,7 +93,7 @@ struct RoutineRow: View {
             Spacer()
             
             if !routine.isEnabled {
-                Text("routinesSettings.off".localized)
+                Text("deliverySettings.off".localized)
                     .font(.caption)
                     .foregroundColor(.gray)
                     .padding(.horizontal, 8)
@@ -104,47 +110,55 @@ struct EditRoutineView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     
-    var routine: Routine?
+    let routine: Routine?
     
-    @State private var name = ""
-    @State private var date = Date()
-    @State private var selectedIcon = "clock.fill"
-    @State private var isEnabled = true
-    @State private var selectedDays: Set<Int> = [1, 2, 3, 4, 5, 6, 7]
+    @State private var name: String
+    @State private var date: Date
+    @State private var selectedIcon: String
+    @State private var isEnabled: Bool
+    @State private var selectedDays: Set<Int>
     
     let icons = ["sun.max.fill", "moon.fill", "cup.and.saucer.fill", "briefcase.fill", "house.fill", "figure.run", "book.fill", "calendar"]
     
     init(routine: Routine?) {
         self.routine = routine
-        _name = State(initialValue: routine?.name ?? "")
-        _selectedIcon = State(initialValue: routine?.icon ?? "clock.fill")
-        _isEnabled = State(initialValue: routine?.isEnabled ?? true)
         
         if let routine = routine {
+            _name = State(initialValue: routine.name)
+            _selectedIcon = State(initialValue: routine.icon)
+            _isEnabled = State(initialValue: routine.isEnabled)
+            _selectedDays = State(initialValue: Set(routine.days))
+            
             var components = DateComponents()
             components.hour = routine.hour
             components.minute = routine.minute
-            _date = State(initialValue: Calendar.current.date(from: components) ?? Date())
-            _selectedDays = State(initialValue: Set(routine.days))
+            let routineDate = Calendar.current.date(from: components) ?? Date()
+            _date = State(initialValue: routineDate)
         } else {
-            // Default to 9:00 AM for new
+            // Default values for new routine
+            _name = State(initialValue: "")
+            _selectedIcon = State(initialValue: "clock.fill")
+            _isEnabled = State(initialValue: true)
+            _selectedDays = State(initialValue: [1, 2, 3, 4, 5, 6, 7])
+            
             var components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
             components.hour = 9
             components.minute = 0
-            _date = State(initialValue: Calendar.current.date(from: components) ?? Date())
+            let defaultDate = Calendar.current.date(from: components) ?? Date()
+            _date = State(initialValue: defaultDate)
         }
     }
     
     var body: some View {
         NavigationStack {
             Form {
-                Section("routines.details".localized) {
-                    TextField("routines.name".localized, text: $name)
-                    DatePicker("routines.time".localized, selection: $date, displayedComponents: .hourAndMinute)
-                    Toggle("routines.enabled".localized, isOn: $isEnabled)
+                Section("delivery.details".localized) {
+                    TextField("delivery.name".localized, text: $name)
+                    DatePicker("delivery.time".localized, selection: $date, displayedComponents: .hourAndMinute)
+                    Toggle("delivery.enabled".localized, isOn: $isEnabled)
                 }
                 
-                Section("routines.icon".localized) {
+                Section("delivery.icon".localized) {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
                             ForEach(icons, id: \.self) { icon in
@@ -163,7 +177,7 @@ struct EditRoutineView: View {
                     }
                 }
                 
-                Section("routines.days".localized) {
+                Section("delivery.days".localized) {
                     HStack {
                         ForEach(1...7, id: \.self) { day in
                             DayButton(day: day, isSelected: selectedDays.contains(day)) {
@@ -177,7 +191,7 @@ struct EditRoutineView: View {
                     }
                 }
             }
-            .navigationTitle(routine == nil ? "routines.addRoutine".localized : "routines.editRoutine".localized)
+            .navigationTitle(routine == nil ? "delivery.addDelivery".localized : "delivery.editDelivery".localized)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("common.cancel".localized) { dismiss() }
@@ -228,22 +242,22 @@ struct EditRoutineView: View {
         
         try? modelContext.save()
         
-        // Refresh Smart Notifications
-        NotificationManager.shared.scheduleSmartNotifications(modelContext: modelContext)
+        // Post notification for centralized scheduling
+        NotificationCenter.default.post(name: .routinesDidChange, object: nil)
         
         dismiss()
     }
     
     private func updatePendingBookmarks(from oldHour: Int, oldMinute: Int, to newHour: Int, newMinute: Int) {
-        // Heuristic: Find pending bookmarks scheduled for the old time slot
+        // Heuristic: Find active bookmarks scheduled for the old time slot
         // We can't filter by hour/minute directly in Predicate easily with Date, 
-        // so we fetch pending ones and filter in memory or use a broader range if possible.
-        // For now, fetching all pending is safe as the list shouldn't be huge.
+        // so we fetch active ones and filter in memory or use a broader range if possible.
+        // For now, fetching all active is safe as the list shouldn't be huge.
         
-        let pendingStatus = BookmarkStatus.pending
+        let activeStatus = BookmarkStatus.active
         let descriptor = FetchDescriptor<Bookmark>(
             predicate: #Predicate<Bookmark> { bookmark in
-                bookmark.status == pendingStatus
+                bookmark.status == activeStatus
             }
         )
         

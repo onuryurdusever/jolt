@@ -36,6 +36,7 @@ struct ContentView: View {
                 await MainActor.run {
                     WidgetDataService.shared.updateWidgetData(modelContext: modelContext)
                 }
+                // Note: Notification scheduling triggered by scenePhase .active
                 // Check for Siri snooze request
                 handleSiriSnoozeRequest()
             }
@@ -49,6 +50,8 @@ struct ContentView: View {
                     await MainActor.run {
                         WidgetDataService.shared.updateWidgetData(modelContext: modelContext)
                     }
+                    // Refresh notifications when app becomes active (single trigger point)
+                    NotificationCenter.default.post(name: .routinesDidChange, object: nil)
                     // Check for Siri snooze request
                     handleSiriSnoozeRequest()
                 }
@@ -69,7 +72,8 @@ struct ContentView: View {
                 }
             }
         }
-        .onChange(of: routines) { _, _ in
+        .onReceive(NotificationCenter.default.publisher(for: .routinesDidChange)) { _ in
+            // Centralized notification scheduling - single point of entry
             NotificationManager.shared.scheduleSmartNotifications(modelContext: modelContext)
         }
     }
@@ -91,9 +95,9 @@ struct ContentView: View {
         defaults?.removeObject(forKey: "siri_snooze_request")
         defaults?.removeObject(forKey: "siri_snooze_request_time")
         
-        // Find next pending bookmark
+        // Find next active bookmark (v2.1)
         let pendingBookmarks = bookmarks
-            .filter { $0.status == .ready || $0.status == .pending }
+            .filter { $0.status == .active }
             .sorted { $0.scheduledFor < $1.scheduledFor }
         
         guard let bookmarkToSnooze = pendingBookmarks.first else {
@@ -101,15 +105,15 @@ struct ContentView: View {
             return
         }
         
-        // Find next routine time
-        let nextRoutineDate = findNextRoutineDate()
+        // Find next delivery time
+        let nextDeliveryDate = findNextDeliveryDate()
         
         // Update bookmark's scheduled time
-        bookmarkToSnooze.scheduledFor = nextRoutineDate
+        bookmarkToSnooze.scheduledFor = nextDeliveryDate
         
         do {
             try modelContext.save()
-            print("⏰ Siri snooze: \(bookmarkToSnooze.title) → \(nextRoutineDate)")
+            print("⏰ Siri snooze: \(bookmarkToSnooze.title) → \(nextDeliveryDate)")
             
             // Update widget data
             WidgetDataService.shared.updateWidgetData(modelContext: modelContext)
@@ -118,19 +122,19 @@ struct ContentView: View {
         }
     }
     
-    private func findNextRoutineDate() -> Date {
+    private func findNextDeliveryDate() -> Date {
         let calendar = Calendar.current
         let now = Date()
         
-        // Get enabled routines sorted by time
-        let enabledRoutines = routines.filter { $0.isEnabled }.sorted { routine1, routine2 in
-            let time1 = routine1.hour * 60 + routine1.minute
-            let time2 = routine2.hour * 60 + routine2.minute
+        // Get enabled deliveries sorted by time
+        let enabledDeliveries = routines.filter { $0.isEnabled }.sorted { delivery1, delivery2 in
+            let time1 = delivery1.hour * 60 + delivery1.minute
+            let time2 = delivery2.hour * 60 + delivery2.minute
             return time1 < time2
         }
         
-        guard !enabledRoutines.isEmpty else {
-            // No routines, snooze to tomorrow same time
+        guard !enabledDeliveries.isEmpty else {
+            // No deliveries, snooze to tomorrow same time
             return calendar.date(byAdding: .day, value: 1, to: now) ?? now
         }
         
@@ -139,26 +143,26 @@ struct ContentView: View {
         let currentWeekday = calendar.component(.weekday, from: now)
         let currentTimeMinutes = currentHour * 60 + currentMinute
         
-        // Find next routine today or future days
+        // Find next delivery today or future days
         for dayOffset in 0..<8 {
             let targetDate = calendar.date(byAdding: .day, value: dayOffset, to: now) ?? now
             let targetWeekday = calendar.component(.weekday, from: targetDate)
             
-            for routine in enabledRoutines {
-                // Check if routine is enabled for this day
-                guard routine.days.contains(targetWeekday) else { continue }
+            for delivery in enabledDeliveries {
+                // Check if delivery is enabled for this day
+                guard delivery.days.contains(targetWeekday) else { continue }
                 
-                let routineTimeMinutes = routine.hour * 60 + routine.minute
+                let deliveryTimeMinutes = delivery.hour * 60 + delivery.minute
                 
-                // If today, routine must be in the future
-                if dayOffset == 0 && routineTimeMinutes <= currentTimeMinutes {
+                // If today, delivery must be in the future
+                if dayOffset == 0 && deliveryTimeMinutes <= currentTimeMinutes {
                     continue
                 }
                 
-                // Found next routine
+                // Found next delivery
                 var components = calendar.dateComponents([.year, .month, .day], from: targetDate)
-                components.hour = routine.hour
-                components.minute = routine.minute
+                components.hour = delivery.hour
+                components.minute = delivery.minute
                 
                 if let nextDate = calendar.date(from: components) {
                     return nextDate
@@ -178,7 +182,7 @@ struct MainTabView: View {
     
     enum AppTab: String, CaseIterable {
         case focus = "tab.focus"
-        case library = "tab.library"
+        case history = "tab.history"
         case pulse = "tab.pulse"
         
         var displayName: String {
@@ -188,7 +192,7 @@ struct MainTabView: View {
         var icon: String {
             switch self {
             case .focus: return "bolt.fill"
-            case .library: return "books.vertical.fill"
+            case .history: return "clock.arrow.circlepath"
             case .pulse: return "waveform.path.ecg"
             }
         }
@@ -217,15 +221,15 @@ struct MainTabView: View {
                 switch selectedTab {
                 case .focus:
                     FocusView()
-                case .library:
-                    LibraryView()
+                case .history:
+                    HistoryView()
                 case .pulse:
                     PulseView()
                 }
             }
             .tint(Color.joltYellow)
         } else {
-            // iPhone: Tab Bar
+            // iPhone: Tab Bar with swipe gesture
             TabView(selection: $selectedTab) {
                 FocusView()
                     .tabItem {
@@ -233,11 +237,11 @@ struct MainTabView: View {
                     }
                     .tag(AppTab.focus)
                 
-                LibraryView()
+                HistoryView()
                     .tabItem {
-                        Label(AppTab.library.displayName, systemImage: AppTab.library.icon)
+                        Label(AppTab.history.displayName, systemImage: AppTab.history.icon)
                     }
-                    .tag(AppTab.library)
+                    .tag(AppTab.history)
                 
                 PulseView()
                     .tabItem {
@@ -246,6 +250,28 @@ struct MainTabView: View {
                     .tag(AppTab.pulse)
             }
             .tint(Color.joltYellow)
+            .gesture(
+                DragGesture(minimumDistance: 50)
+                    .onEnded { value in
+                        let horizontalAmount = value.translation.width
+                        let tabs = AppTab.allCases
+                        guard let currentIndex = tabs.firstIndex(of: selectedTab) else { return }
+                        
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            if horizontalAmount < 0 {
+                                // Swipe left - next tab
+                                if currentIndex < tabs.count - 1 {
+                                    selectedTab = tabs[currentIndex + 1]
+                                }
+                            } else {
+                                // Swipe right - previous tab
+                                if currentIndex > 0 {
+                                    selectedTab = tabs[currentIndex - 1]
+                                }
+                            }
+                        }
+                    }
+            )
         }
         #endif
     }

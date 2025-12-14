@@ -74,10 +74,28 @@ struct FocusWidgetEntryView: View {
             smallView
         case .systemMedium:
             mediumView
+        case .accessoryCircular:
+            circularView
         case .accessoryRectangular:
             rectangularView
         default:
             smallView
+        }
+    }
+    
+    // MARK: - Lock Screen Circular
+    
+    private var circularView: some View {
+        ZStack {
+            AccessoryWidgetBackground()
+            
+            VStack(spacing: 0) {
+                Image(systemName: "bolt.fill")
+                    .font(.system(size: 12))
+                
+                Text("\(entry.pendingCount)")
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+            }
         }
     }
     
@@ -296,10 +314,11 @@ struct FocusWidget: Widget {
             provider: FocusProvider()
         ) { entry in
             FocusWidgetEntryView(entry: entry)
+                .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("Next Read")
-        .description("Shows your next bookmark to read")
-        .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular])
+        .configurationDisplayName("widget.focus.name".localized)
+        .description("widget.focus.desc".localized)
+        .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryRectangular])
     }
 }
 

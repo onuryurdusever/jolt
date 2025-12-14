@@ -108,13 +108,16 @@ export class DefaultStrategy implements ParsingStrategy {
         
         if (quality.detectedWalls.paywall) {
           const metaResult = scrapeMetaTags(html);
+          // Calculate reading time from available content even for paywalled sites
+          const textContent = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+          const readingTime = estimateReadingTime(textContent);
           return {
             type: 'webview',
             title: sanitizeTitle(articleResult.title) || sanitizeTitle(metaResult.title) || extractTitleFromURL(url),
             excerpt: metaResult.description || articleResult.excerpt,
             content_html: null,
             cover_image: extractCoverImage(html) || metaResult.image,
-            reading_time_minutes: 0,
+            reading_time_minutes: readingTime,
             domain,
             metadata: null,
             paywalled: true,
@@ -181,6 +184,8 @@ export class DefaultStrategy implements ParsingStrategy {
       // Still run quality check
       const textContent = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
       const quality = checkContentQuality(html, textContent);
+      // Calculate reading time from extracted text
+      const readingTime = estimateReadingTime(textContent);
       
       return {
         type: 'webview',
@@ -188,7 +193,7 @@ export class DefaultStrategy implements ParsingStrategy {
         excerpt: metaResult.description,
         content_html: null,
         cover_image: metaResult.image,
-        reading_time_minutes: 0,
+        reading_time_minutes: readingTime,
         domain,
         metadata: null,
         fetchMethod: 'meta-only',
@@ -199,14 +204,17 @@ export class DefaultStrategy implements ParsingStrategy {
       };
     }
 
-    // TIER 4: Fallback to webview
+    // TIER 4: Fallback to webview - still try to estimate reading time
+    const textContent = html ? html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+    const readingTime = estimateReadingTime(textContent);
+    
     return {
       type: 'webview',
       title: extractTitleFromURL(url),
       excerpt: null,
       content_html: null,
       cover_image: null,
-      reading_time_minutes: 0,
+      reading_time_minutes: readingTime,
       domain,
       metadata: null,
       fetchMethod: 'webview',

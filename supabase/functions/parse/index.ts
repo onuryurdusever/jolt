@@ -7,9 +7,11 @@
 // - Quality Gate for consent walls, paywalls, login detection
 // - Upstash Redis for rate limiting and caching
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { StrategyRegistry } from "./strategies/index.ts"
+import { DefaultStrategy } from "./strategies/default.ts"
+import { ParseResult } from "./strategies/base.ts"
 import { getClientIP } from "./fetcher.ts"
 import { sanitizeURL } from "./sanitizer.ts"
 
@@ -28,7 +30,7 @@ serve(async (req) => {
   }
 
   try {
-    const { url, user_id } = await req.json()
+    const { url, user_id, skip_cache } = await req.json()
 
     if (!url) {
       return new Response(
@@ -58,7 +60,7 @@ serve(async (req) => {
       )
     }
 
-    console.log(`📥 Parse request for: ${sanitizedUrl}`)
+    console.log(`📥 Parse request for: ${sanitizedUrl} (skip_cache: ${!!skip_cache})`)
     
     // Get client IP for rate limiting
     const clientIP = getClientIP(req);
@@ -68,17 +70,23 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Check cache (24 hour TTL)
+    // Check cache (24 hour TTL) - unless skipped
     const urlHash = await generateURLHash(sanitizedUrl)
-    const expiryDate = new Date()
-    expiryDate.setHours(expiryDate.getHours() - CACHE_TTL_HOURS)
+    let cached = null;
+    
+    if (!skip_cache) {
+      const expiryDate = new Date()
+      expiryDate.setHours(expiryDate.getHours() - CACHE_TTL_HOURS)
 
-    const { data: cached } = await supabase
-      .from('parsed_cache')
-      .select('*')
-      .eq('url_hash', urlHash)
-      .gt('created_at', expiryDate.toISOString())
-      .single()
+      const { data } = await supabase
+        .from('parsed_cache')
+        .select('*')
+        .eq('url_hash', urlHash)
+        .gt('created_at', expiryDate.toISOString())
+        .single()
+        
+      cached = data;
+    }
 
     if (cached) {
       console.log(`✅ Cache hit for: ${sanitizedUrl}`)
@@ -97,7 +105,20 @@ serve(async (req) => {
     const strategy = registry.getStrategy(sanitizedUrl)
     console.log(`🔍 Using strategy: ${strategy.name}`)
     
-    const parsed = await strategy.parse(sanitizedUrl, undefined, clientIP)
+    let parsed: ParseResult;
+    try {
+      parsed = await strategy.parse(sanitizedUrl, undefined, clientIP)
+    } catch (e) {
+      // If a specific strategy fails, fallback to Default strategy
+      // This ensures we always try to get at least some metadata (title, image)
+      if (strategy.name !== 'Default') {
+        console.warn(`⚠️ Strategy ${strategy.name} failed (${e instanceof Error ? e.message : 'Unknown'}), falling back to Default strategy`);
+        const defaultStrategy = new DefaultStrategy();
+        parsed = await defaultStrategy.parse(sanitizedUrl, undefined, clientIP);
+      } else {
+        throw e; // If Default fails, we really failed
+      }
+    }
 
     // Fallback to favicon if no cover image
     if (!parsed.cover_image) {

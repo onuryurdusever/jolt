@@ -20,9 +20,12 @@ class AuthService: ObservableObject {
     private let userIDKey = "jolt.userId"
     
     private init() {
-        // TODO: Replace with your Supabase URL and anon key
-        let supabaseURL = URL(string: "https://tksukbumdgogpvhdzajq.supabase.co")!
-        let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrc3VrYnVtZGdvZ3B2aGR6YWpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODkzMDIsImV4cCI6MjA4MDE2NTMwMn0.wWgyTSFtOyIie0E6050qEwvJRBVBcS4OamNOQoyj6aU"
+        // Read Supabase config from Info.plist
+        guard let supabaseURLString = Bundle.main.infoDictionary?["SUPABASE_URL"] as? String,
+              let supabaseURL = URL(string: supabaseURLString),
+              let supabaseKey = Bundle.main.infoDictionary?["SUPABASE_ANON_KEY"] as? String else {
+            fatalError("❌ Missing SUPABASE_URL or SUPABASE_ANON_KEY in Info.plist")
+        }
         
         self.client = SupabaseClient(
             supabaseURL: supabaseURL,
@@ -38,7 +41,9 @@ class AuthService: ObservableObject {
             if let existingUserID = loadUserIDFromKeychain() {
                 currentUserID = existingUserID
                 isAuthenticated = true
+                #if DEBUG
                 print("✅ Restored existing session: \(existingUserID)")
+                #endif
                 return
             }
             
@@ -50,42 +55,113 @@ class AuthService: ObservableObject {
             isAuthenticated = true
             saveUserIDToKeychain(userID)
             
+            #if DEBUG
             print("✅ Created anonymous session: \(userID)")
+            #endif
         } catch {
+            #if DEBUG
             print("❌ Failed to initialize anonymous session: \(error)")
+            #endif
         }
     }
     
     func signOut() async {
         do {
             try await client.auth.signOut()
-            
-            // Clear Keychain
-            let query: [String: Any] = [
-                kSecClass as String: kSecClassGenericPassword,
-                kSecAttrAccount as String: userIDKey,
-                kSecAttrAccessGroup as String: "group.com.jolt.shared"
-            ]
-            SecItemDelete(query as CFDictionary)
-            
-            // Reset State
-            currentUserID = nil
-            isAuthenticated = false
-            
+            clearLocalAuthData()
+            #if DEBUG
             print("✅ Signed out successfully")
+            #endif
         } catch {
+            #if DEBUG
             print("❌ Failed to sign out: \(error)")
-            
+            #endif
             // Force local cleanup even if backend fails
-            let query: [String: Any] = [
-                kSecClass as String: kSecClassGenericPassword,
-                kSecAttrAccount as String: userIDKey,
-                kSecAttrAccessGroup as String: "group.com.jolt.shared"
-            ]
-            SecItemDelete(query as CFDictionary)
-            currentUserID = nil
-            isAuthenticated = false
+            clearLocalAuthData()
         }
+    }
+    
+    /// Delete account and all associated data (App Store required)
+    func deleteAccount() async {
+        guard let userID = currentUserID else {
+            #if DEBUG
+            print("❌ No user ID to delete")
+            #endif
+            clearLocalAuthData()
+            return
+        }
+        
+        do {
+            // 1. Delete user data from Supabase tables
+            // Delete bookmarks
+            try await client
+                .from("bookmarks")
+                .delete()
+                .eq("user_id", value: userID)
+                .execute()
+            
+            // Delete collections
+            try await client
+                .from("collections")
+                .delete()
+                .eq("user_id", value: userID)
+                .execute()
+            
+            // Delete routines
+            try await client
+                .from("routines")
+                .delete()
+                .eq("user_id", value: userID)
+                .execute()
+            
+            // Delete sync actions
+            try await client
+                .from("sync_actions")
+                .delete()
+                .eq("user_id", value: userID)
+                .execute()
+            
+            #if DEBUG
+            print("✅ User data deleted from Supabase")
+            #endif
+            
+            // 2. Sign out (this also deletes the anonymous user)
+            try await client.auth.signOut()
+            
+            #if DEBUG
+            print("✅ Account deleted successfully")
+            #endif
+        } catch {
+            // Check if error is "table not found" (PGRST205) - this is expected if using offline-only
+            let errorString = String(describing: error)
+            if errorString.contains("PGRST205") {
+                #if DEBUG
+                print("⚠️ Supabase tables not found. Skipping remote data deletion.")
+                #endif
+            } else {
+                #if DEBUG
+                print("❌ Failed to delete account data: \(error)")
+                #endif
+            }
+            // Even if backend fails, clean up local data
+        }
+        
+        // 3. Always clear local data
+        clearLocalAuthData()
+    }
+    
+    private func clearLocalAuthData() {
+        // Clear Keychain
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: userIDKey,
+            kSecAttrAccessGroup as String: "group.com.jolt.shared"
+        ]
+        SecItemDelete(query as CFDictionary)
+        
+        // Reset State
+        currentUserID = nil
+        isAuthenticated = false
     }
     
     private func loadSession() {
@@ -114,9 +190,13 @@ class AuthService: ObservableObject {
         // Add new item
         let status = SecItemAdd(query as CFDictionary, nil)
         if status == errSecSuccess {
+            #if DEBUG
             print("✅ UserID saved to Keychain")
+            #endif
         } else {
+            #if DEBUG
             print("❌ Failed to save userID to Keychain: \(status)")
+            #endif
         }
     }
     
@@ -134,7 +214,9 @@ class AuthService: ObservableObject {
         guard status == errSecSuccess,
               let data = result as? Data,
               let userID = String(data: data, encoding: .utf8) else {
+            #if DEBUG
             print("❌ Failed to load userID from Keychain: \(status)")
+            #endif
             return nil
         }
         

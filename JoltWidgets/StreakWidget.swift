@@ -262,9 +262,10 @@ struct StreakWidget: Widget {
             provider: StreakProvider()
         ) { entry in
             StreakWidgetEntryView(entry: entry)
+                .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("Reading Streak")
-        .description("Track your daily reading streak")
+        .configurationDisplayName("widget.streak.name".localized)
+        .description("widget.streak.desc".localized)
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryRectangular])
     }
 }

@@ -19,29 +19,15 @@ struct QuoteEntry: TimelineEntry {
 // MARK: - Quotes
 
 struct JoltQuotes {
-    static let quotes = [
-        "Bugün okuduğunuz bir sayfa, yarın atacağınız bir adımdır.",
-        "Okumak zihnin egzersizidir.",
-        "Her makale yeni bir kapı açar.",
-        "5 dakika yeter. Başlayın!",
-        "Bookmark mezarlığını temizle!",
-        "Bilgi güçtür.",
-        "Küçük adımlar, büyük değişimler.",
-        "Okuyan insan, düşünen insan.",
-        "Bugün ne öğrendin?",
-        "Merak etmek, öğrenmenin ilk adımıdır.",
-        "Her gün biraz daha iyiye.",
-        "Okumak özgürleştirir.",
-        "Bir makale, bin fikir.",
-        "Zihnini besle, ruhunu doyur.",
-        "Başlamak, yarısı demek."
-    ]
+    static var quotes: [String] {
+        (1...15).map { "quote.\($0)".localized }
+    }
     
     static func quoteOfTheDay() -> String {
         let calendar = Calendar.current
         let dayOfYear = calendar.ordinality(of: .day, in: .year, for: Date()) ?? 0
-        let index = dayOfYear % quotes.count
-        return quotes[index]
+        let index = dayOfYear % 15
+        return "quote.\(index + 1)".localized
     }
 }
 
@@ -222,9 +208,10 @@ struct QuoteWidget: Widget {
             provider: QuoteProvider()
         ) { entry in
             QuoteWidgetEntryView(entry: entry)
+                .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("Günlük İlham")
-        .description("Her gün yeni bir motivasyon sözü")
+        .configurationDisplayName("widget.quote.name".localized)
+        .description("widget.quote.desc".localized)
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular])
     }
 }

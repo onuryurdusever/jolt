@@ -2,7 +2,7 @@
 //  ShareViewController.swift
 //  JoltShareExtension
 //
-//  Created by Onur Yurdusever on 1.12.2025.
+//  v2.1 - Old elegant design with Expiration Engine data model
 //
 
 import UIKit
@@ -46,7 +46,7 @@ class ShareViewController: UIViewController {
             return
         }
         
-        let schema = Schema([Bookmark.self, Collection.self, Routine.self])
+        let schema = Schema([Bookmark.self, Routine.self])
         let modelConfiguration = ModelConfiguration(
             url: appGroupURL.appendingPathComponent("jolt.sqlite"),
             allowsSave: true
@@ -226,14 +226,11 @@ struct ExtensionQuickCaptureView: View {
     
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Routine.hour) private var routines: [Routine]
-    @Query(sort: \Collection.createdAt) private var collections: [Collection]
     
     @StateObject private var metadataLoader = ExtensionMetadataLoader()
     
     @State private var userNote: String = ""
-    @State private var selectedCollection: Collection?
-    @State private var showDatePicker = false
-    @State private var customDate = Date()
+
     @State private var showSuccess = false
     @State private var isDuplicate = false
     
@@ -249,133 +246,19 @@ struct ExtensionQuickCaptureView: View {
         metadataLoader.title ?? domain
     }
     
-    private var nextRoutineTime: Date {
-        let now = Date()
-        let calendar = Calendar.current
-        let currentHour = calendar.component(.hour, from: now)
-        let currentMinute = calendar.component(.minute, from: now)
-        let currentWeekday = calendar.component(.weekday, from: now)
-        
-        let activeRoutines = routines.filter { $0.isEnabled }
-            .sorted { ($0.hour * 60 + $0.minute) < ($1.hour * 60 + $1.minute) }
-        
-        guard !activeRoutines.isEmpty else {
-            return now.addingTimeInterval(3 * 3600)
-        }
-        
-        for routine in activeRoutines {
-            let routineMinutes = routine.hour * 60 + routine.minute
-            let currentMinutes = currentHour * 60 + currentMinute
-            
-            if routineMinutes > currentMinutes && routine.days.contains(currentWeekday) {
-                var components = calendar.dateComponents([.year, .month, .day], from: now)
-                components.hour = routine.hour
-                components.minute = routine.minute
-                if let date = calendar.date(from: components) {
-                    return date
-                }
-            }
-        }
-        
-        for dayOffset in 1...7 {
-            guard let futureDate = calendar.date(byAdding: .day, value: dayOffset, to: now) else { continue }
-            let futureWeekday = calendar.component(.weekday, from: futureDate)
-            
-            for routine in activeRoutines {
-                if routine.days.contains(futureWeekday) {
-                    var components = calendar.dateComponents([.year, .month, .day], from: futureDate)
-                    components.hour = routine.hour
-                    components.minute = routine.minute
-                    if let date = calendar.date(from: components) {
-                        return date
-                    }
-                }
-            }
-        }
-        
-        let tomorrow = calendar.date(byAdding: .day, value: 1, to: now)!
-        return calendar.date(bySettingHour: 9, minute: 0, second: 0, of: tomorrow) ?? tomorrow
+    private var isPremium: Bool {
+        defaults?.bool(forKey: "isPremium") ?? false
     }
     
-    /// Returns the 2nd upcoming routine time (skip one)
-    private var secondRoutineTime: Date {
-        let now = Date()
-        let calendar = Calendar.current
-        let currentHour = calendar.component(.hour, from: now)
-        let currentMinute = calendar.component(.minute, from: now)
-        let currentWeekday = calendar.component(.weekday, from: now)
-        
-        let activeRoutines = routines.filter { $0.isEnabled }
-            .sorted { ($0.hour * 60 + $0.minute) < ($1.hour * 60 + $1.minute) }
-        
-        guard !activeRoutines.isEmpty else {
-            return now.addingTimeInterval(6 * 3600)
-        }
-        
-        var upcomingTimes: [Date] = []
-        
-        for routine in activeRoutines {
-            let routineMinutes = routine.hour * 60 + routine.minute
-            let currentMinutes = currentHour * 60 + currentMinute
-            
-            if routineMinutes > currentMinutes && routine.days.contains(currentWeekday) {
-                var components = calendar.dateComponents([.year, .month, .day], from: now)
-                components.hour = routine.hour
-                components.minute = routine.minute
-                if let date = calendar.date(from: components) {
-                    upcomingTimes.append(date)
-                }
-            }
-        }
-        
-        for dayOffset in 1...7 {
-            guard let futureDate = calendar.date(byAdding: .day, value: dayOffset, to: now) else { continue }
-            let futureWeekday = calendar.component(.weekday, from: futureDate)
-            
-            for routine in activeRoutines {
-                if routine.days.contains(futureWeekday) {
-                    var components = calendar.dateComponents([.year, .month, .day], from: futureDate)
-                    components.hour = routine.hour
-                    components.minute = routine.minute
-                    if let date = calendar.date(from: components) {
-                        upcomingTimes.append(date)
-                    }
-                }
-            }
-            
-            if upcomingTimes.count >= 2 { break }
-        }
-        
-        upcomingTimes.sort()
-        if upcomingTimes.count >= 2 {
-            return upcomingTimes[1]
-        } else if let first = upcomingTimes.first {
-            return calendar.date(byAdding: .day, value: 1, to: first) ?? first.addingTimeInterval(24 * 3600)
-        }
-        
-        let dayAfterTomorrow = calendar.date(byAdding: .day, value: 2, to: now)!
-        return calendar.date(bySettingHour: 9, minute: 0, second: 0, of: dayAfterTomorrow) ?? dayAfterTomorrow
+
+    
+    // DOZ v2.1: Kullanıcının aktif sabah/akşam rutinleri
+    private var morningRoutine: Routine? {
+        routines.first { $0.icon == "sun.max.fill" && $0.isEnabled }
     }
     
-    private var recentCollections: [Collection] {
-        guard let recentIDs = defaults?.array(forKey: "recentCollectionIDs") as? [String] else {
-            return Array(collections.prefix(3))
-        }
-        
-        var result: [Collection] = []
-        for idString in recentIDs {
-            if let uuid = UUID(uuidString: idString),
-               let collection = collections.first(where: { $0.id == uuid }) {
-                result.append(collection)
-            }
-        }
-        
-        for collection in collections where !result.contains(where: { $0.id == collection.id }) {
-            if result.count >= 3 { break }
-            result.append(collection)
-        }
-        
-        return Array(result.prefix(3))
+    private var eveningRoutine: Routine? {
+        routines.first { $0.icon == "moon.fill" && $0.isEnabled }
     }
     
     // MARK: - Body
@@ -389,20 +272,18 @@ struct ExtensionQuickCaptureView: View {
                     .padding(.bottom, 12)
                 
                 ScrollView {
-                    VStack(spacing: 16) {
+                    VStack(spacing: 20) {
                         linkPreviewCard
+                            .padding(.horizontal, 20)
+                        
+                        // v2.1 DOZ Sistemi: Basit 3 seçenek
+                        doseSelectionButtons
                             .padding(.horizontal, 20)
                         
                         noteInput
                             .padding(.horizontal, 20)
                         
-                        if !recentCollections.isEmpty {
-                            collectionChips
-                        }
-                        
-                        actionButtonGrid
-                            .padding(.horizontal, 20)
-                            .padding(.top, 8)
+
                     }
                     .padding(.bottom, 24)
                 }
@@ -422,9 +303,6 @@ struct ExtensionQuickCaptureView: View {
         }
         .onChange(of: userNote) { _, newValue in
             saveDraft(newValue)
-        }
-        .sheet(isPresented: $showDatePicker) {
-            datePickerSheet
         }
     }
     
@@ -525,6 +403,129 @@ struct ExtensionQuickCaptureView: View {
         .cornerRadius(16)
     }
     
+    // MARK: - v2.1 DOZ Seçim Butonları
+    
+    private var doseSelectionButtons: some View {
+        VStack(spacing: 12) {
+            // Ana satır: Sabah ve Akşam Dozları
+            HStack(spacing: 12) {
+                // Sabah Dozuna
+                DoseButton(
+                    title: morningDoseLabel,
+                    subtitle: morningRoutine?.timeString ?? "08:30",
+                    icon: "sun.max.fill",
+                    iconColor: Color.orange
+                ) {
+                    saveAndComplete(scheduledFor: calculateMorningDoseDate())
+                }
+                
+                // Akşam Dozuna
+                DoseButton(
+                    title: eveningDoseLabel,
+                    subtitle: eveningRoutine?.timeString ?? "21:00",
+                    icon: "moon.fill",
+                    iconColor: Color.purple
+                ) {
+                    saveAndComplete(scheduledFor: calculateEveningDoseDate())
+                }
+            }
+            
+            // Şimdi Oku - tam genişlik
+            Button {
+                saveAndComplete(scheduledFor: Date())
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "bolt.fill")
+                        .font(.system(size: 16, weight: .bold))
+                    Text(isDuplicate ? "shareExtension.bumpToTop".localized : "shareExtension.readNow".localized)
+                        .font(.system(size: 16, weight: .bold))
+                }
+                .foregroundColor(.black)
+                .frame(maxWidth: .infinity)
+                .frame(height: 52)
+                .background(Color(hex: "#CCFF00"))
+                .cornerRadius(14)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+    
+    // MARK: - Dose Hesaplamaları
+    
+    private var morningDoseLabel: String {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        guard let morning = morningRoutine else {
+            return "shareExtension.toMorning".localized
+        }
+        
+        let morningTime = calendar.date(bySettingHour: morning.hour, minute: morning.minute, second: 0, of: now) ?? now
+        
+        if morningTime > now {
+            return "shareExtension.toMorning".localized // "Sabaha"
+        } else {
+            return "shareExtension.tomorrowMorning".localized // "Yarın Sabaha"
+        }
+    }
+    
+    private var eveningDoseLabel: String {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        guard let evening = eveningRoutine else {
+            return "shareExtension.toEvening".localized
+        }
+        
+        let eveningTime = calendar.date(bySettingHour: evening.hour, minute: evening.minute, second: 0, of: now) ?? now
+        
+        if eveningTime > now {
+            return "shareExtension.toEvening".localized // "Akşama"
+        } else {
+            return "shareExtension.tomorrowEvening".localized // "Yarın Akşama"
+        }
+    }
+    
+    private func calculateMorningDoseDate() -> Date {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        let hour = morningRoutine?.hour ?? 8
+        let minute = morningRoutine?.minute ?? 30
+        
+        var components = calendar.dateComponents([.year, .month, .day], from: now)
+        components.hour = hour
+        components.minute = minute
+        
+        guard let todayMorning = calendar.date(from: components) else { return now }
+        
+        if todayMorning > now {
+            return todayMorning
+        } else {
+            return calendar.date(byAdding: .day, value: 1, to: todayMorning) ?? todayMorning
+        }
+    }
+    
+    private func calculateEveningDoseDate() -> Date {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        let hour = eveningRoutine?.hour ?? 21
+        let minute = eveningRoutine?.minute ?? 0
+        
+        var components = calendar.dateComponents([.year, .month, .day], from: now)
+        components.hour = hour
+        components.minute = minute
+        
+        guard let todayEvening = calendar.date(from: components) else { return now }
+        
+        if todayEvening > now {
+            return todayEvening
+        } else {
+            return calendar.date(byAdding: .day, value: 1, to: todayEvening) ?? todayEvening
+        }
+    }
+    
     // MARK: - Note Input
     
     private var noteInput: some View {
@@ -533,7 +534,7 @@ struct ExtensionQuickCaptureView: View {
                 .font(.system(size: 12))
                 .foregroundColor(Color(hex: "#8E8E93"))
             
-            TextField("Add context...", text: $userNote, axis: .vertical)
+            TextField("share.notePlaceholder".localized, text: $userNote, axis: .vertical)
                 .font(.system(size: 14))
                 .foregroundColor(.white)
                 .lineLimit(1...3)
@@ -543,120 +544,7 @@ struct ExtensionQuickCaptureView: View {
         .cornerRadius(12)
     }
     
-    // MARK: - Collection Chips
-    
-    private var collectionChips: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ExtensionCollectionChip(
-                    name: "No Collection",
-                    color: "#8E8E93",
-                    isSelected: selectedCollection == nil
-                ) {
-                    withAnimation(.spring(response: 0.3)) {
-                        selectedCollection = nil
-                    }
-                }
-                
-                ForEach(recentCollections) { collection in
-                    ExtensionCollectionChip(
-                        name: collection.name,
-                        color: collection.color,
-                        isSelected: selectedCollection?.id == collection.id
-                    ) {
-                        withAnimation(.spring(response: 0.3)) {
-                            selectedCollection = collection
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal, 20)
-        }
-    }
-    
-    // MARK: - Action Button Grid
-    
-    private var actionButtonGrid: some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 10) {
-                ExtensionActionButton(
-                    title: isDuplicate ? "Bump to Top" : formatRoutineLabel(nextRoutineTime),
-                    icon: isDuplicate ? "arrow.up.circle.fill" : "bolt.fill",
-                    isPrimary: true
-                ) {
-                    saveAndComplete(scheduledFor: nextRoutineTime)
-                }
-                
-                ExtensionActionButton(
-                    title: formatRoutineLabel(secondRoutineTime),
-                    icon: "forward.fill",
-                    isPrimary: false
-                ) {
-                    saveAndComplete(scheduledFor: secondRoutineTime)
-                }
-            }
-            
-            HStack(spacing: 10) {
-                ExtensionActionButton(
-                    title: "No Reminder",
-                    icon: "tray.fill",
-                    isPrimary: false
-                ) {
-                    saveAndComplete(scheduledFor: nil)
-                }
-                
-                ExtensionActionButton(
-                    title: "Pick Time",
-                    icon: "calendar",
-                    isPrimary: false
-                ) {
-                    showDatePicker = true
-                }
-            }
-        }
-    }
-    
-    // MARK: - Date Picker Sheet
-    
-    private var datePickerSheet: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                DatePicker(
-                    "When to read?",
-                    selection: $customDate,
-                    in: Date()...,
-                    displayedComponents: [.date, .hourAndMinute]
-                )
-                .datePickerStyle(.graphical)
-                .tint(Color(hex: "#CCFF00"))
-                .padding()
-                
-                Spacer()
-            }
-            .background(Color(hex: "#000000"))
-            .navigationTitle("Pick Time")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        showDatePicker = false
-                    }
-                    .foregroundColor(Color(hex: "#8E8E93"))
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        showDatePicker = false
-                        saveAndComplete(scheduledFor: customDate)
-                    }
-                    .fontWeight(.semibold)
-                    .foregroundColor(Color(hex: "#CCFF00"))
-                }
-            }
-        }
-        .presentationDetents([.medium])
-        .presentationDragIndicator(.visible)
-    }
+
     
     // MARK: - Success Overlay
     
@@ -689,9 +577,7 @@ struct ExtensionQuickCaptureView: View {
         
         performSave(scheduledFor: scheduledFor)
         
-        if let collection = selectedCollection {
-            updateRecentCollections(with: collection.id)
-        }
+
         
         withAnimation {
             showSuccess = true
@@ -710,35 +596,60 @@ struct ExtensionQuickCaptureView: View {
             }
         )
         
+        let finalScheduledFor = scheduledFor ?? Date()
+        
+        // v2.1 DOZ: Intent basit - sadece uyumluluk için
+        // Artık scheduledFor tek önemli alan
+        let intent: BookmarkIntent = finalScheduledFor.timeIntervalSinceNow < 60 ? .now : .tomorrow
+        
+        // Expiration: Premium 30 gün, Free 7 gün
+        let expiresAt = calendar.date(byAdding: .day, value: isPremium ? 30 : 7, to: Date())
+        
         do {
             if let existing = try modelContext.fetch(descriptor).first {
+                // Update existing bookmark
                 existing.createdAt = Date()
-                existing.scheduledFor = scheduledFor ?? Date().addingTimeInterval(365 * 24 * 3600)
+                existing.scheduledFor = finalScheduledFor
                 existing.userNote = userNote.isEmpty ? nil : userNote
-                existing.collection = selectedCollection
-                if existing.status == .archived {
-                    existing.status = .pending
-                }
+                
+                existing.intent = intent
+                existing.expiresAt = expiresAt
+                
+                // v2.1 Logic Fix: ALWAYS reset status for existing items when "pulling forward"
+                // or rescheduling. This brings "archived/history" items back to Focus.
+                existing.status = .active
+                existing.archivedAt = nil
+                existing.archivedReason = nil
+                existing.readAt = nil
+                existing.lastScrollPercentage = 0
+                // We keep contentHTML and others to avoid re-fetching if possible
             } else {
+                // Create new bookmark with v2.1 DOZ fields
                 let bookmark = Bookmark(
                     userID: userID,
                     originalURL: url,
-                    status: .pending,
-                    scheduledFor: scheduledFor ?? Date().addingTimeInterval(365 * 24 * 3600),
+                    status: .active,
+                    scheduledFor: finalScheduledFor,
                     title: metadataLoader.title ?? domain,
                     type: detectBookmarkType(),
                     domain: URL(string: url)?.host ?? "unknown",
                     userNote: userNote.isEmpty ? nil : userNote,
-                    collection: selectedCollection
+                    expiresAt: expiresAt,
+                    intent: intent
                 )
                 modelContext.insert(bookmark)
             }
             
             try modelContext.save()
+            
+            // Trigger sync
+            defaults?.set(true, forKey: "needsSync")
         } catch {
             print("❌ Failed to save bookmark: \(error)")
         }
     }
+    
+    private var calendar: Calendar { Calendar.current }
     
     private func detectBookmarkType() -> BookmarkType {
         let host = (URL(string: url)?.host ?? "").lowercased()
@@ -757,18 +668,19 @@ struct ExtensionQuickCaptureView: View {
         
         if calendar.isDateInToday(date) {
             if hour < 12 {
-                return "This Morning"
+                return "share.time.thisMorning".localized
             } else if hour < 17 {
-                return "This Afternoon"
+                return "share.time.thisAfternoon".localized
             } else {
-                return "Tonight \(timeString)"
+                return "share.time.tonight".localized(with: timeString)
             }
         } else if calendar.isDateInTomorrow(date) {
-            return "Tomorrow \(timeString)"
+            return "share.time.tomorrow".localized(with: timeString)
         } else {
             let dayFormatter = DateFormatter()
+            dayFormatter.locale = Locale(identifier: "tr_TR")
             dayFormatter.dateFormat = "EEEE"
-            return "\(dayFormatter.string(from: date)) \(timeString)"
+            return "share.time.day".localized(with: dayFormatter.string(from: date), timeString)
         }
     }
     
@@ -784,13 +696,7 @@ struct ExtensionQuickCaptureView: View {
         }
     }
     
-    private func updateRecentCollections(with collectionID: UUID) {
-        var recentIDs = defaults?.array(forKey: "recentCollectionIDs") as? [String] ?? []
-        recentIDs.removeAll { $0 == collectionID.uuidString }
-        recentIDs.insert(collectionID.uuidString, at: 0)
-        recentIDs = Array(recentIDs.prefix(10))
-        defaults?.set(recentIDs, forKey: "recentCollectionIDs")
-    }
+
     
     private func loadDraft() {
         guard let savedUrl = defaults?.string(forKey: "draft_url"), savedUrl == url else { return }
@@ -808,67 +714,42 @@ struct ExtensionQuickCaptureView: View {
     }
 }
 
-// MARK: - Extension Collection Chip
+// MARK: - v2.1 DOZ Dose Button
 
-struct ExtensionCollectionChip: View {
-    let name: String
-    let color: String
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 6) {
-                Circle()
-                    .fill(Color(hex: color))
-                    .frame(width: 8, height: 8)
-                
-                Text(name)
-                    .font(.system(size: 13, weight: .medium))
-                    .lineLimit(1)
-            }
-            .foregroundColor(isSelected ? Color(hex: "#000000") : .white)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(isSelected ? Color(hex: "#CCFF00") : Color(hex: "#1C1C1E"))
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(isSelected ? Color.clear : Color(hex: "#383838"), lineWidth: 1)
-            )
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-// MARK: - Extension Action Button
-
-struct ExtensionActionButton: View {
+struct DoseButton: View {
     let title: String
+    let subtitle: String
     let icon: String
-    let isPrimary: Bool
+    let iconColor: Color
     let action: () -> Void
     
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 8) {
+            VStack(spacing: 6) {
                 Image(systemName: icon)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(iconColor)
                 
                 Text(title)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
+                
+                Text(subtitle)
+                    .font(.system(size: 11))
+                    .foregroundColor(Color(hex: "#8E8E93"))
             }
-            .foregroundColor(isPrimary ? Color(hex: "#000000") : .white)
             .frame(maxWidth: .infinity)
-            .frame(height: 50)
-            .background(isPrimary ? Color(hex: "#CCFF00") : Color(hex: "#1C1C1E"))
-            .cornerRadius(12)
+            .frame(height: 88)
+            .background(Color(hex: "#1C1C1E"))
+            .cornerRadius(16)
         }
         .buttonStyle(.plain)
     }
 }
+
+
 
 // MARK: - Extension Shimmer View
 
@@ -932,3 +813,5 @@ extension UIColor {
         self.init(red: CGFloat(r) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: CGFloat(a) / 255)
     }
 }
+
+

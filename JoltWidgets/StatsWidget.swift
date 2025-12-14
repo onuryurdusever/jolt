@@ -95,9 +95,53 @@ struct StatsWidgetEntryView: View {
             smallView
         case .systemMedium:
             mediumView
+        case .accessoryCircular:
+            circularView
+        case .accessoryRectangular:
+            rectangularView
         default:
             smallView
         }
+    }
+    
+    // MARK: - Lock Screen Circular
+    
+    private var circularView: some View {
+        let todayJolts = entry.weeklyActivity.first ?? 0
+        
+        return ZStack {
+            AccessoryWidgetBackground()
+            
+            VStack(spacing: 0) {
+                Text("\(todayJolts)")
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                
+                Text("widget.stats.jolt".localized)
+                    .font(.system(size: 8, weight: .medium))
+            }
+        }
+    }
+    
+    // MARK: - Lock Screen Rectangular
+    
+    private var rectangularView: some View {
+        let todayJolts = entry.weeklyActivity.first ?? 0
+        let weeklyTotal = entry.weeklyActivity.reduce(0, +)
+        
+        return HStack(spacing: 8) {
+            Image(systemName: "chart.bar.fill")
+                .font(.system(size: 14))
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text("widget.stats.todayJolts".localized(with: todayJolts))
+                    .font(.system(size: 12, weight: .semibold))
+                
+                Text("widget.stats.weeklyTotal".localized(with: weeklyTotal))
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     // MARK: - Small Widget
@@ -204,21 +248,21 @@ struct StatsWidgetEntryView: View {
                 StatItem(
                     icon: "bolt.fill",
                     value: "\(entry.totalJolts)",
-                    label: "Toplam",
+                    label: "widget.stats.total".localized,
                     color: .widgetJoltYellow
                 )
                 
                 StatItem(
                     icon: "flame.fill",
                     value: "\(entry.currentStreak)",
-                    label: "Seri",
+                    label: "widget.stats.streak".localized,
                     color: .orange
                 )
                 
                 StatItem(
                     icon: "trophy.fill",
                     value: "\(entry.longestStreak)",
-                    label: "En İyi",
+                    label: "widget.stats.best".localized,
                     color: .yellow
                 )
             }
@@ -288,10 +332,11 @@ struct StatsWidget: Widget {
             provider: StatsProvider()
         ) { entry in
             StatsWidgetEntryView(entry: entry)
+                .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("İstatistikler")
-        .description("Haftalık okuma aktivitenizi görün")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .configurationDisplayName("widget.stats.name".localized)
+        .description("widget.stats.desc".localized)
+        .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryRectangular])
     }
 }
 

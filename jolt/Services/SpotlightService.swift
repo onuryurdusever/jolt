@@ -35,9 +35,13 @@ class SpotlightService {
         
         searchableIndex.indexSearchableItems([item]) { error in
             if let error = error {
+                #if DEBUG
                 print("❌ Spotlight index error: \(error.localizedDescription)")
+                #endif
             } else {
+                #if DEBUG
                 print("✅ Indexed: \(bookmark.title)")
+                #endif
             }
         }
     }
@@ -61,9 +65,13 @@ class SpotlightService {
         
         searchableIndex.indexSearchableItems(items) { error in
             if let error = error {
+                #if DEBUG
                 print("❌ Spotlight batch index error: \(error.localizedDescription)")
+                #endif
             } else {
+                #if DEBUG
                 print("✅ Indexed \(items.count) bookmarks")
+                #endif
             }
         }
     }
@@ -73,7 +81,9 @@ class SpotlightService {
     func removeBookmark(_ bookmark: Bookmark) {
         searchableIndex.deleteSearchableItems(withIdentifiers: [bookmark.id.uuidString]) { error in
             if let error = error {
+                #if DEBUG
                 print("❌ Spotlight remove error: \(error.localizedDescription)")
+                #endif
             }
         }
     }
@@ -83,9 +93,13 @@ class SpotlightService {
     func removeAllBookmarks() {
         searchableIndex.deleteSearchableItems(withDomainIdentifiers: [domainIdentifier]) { error in
             if let error = error {
+                #if DEBUG
                 print("❌ Spotlight clear error: \(error.localizedDescription)")
+                #endif
             } else {
+                #if DEBUG
                 print("✅ Cleared all Spotlight items")
+                #endif
             }
         }
     }
@@ -105,9 +119,7 @@ class SpotlightService {
         
         // Keywords for better search
         var keywords = [bookmark.domain, bookmark.type.rawValue]
-        if let collection = bookmark.collection {
-            keywords.append(collection.name)
-        }
+     
         attributeSet.keywords = keywords
         
         // Reading time

@@ -31,20 +31,26 @@ final class Bookmark {
     @Attribute(.preserveValueOnDeletion)
     var isStarred: Bool? // Favorite bookmark - optional for migration
     
-    @Relationship(deleteRule: .nullify)
-    var collection: Collection?
-    
     // v3.0 Parser fields
     var isProtected: Bool? // Content requires authentication (Notion, Jira, etc.)
     var isPaywalled: Bool? // Content is behind paywall (Medium, Substack premium)
     var fetchMethod: String? // 'api', 'oembed', 'readability', 'meta-only', 'webview'
     var parseConfidence: Double? // 0.0-1.0 quality score
     
+    // v2.1 Expiration Engine fields
+    var expiresAt: Date? // TTL - auto-archive date (default: createdAt + 7 days)
+    var archivedAt: Date? // When bookmark was archived (soft delete)
+    var archivedReason: String? // 'completed', 'manual', 'auto' (expired)
+    var recoveredAt: Date? // If user recovered from archive
+    var snoozeCount: Int? // Track snoozes for scoring
+    var intent: BookmarkIntent? // When user plans to read: now, tonight, weekend
+    var lastVideoPosition: Int? // Video resume position in seconds
+    
     init(
         id: UUID = UUID(),
         userID: String,
         originalURL: String,
-        status: BookmarkStatus = .pending,
+        status: BookmarkStatus = .active,
         scheduledFor: Date,
         contentHTML: String? = nil,
         title: String,
@@ -59,11 +65,17 @@ final class Bookmark {
         lastScrollPercentage: Double? = nil,
         metadata: [String: String]? = nil,
         isStarred: Bool? = false,
-        collection: Collection? = nil,
         isProtected: Bool? = nil,
         isPaywalled: Bool? = nil,
         fetchMethod: String? = nil,
-        parseConfidence: Double? = nil
+        parseConfidence: Double? = nil,
+        expiresAt: Date? = nil,
+        archivedAt: Date? = nil,
+        archivedReason: String? = nil,
+        recoveredAt: Date? = nil,
+        snoozeCount: Int? = 0,
+        intent: BookmarkIntent? = nil,
+        lastVideoPosition: Int? = nil
     ) {
         self.id = id
         self.userID = userID
@@ -83,18 +95,140 @@ final class Bookmark {
         self.lastScrollPercentage = lastScrollPercentage
         self.metadata = metadata
         self.isStarred = isStarred ?? false
-        self.collection = collection
         self.isProtected = isProtected
         self.isPaywalled = isPaywalled
         self.fetchMethod = fetchMethod
         self.parseConfidence = parseConfidence
+        
+        // v2.1 Expiration fields
+        self.expiresAt = expiresAt ?? Calendar.current.date(byAdding: .day, value: 7, to: createdAt)
+        self.archivedAt = archivedAt
+        self.archivedReason = archivedReason
+        self.recoveredAt = recoveredAt
+        self.snoozeCount = snoozeCount ?? 0
+        self.intent = intent
+        self.lastVideoPosition = lastVideoPosition
     }
 }
 
 enum BookmarkStatus: String, Codable {
-    case pending   // Waiting for backend parse
-    case ready     // Parsed and ready to read
-    case archived  // Completed/jolted
+    case active    // v2.1: Active content (was pending/ready)
+    case completed // User finished reading/watching
+    case archived  // Soft deleted (manual or auto-expired)
+    case expired   // Auto-archived due to TTL (30 days then hard delete)
+    
+    // Custom decoding to handle migration from old values
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+        
+        switch rawValue {
+        case "active":
+            self = .active
+        case "completed":
+            self = .completed
+        case "archived":
+            self = .archived
+        case "expired":
+            self = .expired
+        // Migration: Map old values to new
+        case "pending", "ready":
+            self = .active
+        default:
+            self = .active // Default fallback
+        }
+    }
+}
+
+/// v2.0: User's delivery timing choice - "Ne Zaman?" (When?)
+/// Replaced "Rutin" concept with simple delivery timing
+enum BookmarkIntent: String, Codable {
+    case now      // ⚡️ Şimdi - Add to top, read immediately
+    case tomorrow // ☀️ Yarına/Sabaha - Next delivery slot (morning or evening)
+    case weekend  // 📅 Hafta Sonu - Locked until Friday 18:00
+    
+    var displayName: String {
+        switch self {
+        case .now: return "intent.now".localized
+        case .tomorrow: return smartTomorrowLabel
+        case .weekend: return "intent.weekend".localized
+        }
+    }
+    
+    /// Dynamic label: "Bugün Akşama" before noon, "Yarına" after noon
+    private var smartTomorrowLabel: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        return hour < 12 ? "intent.tonight".localized : "intent.tomorrow".localized
+    }
+    
+    var subtitle: String {
+        switch self {
+        case .now: return "intent.now.subtitle".localized
+        case .tomorrow: return "intent.tomorrow.subtitle".localized
+        case .weekend: return "intent.weekend.subtitle".localized
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .now: return "bolt.fill"
+        case .tomorrow: return "sun.max.fill"
+        case .weekend: return "calendar"
+        }
+    }
+    
+    /// Calculate scheduledFor date based on intent and delivery times
+    func calculateScheduledDate(from date: Date = Date(), morningHour: Int = 8, morningMinute: Int = 30, eveningHour: Int = 21, eveningMinute: Int = 0) -> Date {
+        let calendar = Calendar.current
+        let currentHour = calendar.component(.hour, from: date)
+        
+        switch self {
+        case .now:
+            return date // Immediate - top of list
+            
+        case .tomorrow:
+            // Smart delivery: morning or evening slot
+            if currentHour < 12 {
+                // Before noon → deliver tonight
+                var components = calendar.dateComponents([.year, .month, .day], from: date)
+                components.hour = eveningHour
+                components.minute = eveningMinute
+                if let tonight = calendar.date(from: components), tonight > date {
+                    return tonight
+                }
+            }
+            // After noon or past evening → deliver tomorrow morning
+            let tomorrow = calendar.date(byAdding: .day, value: 1, to: date)!
+            var components = calendar.dateComponents([.year, .month, .day], from: tomorrow)
+            components.hour = morningHour
+            components.minute = morningMinute
+            return calendar.date(from: components)!
+            
+        case .weekend:
+            // Next Friday at 18:00 (locked until then)
+            let weekday = calendar.component(.weekday, from: date)
+            let daysUntilFriday = (6 - weekday + 7) % 7 // Friday is 6 (Sun=1, Mon=2, ..., Fri=6, Sat=7)
+            let nextFriday = calendar.date(byAdding: .day, value: daysUntilFriday == 0 ? 7 : daysUntilFriday, to: date)!
+            var components = calendar.dateComponents([.year, .month, .day], from: nextFriday)
+            components.hour = 18
+            components.minute = 0
+            return calendar.date(from: components)!
+        }
+    }
+    
+    /// Calculate expiresAt based on intent (7 days for free, 14 for premium)
+    func calculateExpiresAt(from date: Date = Date(), isPremium: Bool = false) -> Date {
+        let days = isPremium ? 14 : 7
+        let scheduledDate = calculateScheduledDate(from: date)
+        return Calendar.current.date(byAdding: .day, value: days, to: scheduledDate)!
+    }
+    
+    /// Check if content is locked (weekend items before Friday)
+    var isLocked: Bool {
+        guard self == .weekend else { return false }
+        let scheduledDate = calculateScheduledDate()
+        return Date() < scheduledDate
+    }
 }
 
 enum BookmarkType: String, Codable, CaseIterable {
@@ -180,6 +314,36 @@ extension Bookmark {
         return isProtected == true
     }
     
+    /// Generate favicon URL using Google Favicon API as fallback when no cover image
+    var faviconURL: URL? {
+        // Use the domain directly, or extract from originalURL
+        let domainToUse: String
+        if domain.isEmpty || domain == "Jolt" {
+            // Internal/tutorial content - no favicon needed
+            return nil
+        } else if let url = URL(string: originalURL), let host = url.host {
+            domainToUse = host
+        } else {
+            domainToUse = domain
+        }
+        
+        // Google Favicon API - returns 64x64 favicon
+        return URL(string: "https://www.google.com/s2/favicons?domain=\(domainToUse)&sz=128")
+    }
+    
+    /// Returns cover image URL, or favicon URL as fallback
+    var displayImageURL: URL? {
+        if let coverImageStr = coverImage, !coverImageStr.isEmpty, let url = URL(string: coverImageStr) {
+            return url
+        }
+        return faviconURL
+    }
+    
+    /// Check if we should show favicon (small icon) vs cover image (large image)
+    var shouldShowFaviconFallback: Bool {
+        return coverImage == nil || coverImage?.isEmpty == true
+    }
+    
     var platformIcon: String? {
         let domain = self.domain.lowercased()
         if domain.contains("twitter.com") || domain.contains("x.com") { return "xmark.app.fill" }
@@ -195,5 +359,153 @@ extension Bookmark {
     
     var platformName: String {
         return self.domain
+    }
+    
+    // MARK: - v2.1 Expiration Engine Helpers
+    
+    /// Time remaining until expiration
+    var timeUntilExpiration: TimeInterval? {
+        guard let expiresAt = expiresAt else { return nil }
+        return expiresAt.timeIntervalSince(Date())
+    }
+    
+    /// Days remaining until expiration
+    var daysUntilExpiration: Int? {
+        guard let timeRemaining = timeUntilExpiration else { return nil }
+        return max(0, Int(ceil(timeRemaining / 86400)))
+    }
+    
+    /// Hours remaining until expiration (for <24h display)
+    var hoursUntilExpiration: Int? {
+        guard let timeRemaining = timeUntilExpiration else { return nil }
+        return max(0, Int(ceil(timeRemaining / 3600)))
+    }
+    
+    /// Expiration urgency level for UI styling
+    var expirationUrgency: ExpirationUrgency {
+        guard let days = daysUntilExpiration else { return .safe }
+        switch days {
+        case 0: return .critical // <24 hours
+        case 1: return .urgent   // 1 day (Son gün!)
+        case 2...3: return .warning // 2-3 days
+        default: return .safe    // 4+ days
+        }
+    }
+    
+    /// Formatted countdown string
+    var countdownText: String {
+        guard let days = daysUntilExpiration else { return "" }
+        
+        if days == 0 {
+            if let hours = hoursUntilExpiration {
+                if hours <= 1 {
+                    return "expire.archiving".localized
+                }
+                return "expire.hoursLeft".localized(with: hours)
+            }
+        } else if days == 1 {
+            return "expire.lastDay".localized
+        } else {
+            return "expire.daysLeft".localized(with: days)
+        }
+        return ""
+    }
+    
+    /// Progress percentage for countdown bar (1.0 = full time, 0.0 = expired)
+    var countdownProgress: Double {
+        guard let expiresAt = expiresAt else { return 1.0 }
+        let totalDuration: TimeInterval = 7 * 24 * 3600 // 7 days default
+        let remaining = expiresAt.timeIntervalSince(Date())
+        return max(0, min(1, remaining / totalDuration))
+    }
+    
+    /// Check if bookmark is expired (past expiresAt date)
+    var isExpired: Bool {
+        guard let expiresAt = expiresAt else { return false }
+        return Date() > expiresAt
+    }
+    
+    /// Check if bookmark should be hard deleted (30 days after archive)
+    var shouldHardDelete: Bool {
+        guard let archivedAt = archivedAt else { return false }
+        let daysSinceArchive = Calendar.current.dateComponents([.day], from: archivedAt, to: Date()).day ?? 0
+        return daysSinceArchive >= 30
+    }
+    
+    /// Days until hard delete (for UI display)
+    var daysUntilHardDelete: Int? {
+        guard let archivedAt = archivedAt else { return nil }
+        let daysSinceArchive = Calendar.current.dateComponents([.day], from: archivedAt, to: Date()).day ?? 0
+        return max(0, 30 - daysSinceArchive)
+    }
+    
+    /// Check if bookmark can be recovered (within 30 days of archive)
+    var canRecover: Bool {
+        guard status == .archived || status == .expired else { return false }
+        guard let daysLeft = daysUntilHardDelete else { return false }
+        return daysLeft > 0
+    }
+    
+    // MARK: - v2.1 Actions
+    
+    /// Mark as completed (user finished reading)
+    func markCompleted() {
+        self.status = .completed
+        self.readAt = Date()
+        self.archivedAt = Date()
+        self.archivedReason = "completed"
+    }
+    
+    /// Archive manually (user closed)
+    func archiveManually() {
+        self.status = .archived
+        self.archivedAt = Date()
+        self.archivedReason = "manual"
+    }
+    
+    /// Archive due to expiration (auto)
+    func archiveExpired() {
+        self.status = .expired
+        self.archivedAt = Date()
+        self.archivedReason = "auto"
+    }
+    
+    /// Recover from archive
+    func recover(isPremium: Bool = false) {
+        self.status = .active
+        self.archivedAt = nil
+        self.archivedReason = nil
+        self.recoveredAt = Date()
+        // Reset expiration with new 7/14 day window
+        self.expiresAt = Calendar.current.date(byAdding: .day, value: isPremium ? 14 : 7, to: Date())
+    }
+    
+    /// Snooze bookmark to new time
+    func snooze(to intent: BookmarkIntent, isPremium: Bool = false) {
+        self.intent = intent
+        self.scheduledFor = intent.calculateScheduledDate()
+        self.expiresAt = intent.calculateExpiresAt(isPremium: isPremium)
+        self.snoozeCount = (self.snoozeCount ?? 0) + 1
+    }
+}
+
+/// Expiration urgency levels for UI styling
+enum ExpirationUrgency {
+    case safe      // 4+ days (green)
+    case warning   // 2-3 days (yellow)
+    case urgent    // 1 day (orange)
+    case critical  // <24 hours (red, pulsing)
+    
+    var colorHex: String {
+        switch self {
+        case .safe: return "#34C759"     // Green
+        case .warning: return "#FFD60A"  // Yellow
+        case .urgent: return "#FF9F0A"   // Orange
+        case .critical: return "#FF3B30" // Red
+        }
+    }
+    
+    var shouldPulse: Bool {
+        return self == .critical || self == .urgent
     }
 }

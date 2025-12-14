@@ -139,12 +139,22 @@ class SyncService: ObservableObject {
             let allBookmarks = try context.fetch(descriptor)
             print("📊 Total bookmarks in DB: \(allBookmarks.count)")
             
-            let pendingBookmarks = allBookmarks.filter { $0.status == .pending }
-            print("📊 Pending bookmarks: \(pendingBookmarks.count)")
+            // v2.1: Check for active bookmarks that need content fetching (no title OR no successful fetch method)
+            let pendingBookmarks = allBookmarks.filter { $0.status == .active && ($0.title == nil || $0.fetchMethod == nil) }
+            print("📊 Pending content fetch: \(pendingBookmarks.count)")
             
-            // Debug: print all bookmark statuses
-            for bookmark in allBookmarks {
-                print("📖 Bookmark: \(bookmark.title) - Status: \(bookmark.status.rawValue) - URL: \(bookmark.originalURL)")
+            // Debug: print all bookmark statuses with scheduledFor
+            let now = Date()
+            let activeCount = allBookmarks.filter { $0.status == .active }.count
+            let focusReadyCount = allBookmarks.filter { $0.status == .active && $0.scheduledFor <= now }.count
+            print("📊 Active bookmarks: \(activeCount), Focus-ready (scheduledFor <= now): \(focusReadyCount)")
+            
+            for bookmark in allBookmarks.prefix(5) {
+                let formatter = DateFormatter()
+                formatter.dateFormat = "yyyy-MM-dd HH:mm"
+                let scheduledStr = formatter.string(from: bookmark.scheduledFor)
+                let isFocusReady = bookmark.scheduledFor <= now ? "✅" : "⏳"
+                print("📖 \(isFocusReady) \(bookmark.title.prefix(30)) - \(bookmark.status.rawValue) - scheduled: \(scheduledStr)")
             }
             
             guard !pendingBookmarks.isEmpty else {
@@ -186,9 +196,6 @@ class SyncService: ObservableObject {
             // Save changes
             try context.save()
             
-            // Process pending collection assignments
-            processPendingCollections(context: context)
-            
             lastSyncDate = Date()
             
             print("✅ Sync complete: \(pendingBookmarks.count) bookmarks processed")
@@ -198,52 +205,7 @@ class SyncService: ObservableObject {
         }
     }
     
-    private func processPendingCollections(context: ModelContext) {
-        guard let appGroupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.jolt.shared") else {
-            print("❌ Failed to get App Group container")
-            return
-        }
-        
-        let fileURL = appGroupURL.appendingPathComponent("pendingCollections.json")
-        
-        // Check if file exists
-        guard FileManager.default.fileExists(atPath: fileURL.path) else {
-            print("✅ No pending collections to process")
-            return
-        }
-        
-        do {
-            let data = try Data(contentsOf: fileURL)
-            let pendingCollections = try JSONDecoder().decode([String: String].self, from: data)
-            
-            let bookmarkDescriptor = FetchDescriptor<Bookmark>()
-            let allBookmarks = try context.fetch(bookmarkDescriptor)
-            
-            let collectionDescriptor = FetchDescriptor<Collection>()
-            let allCollections = try context.fetch(collectionDescriptor)
-            
-            for (bookmarkIDString, collectionIDString) in pendingCollections {
-                guard let bookmarkID = UUID(uuidString: bookmarkIDString),
-                      let collectionID = UUID(uuidString: collectionIDString),
-                      let bookmark = allBookmarks.first(where: { $0.id == bookmarkID }),
-                      let collection = allCollections.first(where: { $0.id == collectionID }) else {
-                    continue
-                }
-                
-                bookmark.collection = collection
-                print("✅ Assigned bookmark \(bookmark.title) to collection \(collection.name)")
-            }
-            
-            try context.save()
-            
-            // Clear the file after processing
-            try? FileManager.default.removeItem(at: fileURL)
-            print("✅ Processed \(pendingCollections.count) pending collection assignments")
-            
-        } catch {
-            print("❌ Failed to process pending collections: \(error)")
-        }
-    }
+
     
     private func parseURL(_ url: String) async -> ParsedContent? {
         do {
@@ -257,19 +219,51 @@ class SyncService: ObservableObject {
             
             let body: [String: Any] = [
                 "url": url,
-                "user_id": AuthService.shared.currentUserID ?? ""
+                "user_id": AuthService.shared.currentUserID ?? "",
+                "skip_cache": true // DEBUG: Force fresh parse to fix 0 min issue
             ]
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
             
             let (data, response) = try await URLSession.shared.data(for: request)
             
-            guard let httpResponse = response as? HTTPURLResponse,
-                  (200...299).contains(httpResponse.statusCode) else {
+            guard let httpResponse = response as? HTTPURLResponse else {
+                print("❌ [Parser] Invalid response type")
                 throw URLError(.badServerResponse)
             }
             
-            let parsed = try JSONDecoder().decode(ParsedContent.self, from: data)
-            return parsed
+            // Log raw response for debugging
+            if let rawString = String(data: data, encoding: .utf8) {
+                print("📥 [Parser] Raw Response (\(httpResponse.statusCode)): \(rawString)")
+            }
+            
+            guard (200...299).contains(httpResponse.statusCode) else {
+                print("❌ [Parser] Server error status: \(httpResponse.statusCode)")
+                throw URLError(.badServerResponse)
+            }
+            
+            do {
+                let parsed = try JSONDecoder().decode(ParsedContent.self, from: data)
+                return parsed
+            } catch let decodingError as DecodingError {
+                print("❌ [Parser] Decoding Error for \(url): \(decodingError)")
+                // Print specific decoding context
+                switch decodingError {
+                case .typeMismatch(let key, let value):
+                    print("   Type mismatch for key: \(key), value: \(value)")
+                case .valueNotFound(let key, let value):
+                    print("   Value not found for key: \(key), value: \(value)")
+                case .keyNotFound(let key, let value):
+                    print("   Key not found: \(key), context: \(value)")
+                case .dataCorrupted(let key):
+                    print("   Data corrupted: \(key)")
+                @unknown default:
+                    print("   Unknown decoding error")
+                }
+                return nil
+            } catch {
+                print("❌ [Parser] General Error: \(error)")
+                return nil
+            }
             
         } catch {
             print("❌ Failed to parse \(url): \(error)")
@@ -284,34 +278,42 @@ class SyncService: ObservableObject {
                            domain.contains("instagram.com") || domain.contains("tiktok.com") ||
                            domain.contains("youtube.com") || domain.contains("facebook.com")
         
+        // If parsing totally failed, return early so we can see the error in logs
+        // Do NOT generate mock data as requested
+        guard let parsed = parsed else {
+            print("⚠️ [Parser] Parsing returned nil for \(bookmark.originalURL). Skipping update.")
+            return
+        }
+
         if isSocialMedia {
-            // For social media, use minimal parsing or fallback
-            if let parsed = parsed, !parsed.title.isEmpty {
-                bookmark.title = parsed.title
-                bookmark.excerpt = parsed.excerpt
-                bookmark.coverImage = parsed.cover_image
-                bookmark.readingTimeMinutes = parsed.reading_time_minutes
-                // v3.0 fields
-                bookmark.isProtected = parsed.protected
-                bookmark.isPaywalled = parsed.paywalled
-                bookmark.fetchMethod = parsed.fetchMethod
-                bookmark.parseConfidence = parsed.confidence
+            if let title = parsed.title, !title.isEmpty {
+                bookmark.title = title
             } else {
-                // Fallback: extract from URL
-                bookmark.title = extractSocialMediaTitle(from: bookmark.originalURL, domain: domain)
-                bookmark.readingTimeMinutes = 2 // Default for social
-                bookmark.fetchMethod = "meta-only"
-                bookmark.parseConfidence = 0.3
+                 bookmark.title = extractSocialMediaTitle(from: bookmark.originalURL, domain: domain)
             }
+            
+            bookmark.excerpt = parsed.excerpt
+            bookmark.coverImage = parsed.cover_image
+            // Use parsed reading time if valid, otherwise fallback to 2 for social
+            let minutes = parsed.reading_time_minutes ?? 0
+            bookmark.readingTimeMinutes = minutes > 0 ? minutes : 2
+            
+            // v3.0 fields
+            bookmark.isProtected = parsed.protected
+            bookmark.isPaywalled = parsed.paywalled
+            bookmark.fetchMethod = parsed.fetchMethod
+            bookmark.parseConfidence = parsed.confidence
+            
             bookmark.type = .social
             bookmark.contentHTML = nil // Force webview
-        } else if let parsed = parsed {
+        } else {
             // Normal article/website parsing
-            bookmark.title = parsed.title.isEmpty ? SyncService.shared.extractTitleFromURL(bookmark.originalURL) : parsed.title
+            let title = parsed.title ?? ""
+            bookmark.title = title.isEmpty ? SyncService.shared.extractTitleFromURL(bookmark.originalURL) : title
             bookmark.excerpt = parsed.excerpt
             bookmark.contentHTML = parsed.content_html
             bookmark.coverImage = parsed.cover_image
-            bookmark.readingTimeMinutes = parsed.reading_time_minutes
+            bookmark.readingTimeMinutes = parsed.reading_time_minutes ?? 0
             
             // v3.0 fields
             bookmark.isProtected = parsed.protected
@@ -320,23 +322,27 @@ class SyncService: ObservableObject {
             bookmark.parseConfidence = parsed.confidence
             
             // Determine type based on parsed response
-            let parsedType = BookmarkType(rawValue: parsed.type) ?? .webview
+            let typeString = parsed.type ?? "webview"
+            let parsedType = BookmarkType(rawValue: typeString) ?? .webview
             
             // Force webview for protected/paywalled or low confidence content
             if parsed.protected == true || parsed.paywalled == true {
                 bookmark.type = parsedType == .video ? .video : .webview
             } else if let confidence = parsed.confidence, confidence < 0.3 {
                 bookmark.type = .webview
+            } else if let contentHTML = parsed.content_html, contentHTML.count < 500 {
+                // Content too short - likely truncated, force webview for complete display
+                bookmark.type = .webview
+                bookmark.contentHTML = nil // Don't show truncated content
+                print("⚠️ Content too short (\(contentHTML.count) chars), forcing webview for \(bookmark.domain ?? "unknown")")
             } else {
                 bookmark.type = parsedType
             }
-        } else {
-            // Keep as pending if parse failed (will retry next sync)
-            return
         }
         
         bookmark.domain = URL(string: bookmark.originalURL)?.host ?? domain
-        bookmark.status = .ready
+        // v2.1: Keep as active (no more pending->ready transition)
+        bookmark.status = .active
         
         // Index in Spotlight for search
         SpotlightService.shared.indexBookmark(bookmark)
@@ -393,13 +399,13 @@ class SyncService: ObservableObject {
 
 struct ParsedContent: Codable {
     let success: Bool?
-    let type: String
-    let title: String
+    let type: String?
+    let title: String?
     let excerpt: String?
     let content_html: String?
     let cover_image: String?
-    let reading_time_minutes: Int
-    let domain: String
+    let reading_time_minutes: Int?
+    let domain: String?
     let cached: Bool?
     // v3.0 fields
     let protected: Bool?       // Content requires authentication

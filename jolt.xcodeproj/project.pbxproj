@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C13DE282EE9E09F005BA699 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C13DE272EE9E09F005BA699 /* UniformTypeIdentifiers.framework */; };
+		2C13DE332EE9E09F005BA699 /* JoltActionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2C13DE262EE9E09F005BA699 /* JoltActionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2C68736F2EDDBBA4009482D2 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 2C68736E2EDDBBA4009482D2 /* Supabase */; };
 		2C7FC81C2EE23858009DD5F3 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C7FC81B2EE23857009DD5F3 /* WidgetKit.framework */; };
 		2C7FC81E2EE23858009DD5F3 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C7FC81D2EE23858009DD5F3 /* SwiftUI.framework */; };
@@ -20,6 +22,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		2C13DE312EE9E09F005BA699 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2CC50BC32EDDAF0100197896 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2C13DE252EE9E09F005BA699;
+			remoteInfo = JoltActionExtension;
+		};
 		2C7FC82D2EE2385A009DD5F3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2CC50BC32EDDAF0100197896 /* Project object */;
@@ -59,6 +68,7 @@
 			files = (
 				2CC50C2D2EDDB6A400197896 /* JoltShareExtension.appex in Embed Foundation Extensions */,
 				2C7FC82F2EE2385A009DD5F3 /* JoltWidgetsExtension.appex in Embed Foundation Extensions */,
+				2C13DE332EE9E09F005BA699 /* JoltActionExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -66,6 +76,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2C13DE262EE9E09F005BA699 /* JoltActionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = JoltActionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C13DE272EE9E09F005BA699 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
 		2C7FC81A2EE23857009DD5F3 /* JoltWidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = JoltWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C7FC81B2EE23857009DD5F3 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		2C7FC81D2EE23858009DD5F3 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -77,6 +89,29 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		2C13DE372EE9E09F005BA699 /* Exceptions for "JoltActionExtension" folder in "JoltActionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 2C13DE252EE9E09F005BA699 /* JoltActionExtension */;
+		};
+		2C13DE3E2EE9E41F005BA699 /* Exceptions for "jolt" folder in "JoltActionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"/Localized: Localizable.strings",
+				Models/Bookmark.swift,
+				Models/Routine.swift,
+			);
+			target = 2C13DE252EE9E09F005BA699 /* JoltActionExtension */;
+		};
+		2C13DE442EE9E4D3005BA699 /* Exceptions for "JoltShareExtension" folder in "JoltActionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ShareLocalization.swift,
+			);
+			target = 2C13DE252EE9E09F005BA699 /* JoltActionExtension */;
+		};
 		2C7FC8302EE2385A009DD5F3 /* Exceptions for "JoltWidgets" folder in "JoltWidgetsExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -96,7 +131,6 @@
 			membershipExceptions = (
 				"/Localized: Localizable.strings",
 				Models/Bookmark.swift,
-				Models/Collection.swift,
 				Models/Routine.swift,
 				Utilities/AppGroup.swift,
 			);
@@ -119,6 +153,14 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		2C13DE292EE9E09F005BA699 /* JoltActionExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2C13DE372EE9E09F005BA699 /* Exceptions for "JoltActionExtension" folder in "JoltActionExtension" target */,
+			);
+			path = JoltActionExtension;
+			sourceTree = "<group>";
+		};
 		2C7FC81F2EE23858009DD5F3 /* JoltWidgets */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -133,6 +175,7 @@
 				2CC50C372EDDB78300197896 /* Exceptions for "jolt" folder in "jolt" target */,
 				2CC50C362EDDB78200197896 /* Exceptions for "jolt" folder in "JoltShareExtension" target */,
 				2CDE39412EE2923400FD56B1 /* Exceptions for "jolt" folder in "JoltWidgetsExtension" target */,
+				2C13DE3E2EE9E41F005BA699 /* Exceptions for "jolt" folder in "JoltActionExtension" target */,
 			);
 			path = jolt;
 			sourceTree = "<group>";
@@ -151,6 +194,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				2CC50C2E2EDDB6A400197896 /* Exceptions for "JoltShareExtension" folder in "JoltShareExtension" target */,
+				2C13DE442EE9E4D3005BA699 /* Exceptions for "JoltShareExtension" folder in "JoltActionExtension" target */,
 			);
 			path = JoltShareExtension;
 			sourceTree = "<group>";
@@ -158,6 +202,14 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2C13DE232EE9E09F005BA699 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C13DE282EE9E09F005BA699 /* UniformTypeIdentifiers.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2C7FC8172EE23857009DD5F3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -209,6 +261,7 @@
 			children = (
 				2C7FC81B2EE23857009DD5F3 /* WidgetKit.framework */,
 				2C7FC81D2EE23858009DD5F3 /* SwiftUI.framework */,
+				2C13DE272EE9E09F005BA699 /* UniformTypeIdentifiers.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -222,6 +275,7 @@
 				2CC50BE72EDDAF0300197896 /* joltUITests */,
 				2CC50C242EDDB6A400197896 /* JoltShareExtension */,
 				2C7FC81F2EE23858009DD5F3 /* JoltWidgets */,
+				2C13DE292EE9E09F005BA699 /* JoltActionExtension */,
 				2C68736D2EDDBBA4009482D2 /* Frameworks */,
 				2CC50BCC2EDDAF0100197896 /* Products */,
 			);
@@ -235,6 +289,7 @@
 				2CC50BE42EDDAF0300197896 /* joltUITests.xctest */,
 				2CC50C232EDDB6A400197896 /* JoltShareExtension.appex */,
 				2C7FC81A2EE23857009DD5F3 /* JoltWidgetsExtension.appex */,
+				2C13DE262EE9E09F005BA699 /* JoltActionExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -242,6 +297,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		2C13DE252EE9E09F005BA699 /* JoltActionExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2C13DE342EE9E09F005BA699 /* Build configuration list for PBXNativeTarget "JoltActionExtension" */;
+			buildPhases = (
+				2C13DE222EE9E09F005BA699 /* Sources */,
+				2C13DE232EE9E09F005BA699 /* Frameworks */,
+				2C13DE242EE9E09F005BA699 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				2C13DE292EE9E09F005BA699 /* JoltActionExtension */,
+			);
+			name = JoltActionExtension;
+			packageProductDependencies = (
+			);
+			productName = JoltActionExtension;
+			productReference = 2C13DE262EE9E09F005BA699 /* JoltActionExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		2C7FC8192EE23857009DD5F3 /* JoltWidgetsExtension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2C7FC8312EE2385A009DD5F3 /* Build configuration list for PBXNativeTarget "JoltWidgetsExtension" */;
@@ -278,6 +355,7 @@
 			dependencies = (
 				2CC50C2C2EDDB6A400197896 /* PBXTargetDependency */,
 				2C7FC82E2EE2385A009DD5F3 /* PBXTargetDependency */,
+				2C13DE322EE9E09F005BA699 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				2CC50BCD2EDDAF0100197896 /* jolt */,
@@ -373,6 +451,9 @@
 				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 2610;
 				TargetAttributes = {
+					2C13DE252EE9E09F005BA699 = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
 					2C7FC8192EE23857009DD5F3 = {
 						CreatedOnToolsVersion = 26.1.1;
 					};
@@ -423,11 +504,19 @@
 				2CC50BE32EDDAF0300197896 /* joltUITests */,
 				2CC50C222EDDB6A400197896 /* JoltShareExtension */,
 				2C7FC8192EE23857009DD5F3 /* JoltWidgetsExtension */,
+				2C13DE252EE9E09F005BA699 /* JoltActionExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		2C13DE242EE9E09F005BA699 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2C7FC8182EE23857009DD5F3 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -466,6 +555,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		2C13DE222EE9E09F005BA699 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2C7FC8162EE23857009DD5F3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -504,6 +600,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2C13DE322EE9E09F005BA699 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2C13DE252EE9E09F005BA699 /* JoltActionExtension */;
+			targetProxy = 2C13DE312EE9E09F005BA699 /* PBXContainerItemProxy */;
+		};
 		2C7FC82E2EE2385A009DD5F3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 2C7FC8192EE23857009DD5F3 /* JoltWidgetsExtension */;
@@ -527,6 +628,66 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		2C13DE352EE9E09F005BA699 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = JoltActionExtension/JoltActionExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = H789J2ZW6B;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JoltActionExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Jolt'la";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moments.jolt.JoltActionExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2C13DE362EE9E09F005BA699 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = JoltActionExtension/JoltActionExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = H789J2ZW6B;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JoltActionExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Jolt'la";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moments.jolt.JoltActionExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		2C7FC8322EE2385A009DD5F3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -534,12 +695,13 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = JoltWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = H789J2ZW6B;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = JoltWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = JoltWidgets;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -565,12 +727,13 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = JoltWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = H789J2ZW6B;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = JoltWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = JoltWidgets;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -717,10 +880,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = jolt/jolt.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = H789J2ZW6B;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = jolt/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = jolt;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -746,10 +911,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = jolt/jolt.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = H789J2ZW6B;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = jolt/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = jolt;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -857,12 +1024,13 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = JoltShareExtension/JoltShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = H789J2ZW6B;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = JoltShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = JoltShareExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -886,12 +1054,13 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = JoltShareExtension/JoltShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = H789J2ZW6B;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = JoltShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = JoltShareExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -913,6 +1082,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2C13DE342EE9E09F005BA699 /* Build configuration list for PBXNativeTarget "JoltActionExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2C13DE352EE9E09F005BA699 /* Debug */,
+				2C13DE362EE9E09F005BA699 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		2C7FC8312EE2385A009DD5F3 /* Build configuration list for PBXNativeTarget "JoltWidgetsExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

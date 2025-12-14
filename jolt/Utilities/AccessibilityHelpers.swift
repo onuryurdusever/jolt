@@ -46,7 +46,7 @@ struct A11y {
         static let settingsButton = "Okuma ayarları"
         static let settingsHint = "Yazı boyutu, tema ve satır aralığını değiştirin"
         static let shareButton = "İçeriği paylaş"
-        static let collectionButton = "Koleksiyona taşı"
+
         static let starButton = "Favorilere ekle"
         static let unstarButton = "Favorilerden çıkar"
         
@@ -55,28 +55,7 @@ struct A11y {
         }
     }
     
-    // MARK: - Library View
-    struct Library {
-        static func bookmarkRow(title: String, isRead: Bool, readingTime: Int) -> String {
-            let status = isRead ? "Okunmuş" : "Okunmamış"
-            return "\(title). \(status). \(readingTime) dakika."
-        }
-        
-        static func collection(name: String, count: Int) -> String {
-            "\(name) koleksiyonu. \(count) içerik mevcut."
-        }
-        
-        static let searchField = "Kayıtlı içeriklerde ara"
-        static let filterButton = "Durum filtresi"
-        static let sortButton = "Sıralama seçenekleri"
-        static let selectAllButton = "Tümünü seç"
-        static let deselectAllButton = "Seçimi kaldır"
-        static let newCollectionButton = "Yeni koleksiyon oluştur"
-        
-        static func selectionStatus(count: Int) -> String {
-            "\(count) öğe seçildi"
-        }
-    }
+
     
     // MARK: - Pulse View
     struct Pulse {
@@ -100,11 +79,7 @@ struct A11y {
         static let logoutButton = "Çıkış yap"
         static let logoutHint = "Bu cihazdan çıkış yapın. Verileriniz silinecek."
         
-        static func achievement(title: String, isUnlocked: Bool) -> String {
-            isUnlocked 
-                ? "\(title) başarımı kazanıldı" 
-                : "\(title) başarımı henüz kazanılmadı"
-        }
+
     }
     
     // MARK: - Onboarding
@@ -146,7 +121,7 @@ struct A11y {
     struct ShareExtension {
         static let noteField = "İçerik hakkında not ekleyin"
         static let timeSelection = "Okuma zamanı seçin"
-        static let collectionSelection = "Koleksiyon seçin"
+
         static let saveButton = "Kaydet ve kapat"
         
         static func timeOption(_ time: String) -> String {

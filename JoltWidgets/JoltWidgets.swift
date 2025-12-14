@@ -16,9 +16,9 @@ struct JoltWidgetsBundle: WidgetBundle {
     var body: some Widget {
         StreakWidget()
         FocusWidget()
-        DailyGoalWidget()
         StatsWidget()
         QuoteWidget()
+
     }
 }
 
@@ -33,26 +33,24 @@ extension Color {
 // MARK: - Configuration Intents
 
 struct StreakWidgetConfigurationIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "Streak Widget"
-    static var description = IntentDescription("Shows your current reading streak")
+    static var title: LocalizedStringResource = "Okuma Serisi"
+    static var description = IntentDescription("Günlük okuma serinizi takip edin")
 }
 
 struct FocusWidgetConfigurationIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "Focus Widget"
-    static var description = IntentDescription("Shows your next bookmark to read")
+    static var title: LocalizedStringResource = "Sıradaki"
+    static var description = IntentDescription("Bir sonraki içeriğinizi görün")
 }
 
-struct DailyGoalWidgetConfigurationIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "Daily Goal Widget"
-    static var description = IntentDescription("Shows your daily reading goal progress")
-}
+
 
 struct StatsWidgetConfigurationIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "Stats Widget"
-    static var description = IntentDescription("Shows your weekly reading activity")
+    static var title: LocalizedStringResource = "İstatistikler"
+    static var description = IntentDescription("Haftalık okuma performansınız")
 }
 
 struct QuoteWidgetConfigurationIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "Quote Widget"
-    static var description = IntentDescription("Shows daily motivational quote")
+    static var title: LocalizedStringResource = "Günlük İlham"
+    static var description = IntentDescription("Günün motivasyon sözü")
 }
+

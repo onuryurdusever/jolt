@@ -22,8 +22,6 @@ private struct WidgetSharedData: Codable {
     let nextBookmarkCoverImage: String? // URL string
     let nextRoutineName: String?
     let nextRoutineTime: Date?
-    let dailyGoal: Int
-    let dailyGoalTarget: Int
     let weeklyActivity: [Int] // 7 days, index 0 = 6 days ago, index 6 = today
     let longestStreak: Int
     let lastUpdated: Date
@@ -52,8 +50,8 @@ class WidgetDataService {
         guard let bookmarks = try? modelContext.fetch(descriptor) else { return }
         
         // Calculate stats
-        let archivedBookmarks = bookmarks.filter { $0.status == .archived }
-        let pendingBookmarks = bookmarks.filter { $0.status == .ready || $0.status == .pending }
+        let archivedBookmarks = bookmarks.filter { $0.status == .archived || $0.status == .completed || $0.status == .expired }
+        let pendingBookmarks = bookmarks.filter { $0.status == .active }
             .sorted { $0.scheduledFor < $1.scheduledFor }
         
         let calendar = Calendar.current
@@ -80,7 +78,6 @@ class WidgetDataService {
         // Get streak and settings from UserDefaults
         let currentStreak = UserDefaults.standard.integer(forKey: "currentStreak")
         let longestStreak = UserDefaults.standard.integer(forKey: "longestStreak")
-        let dailyGoalTarget = max(1, UserDefaults.standard.integer(forKey: "dailyGoalTarget"))
         
         // Next bookmark info
         let nextBookmark = pendingBookmarks.first
@@ -101,8 +98,6 @@ class WidgetDataService {
             nextBookmarkCoverImage: nextBookmark?.coverImage,
             nextRoutineName: nextRoutineName,
             nextRoutineTime: nextRoutineTime,
-            dailyGoal: todayJolts,
-            dailyGoalTarget: dailyGoalTarget == 0 ? 3 : dailyGoalTarget, // Default 3
             weeklyActivity: weeklyActivity,
             longestStreak: max(longestStreak, currentStreak),
             lastUpdated: Date()
@@ -133,8 +128,6 @@ class WidgetDataService {
                 nextBookmarkCoverImage: data.nextBookmarkCoverImage,
                 nextRoutineName: data.nextRoutineName,
                 nextRoutineTime: data.nextRoutineTime,
-                dailyGoal: data.dailyGoal,
-                dailyGoalTarget: data.dailyGoalTarget,
                 weeklyActivity: data.weeklyActivity,
                 longestStreak: max(data.longestStreak, streak),
                 lastUpdated: Date()
@@ -162,8 +155,6 @@ class WidgetDataService {
                 nextBookmarkCoverImage: nil,
                 nextRoutineName: data.nextRoutineName,
                 nextRoutineTime: data.nextRoutineTime,
-                dailyGoal: data.dailyGoal + 1,
-                dailyGoalTarget: data.dailyGoalTarget,
                 weeklyActivity: updatedWeekly,
                 longestStreak: data.longestStreak,
                 lastUpdated: Date()
@@ -186,8 +177,6 @@ class WidgetDataService {
                 nextBookmarkCoverImage: nil,
                 nextRoutineName: data.nextRoutineName,
                 nextRoutineTime: data.nextRoutineTime,
-                dailyGoal: data.dailyGoal,
-                dailyGoalTarget: data.dailyGoalTarget,
                 weeklyActivity: data.weeklyActivity,
                 longestStreak: data.longestStreak,
                 lastUpdated: Date()
@@ -240,8 +229,6 @@ class WidgetDataService {
                 nextBookmarkCoverImage: nil,
                 nextRoutineName: nil,
                 nextRoutineTime: nil,
-                dailyGoal: 0,
-                dailyGoalTarget: 3,
                 weeklyActivity: [0, 0, 0, 0, 0, 0, 0],
                 longestStreak: 0,
                 lastUpdated: Date()

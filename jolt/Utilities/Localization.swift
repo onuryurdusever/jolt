@@ -111,7 +111,6 @@ enum L10n {
         static let totalJolts = "pulse.totalJolts"
         static let thisWeek = "pulse.thisWeek"
         static let today = "pulse.today"
-        static let achievements = "pulse.achievements"
         static let insights = "pulse.insights"
         static let yourStats = "pulse.yourStats"
     }
@@ -120,8 +119,6 @@ enum L10n {
     enum Settings {
         static let title = "settings.title"
         static let readingGoals = "settings.readingGoals"
-        static let dailyGoal = "settings.dailyGoal"
-        static let dailyGoalDescription = "settings.dailyGoal.description"
         static let storageCache = "settings.storageCache"
         static let imageCache = "settings.imageCache"
         static let articleCache = "settings.articleCache"
@@ -155,8 +152,6 @@ enum L10n {
         static let streakDescription = "widget.streak.description"
         static let focusTitle = "widget.focus.title"
         static let focusDescription = "widget.focus.description"
-        static let dailyGoalTitle = "widget.dailyGoal.title"
-        static let dailyGoalDescription = "widget.dailyGoal.description"
         static let statsTitle = "widget.stats.title"
         static let statsDescription = "widget.stats.description"
         static let quoteTitle = "widget.quote.title"

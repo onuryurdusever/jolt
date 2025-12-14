@@ -21,8 +21,6 @@ struct JoltSharedData: Codable {
     let nextBookmarkCoverImage: String? // URL string (was nextBookmarkCoverURL)
     let nextRoutineName: String?
     let nextRoutineTime: Date?
-    let dailyGoal: Int // todayJolts mirrored for backward compatibility
-    let dailyGoalTarget: Int // The actual daily goal setting (default 3)
     let weeklyActivity: [Int] // Last 7 days jolt counts [6 days ago...today]
     let longestStreak: Int
     let lastUpdated: Date
@@ -48,8 +46,6 @@ struct JoltSharedData: Codable {
                 nextBookmarkCoverImage: nil,
                 nextRoutineName: nil,
                 nextRoutineTime: nil,
-                dailyGoal: 0,
-                dailyGoalTarget: 3,
                 weeklyActivity: [0, 0, 0, 0, 0, 0, 0],
                 longestStreak: 0,
                 lastUpdated: Date()

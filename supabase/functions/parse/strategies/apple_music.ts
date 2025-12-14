@@ -36,6 +36,21 @@ export class AppleMusicStrategy implements ParsingStrategy {
       const description = getMeta("og:description") || "";
       const image = getMeta("og:image");
       
+      // Try to extract duration from HTML (Apple Music sometimes includes it in JSON-LD or meta)
+      let readingTime = 5; // Default for audio/music
+      try {
+        // Look for duration in seconds in JSON-LD or meta tags
+        const durationMatch = html.match(/"duration":\s*"?(\d+)"?/i) || 
+                              html.match(/duration["']?\s*[:=]\s*["']?(\d+)/i) ||
+                              html.match(/<meta[^>]+property=["']music:duration["'][^>]+content=["'](\d+)["']/i);
+        if (durationMatch && durationMatch[1]) {
+          const seconds = parseInt(durationMatch[1]);
+          readingTime = Math.ceil(seconds / 60);
+        }
+      } catch (e) {
+        // Ignore errors, use default
+      }
+      
       // Construct embed URL
       // Convert https://music.apple.com/us/album/... to https://embed.music.apple.com/us/album/...
       const embedUrl = url.replace("music.apple.com", "embed.music.apple.com");
@@ -47,7 +62,7 @@ export class AppleMusicStrategy implements ParsingStrategy {
         excerpt: description,
         content_html: iframe,
         cover_image: image || null,
-        reading_time_minutes: 5, // Default for audio/music
+        reading_time_minutes: readingTime,
         domain: "music.apple.com",
         metadata: {
           platform: "apple_music",

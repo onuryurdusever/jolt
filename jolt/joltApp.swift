@@ -12,11 +12,11 @@ import AVFoundation
 @main
 struct joltApp: App {
     @StateObject private var authService = AuthService.shared
+    @Environment(\.scenePhase) private var scenePhase
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Bookmark.self,
-            Collection.self,
             SyncAction.self,
             Routine.self,
         ])
@@ -60,5 +60,26 @@ struct joltApp: App {
                 .environmentObject(authService)
         }
         .modelContainer(sharedModelContainer)
+        .onChange(of: scenePhase) { _, newPhase in
+            let context = sharedModelContainer.mainContext
+            
+            switch newPhase {
+            case .background:
+                // Update badge when going to background
+                NotificationManager.shared.updateBadgeCount(modelContext: context)
+                
+            case .active:
+                // Schedule streak protection when app becomes active
+                NotificationManager.shared.scheduleStreakProtectionNotification(modelContext: context)
+                // Also update badge on foreground
+                NotificationManager.shared.updateBadgeCount(modelContext: context)
+                
+            case .inactive:
+                break
+                
+            @unknown default:
+                break
+            }
+        }
     }
 }

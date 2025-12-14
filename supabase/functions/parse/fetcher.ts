@@ -11,7 +11,7 @@
  * - Upstash Redis integration (rate limiting, robots.txt cache)
  */
 
-import { Redis } from "https://deno.land/x/upstash_redis@v1.22.0/mod.ts";
+import { Redis } from "https://esm.sh/@upstash/redis@1.29.0";
 
 // =============================================================================
 // CONFIGURATION

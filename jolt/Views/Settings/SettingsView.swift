@@ -14,7 +14,7 @@ struct SettingsView: View {
     @State private var isExporting = false
     @State private var exportURL: URL?
     @State private var showShareSheet = false
-    @Query private var allCollections: [Collection]
+
     
     var body: some View {
         NavigationStack {
@@ -125,26 +125,16 @@ struct SettingsView: View {
                     status: bookmark.status.rawValue,
                     title: bookmark.title,
                     userNote: bookmark.userNote,
-                    collectionID: bookmark.collection?.id,
                     createdAt: bookmark.createdAt,
                     type: bookmark.type.rawValue
                 )
             }
             
-            let collectionDTOs = allCollections.map { collection in
-                CollectionDTO(
-                    id: collection.id,
-                    name: collection.name,
-                    color: collection.color,
-                    icon: collection.icon,
-                    createdAt: collection.createdAt
-                )
-            }
+
             
             let exportData = ExportData(
                 version: "1.0",
                 exportedAt: Date(),
-                collections: collectionDTOs,
                 bookmarks: bookmarkDTOs
             )
             
@@ -211,17 +201,10 @@ struct SettingsView: View {
 struct ExportData: Codable {
     let version: String
     let exportedAt: Date
-    let collections: [CollectionDTO]
     let bookmarks: [BookmarkDTO]
 }
 
-struct CollectionDTO: Codable {
-    let id: UUID
-    let name: String
-    let color: String
-    let icon: String
-    let createdAt: Date
-}
+
 
 struct BookmarkDTO: Codable {
     let id: UUID
@@ -229,7 +212,6 @@ struct BookmarkDTO: Codable {
     let status: String
     let title: String
     let userNote: String?
-    let collectionID: UUID?
     let createdAt: Date
     let type: String
 }

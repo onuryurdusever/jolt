@@ -56,7 +56,7 @@ struct ReaderView: View {
     
     // UI State
     @State private var dragOffset: CGFloat = 0
-    @State private var showCollectionPicker = false
+
     @State private var showSettings = false
     @State private var useReaderMode = true // For webview toggle
     @State private var scrollProgress: Double = 0
@@ -153,11 +153,7 @@ struct ReaderView: View {
                     
                     // Menu
                     Menu {
-                        Button {
-                            showCollectionPicker = true
-                        } label: {
-                            Label("reader.moveToCollection".localized, systemImage: "folder")
-                        }
+
                         
                         if let url = URL(string: bookmark.originalURL) {
                             ShareLink(item: url) {
@@ -180,13 +176,7 @@ struct ReaderView: View {
                 }
             }
         }
-        .sheet(isPresented: $showCollectionPicker) {
-            CollectionPickerView(bookmark: bookmark) { collection in
-                bookmark.collection = collection
-                try? modelContext.save()
-                showCollectionPicker = false
-            }
-        }
+
         .sheet(isPresented: $showSettings) {
             ReaderSettingsSheet(
                 fontSize: $fontSize,
@@ -214,6 +204,14 @@ struct ReaderView: View {
         bookmark.type == .article || (useReaderMode && bookmark.contentHTML != nil)
     }
     
+    /// Check if we have valid parsed content (not empty, not too short)
+    private var hasValidContent: Bool {
+        guard let html = bookmark.contentHTML else { return false }
+        let trimmed = html.trimmingCharacters(in: .whitespacesAndNewlines)
+        // Minimum 100 chars to be considered valid (filters out error messages)
+        return !trimmed.isEmpty && trimmed.count > 100
+    }
+    
     // MARK: - Content View
     
     @ViewBuilder
@@ -226,12 +224,15 @@ struct ReaderView: View {
                 onJolt: joltAction,
                 isArchived: isArchived
             )
-        } else if bookmark.requiresWebView {
-            // Protected, paywalled, or low-confidence content → WebView with optional banner
+        } else if bookmark.requiresWebView || !hasValidContent {
+            // Protected, paywalled, low-confidence, OR no valid content → WebView
             VStack(spacing: 0) {
-                // Show info banner for protected/paywalled content
+                // Show appropriate info banner
                 if bookmark.showProtectedBadge || bookmark.showPaywallBadge {
                     ContentStatusBanner(bookmark: bookmark)
+                } else if !hasValidContent {
+                    // Fallback banner: showing original site because parsing failed
+                    ContentFallbackBanner()
                 }
                 
                 WebReaderView(
@@ -256,7 +257,7 @@ struct ReaderView: View {
                 )
             case .video, .social, .audio, .code, .product, .map, .design, .webview:
                 // For non-article types: use reader mode if available and enabled
-                if useReaderMode, let _ = bookmark.contentHTML {
+                if useReaderMode && hasValidContent {
                     EnhancedArticleReaderView(
                         bookmark: bookmark,
                         fontSize: fontSize,
@@ -429,21 +430,7 @@ struct ReaderHeaderView: View {
                             .foregroundColor(.joltYellow)
                         }
                     }
-                    
-                    // Collection badge (if assigned)
-                    if let collection = bookmark.collection {
-                        HStack(spacing: 4) {
-                            Image(systemName: collection.icon)
-                                .font(.system(size: 9))
-                            Text(collection.name)
-                                .font(.system(size: 11, weight: .medium))
-                        }
-                        .foregroundColor(Color(hex: collection.color))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 3)
-                        .background(Color(hex: collection.color).opacity(0.15))
-                        .cornerRadius(4)
-                    }
+        
                 }
                 
                 Spacer(minLength: 0)
@@ -1198,10 +1185,37 @@ struct WebViewRepresentable: UIViewRepresentable {
         return lowercased.contains("x.com") || lowercased.contains("twitter.com")
     }
     
+    private func isYouTubeURL(_ urlString: String) -> Bool {
+        let lowercased = urlString.lowercased()
+        return lowercased.contains("youtube.com") || lowercased.contains("youtu.be")
+    }
+    
+    private func urlWithResumePosition(_ urlString: String) -> String {
+        // If we have a saved video position and this is a YouTube URL, append it
+        guard isYouTubeURL(urlString),
+              let position = bookmark.lastVideoPosition,
+              position > 10 else { // Only resume if > 10 seconds
+            return urlString
+        }
+        
+        // Check if URL already has time parameter
+        if urlString.contains("&t=") || urlString.contains("?t=") {
+            return urlString
+        }
+        
+        // Append time parameter
+        let separator = urlString.contains("?") ? "&" : "?"
+        return "\(urlString)\(separator)t=\(position)"
+    }
+    
     func makeUIView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         configuration.allowsInlineMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = []
+        
+        // Add message handler for video progress
+        let contentController = configuration.userContentController
+        contentController.add(context.coordinator, name: "videoProgress")
         
         if isXComURL(url) {
             configuration.applicationNameForUserAgent = "Version/17.0 Safari/605.1.15"
@@ -1222,10 +1236,16 @@ struct WebViewRepresentable: UIViewRepresentable {
         webView.scrollView.maximumZoomScale = 1.0
         webView.scrollView.minimumZoomScale = 1.0
         
-        if let url = URL(string: url) {
-            var request = URLRequest(url: url)
+        // Use URL with resume position for YouTube
+        let finalURL = urlWithResumePosition(url)
+        if let loadURL = URL(string: finalURL) {
+            var request = URLRequest(url: loadURL)
             request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
             webView.load(request)
+            
+            if finalURL != url {
+                print("▶️ Resuming YouTube video at \(bookmark.lastVideoPosition ?? 0)s")
+            }
         }
         
         DispatchQueue.main.async {
@@ -1241,7 +1261,7 @@ struct WebViewRepresentable: UIViewRepresentable {
         Coordinator(self)
     }
     
-    class Coordinator: NSObject, WKNavigationDelegate, UIScrollViewDelegate {
+    class Coordinator: NSObject, WKNavigationDelegate, UIScrollViewDelegate, WKScriptMessageHandler {
         var parent: WebViewRepresentable
         private var progressObservation: NSKeyValueObservation?
         private var backObservation: NSKeyValueObservation?
@@ -1252,6 +1272,20 @@ struct WebViewRepresentable: UIViewRepresentable {
         init(_ parent: WebViewRepresentable) {
             self.parent = parent
             super.init()
+        }
+        
+        // MARK: - WKScriptMessageHandler (Video Position Tracking)
+        
+        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            if message.name == "videoProgress",
+               let position = message.body as? Int {
+                // Only save if position changed significantly (> 5 seconds difference)
+                let currentPosition = parent.bookmark.lastVideoPosition ?? 0
+                if abs(position - currentPosition) > 5 {
+                    parent.bookmark.lastVideoPosition = position
+                    print("🎬 Video position saved: \(position)s")
+                }
+            }
         }
         
         func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
@@ -1321,8 +1355,22 @@ struct WebViewRepresentable: UIViewRepresentable {
                 pre, code { background-color: #1e1e1e !important; color: #d4d4d4 !important; padding: 12px !important; border-radius: 6px !important; }
             """
             
-            let script = "var style = document.createElement('style'); style.innerHTML = '\(css)'; document.head.appendChild(style);"
-            webView.evaluateJavaScript(script, completionHandler: nil)
+            let cssScript = "var style = document.createElement('style'); style.innerHTML = '\(css)'; document.head.appendChild(style);"
+            webView.evaluateJavaScript(cssScript, completionHandler: nil)
+            
+            // YouTube video position tracking script
+            if parent.isYouTubeURL(parent.url) {
+                let videoTrackingScript = """
+                    setInterval(function() {
+                        var video = document.querySelector('video');
+                        if (video && video.currentTime > 0) {
+                            window.webkit.messageHandlers.videoProgress.postMessage(Math.floor(video.currentTime));
+                        }
+                    }, 5000);
+                """
+                webView.evaluateJavaScript(videoTrackingScript, completionHandler: nil)
+                print("🎬 YouTube video tracking script injected")
+            }
         }
         
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -1748,6 +1796,64 @@ struct ContentStatusBanner: View {
                 .frame(width: 3),
             alignment: .leading
         )
+    }
+}
+
+/// Displays a banner when content couldn't be parsed and we fell back to WebView
+struct ContentFallbackBanner: View {
+    @State private var isDismissed = false
+    
+    var body: some View {
+        if !isDismissed {
+            HStack(spacing: 10) {
+                Image(systemName: "globe")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.blue)
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("reader.fallback.title".localized)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.joltForeground)
+                    
+                    Text("reader.fallback.subtitle".localized)
+                        .font(.system(size: 11))
+                        .foregroundColor(.joltMutedForeground)
+                }
+                
+                Spacer()
+                
+                Button {
+                    withAnimation(.spring(response: 0.3)) {
+                        isDismissed = true
+                    }
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.joltMutedForeground)
+                        .padding(6)
+                        .background(Color.joltMuted)
+                        .clipShape(Circle())
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(Color.blue.opacity(0.1))
+            .overlay(
+                Rectangle()
+                    .fill(Color.blue)
+                    .frame(width: 3),
+                alignment: .leading
+            )
+            .transition(.opacity.combined(with: .move(edge: .top)))
+            .onAppear {
+                // Auto-dismiss after 5 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        isDismissed = true
+                    }
+                }
+            }
+        }
     }
 }
 
