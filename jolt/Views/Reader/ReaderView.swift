@@ -300,8 +300,7 @@ struct ReaderView: View {
         if let onJoltCompleted = onJoltCompleted {
             onJoltCompleted(bookmark)
         } else {
-            bookmark.status = .archived
-            bookmark.readAt = Date()
+            bookmark.markCompleted()
             try? modelContext.save()
             
             // Full widget update to get next bookmark
@@ -970,15 +969,21 @@ struct ArticleWebView: UIViewRepresentable {
             }
             
             // Restore scroll position
-            if let lastScroll = parent.bookmark.lastScrollPercentage, lastScroll > 0.05 {
+            if let lastY = parent.bookmark.lastScrollY {
+                let script = "setTimeout(function() { window.scrollTo(0, \(lastY)); }, 100);"
+                webView.evaluateJavaScript(script, completionHandler: nil)
+            } else if let lastScroll = parent.bookmark.lastScrollPercentage, lastScroll > 0.05 {
                 let script = """
                     setTimeout(function() {
-                        window.scrollTo(0, document.body.scrollHeight * \(lastScroll));
+                        var scrollableHeight = document.body.scrollHeight - window.innerHeight;
+                        window.scrollTo(0, scrollableHeight * \(lastScroll));
                     }, 100);
                 """
                 webView.evaluateJavaScript(script, completionHandler: nil)
             }
         }
+        
+        private var lastUIUpdate: TimeInterval = 0
         
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
             let contentHeight = scrollView.contentSize.height
@@ -989,12 +994,58 @@ struct ArticleWebView: UIViewRepresentable {
                 let percentage = offsetY / (contentHeight - frameHeight)
                 let clampedPercentage = min(max(percentage, 0), 1)
                 
-                DispatchQueue.main.async {
-                    self.parent.scrollProgress = clampedPercentage
+                // PERFORMANCE FIX: Throttle UI updates (max 30fps)
+                let now = Date().timeIntervalSince1970
+                if now - lastUIUpdate > 0.032 { // ~30ms throttle
+                    lastUIUpdate = now
+                    DispatchQueue.main.async {
+                        // Only update if changed significantly to avoid SwiftUI churn
+                        if abs(self.parent.scrollProgress - clampedPercentage) > 0.005 {
+                            self.parent.scrollProgress = clampedPercentage
+                        }
+                    }
                 }
+            }
+        }
+        
+        // PERFORMANCE FIX: Only save to DB when user stops scrolling
+        func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+            saveScrollPosition(scrollView)
+        }
+        
+        func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+            if !decelerate {
+                saveScrollPosition(scrollView)
+            }
+        }
+        
+        private func saveScrollPosition(_ scrollView: UIScrollView) {
+            // Use JS to get the exact scroll position (Absolute Y)
+            let script = """
+                (function() {
+                    return window.scrollY;
+                })();
+            """
+            
+            parent.webView?.evaluateJavaScript(script) { result, error in
+                guard let scrollY = result as? Double, error == nil else { return }
                 
-                // Save scroll position
-                parent.bookmark.lastScrollPercentage = clampedPercentage
+                print("💾 Saving Article scroll position (Absolute): \(Int(scrollY))px")
+                
+                let contentHeight = scrollView.contentSize.height
+                let frameHeight = scrollView.frame.height
+                let offsetY = scrollView.contentOffset.y
+                var percentage: Double = 0
+                if contentHeight > frameHeight {
+                    percentage = offsetY / (contentHeight - frameHeight)
+                }
+                let clampedPercentage = min(max(percentage, 0), 1)
+                
+                // Dispatch to main to update UI/Model
+                DispatchQueue.main.async {
+                    self.parent.bookmark.lastScrollY = scrollY
+                    self.parent.bookmark.lastScrollPercentage = clampedPercentage
+                }
             }
         }
         
@@ -1137,7 +1188,7 @@ struct WebReaderView: View {
             } else {
                 ZStack(alignment: .top) {
                     WebViewRepresentable(
-                        url: url,
+                        url: bookmark.originalURL,
                         bookmark: bookmark,
                         isLoading: $isLoading,
                         progress: $loadingProgress,
@@ -1148,6 +1199,34 @@ struct WebReaderView: View {
                         showOffline: $showOffline
                     )
                     .padding(.bottom, 76)
+                    
+                    // "Open in Safari" Button Overlay (Top Right)
+                    HStack {
+                        Spacer()
+                        
+                        if let url = URL(string: bookmark.originalURL) {
+                            Link(destination: url) {
+                                HStack(spacing: 6) {
+                                    Text(String(localized: "originalView.openInSafari"))
+                                        .font(.system(size: 12, weight: .medium))
+                                    Image(systemName: "safari")
+                                        .font(.system(size: 12))
+                                }
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 12)
+                                .background(Color.black.opacity(0.6))
+                                .background(.ultraThinMaterial)
+                                .foregroundColor(.white)
+                                .cornerRadius(20)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+                                )
+                            }
+                            .padding(.top, 16)
+                            .padding(.trailing, 16)
+                        }
+                    }
                     
                     if isLoading {
                         ProgressView(value: loadingProgress)
@@ -1180,6 +1259,9 @@ struct WebViewRepresentable: UIViewRepresentable {
     @Binding var scrollProgress: Double
     @Binding var showOffline: Bool
     
+    // Add State for showing Safari
+    @State private var showSafari = false
+    
     private func isXComURL(_ urlString: String) -> Bool {
         let lowercased = urlString.lowercased()
         return lowercased.contains("x.com") || lowercased.contains("twitter.com")
@@ -1210,6 +1292,11 @@ struct WebViewRepresentable: UIViewRepresentable {
     
     func makeUIView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
+        
+        // SECURITY: Use non-persistent data store (incognito mode)
+        // This prevents cookies, cache, and localStorage from persisting
+        configuration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
+        
         configuration.allowsInlineMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = []
         
@@ -1330,13 +1417,19 @@ struct WebViewRepresentable: UIViewRepresentable {
             self.progressObservation?.invalidate()
             
             // Restore scroll position
-            if let lastScroll = parent.bookmark.lastScrollPercentage {
-                let script = """
+            // Restore scroll position
+            if let lastY = parent.bookmark.lastScrollY {
+                let script = "setTimeout(function() { window.scrollTo(0, \(lastY)); }, 500);"
+                parent.webView?.evaluateJavaScript(script, completionHandler: nil)
+            } else if let lastScroll = parent.bookmark.lastScrollPercentage {
+                // Fallback for legacy bookmarks
+                 let script = """
                     setTimeout(function() {
-                        window.scrollTo(0, document.body.scrollHeight * \(lastScroll));
+                        var scrollableHeight = document.body.scrollHeight - window.innerHeight;
+                        window.scrollTo(0, scrollableHeight * \(lastScroll));
                     }, 500);
                 """
-                webView.evaluateJavaScript(script, completionHandler: nil)
+                parent.webView?.evaluateJavaScript(script, completionHandler: nil)
             }
             
             webView.scrollView.delegate = self
@@ -1350,13 +1443,13 @@ struct WebViewRepresentable: UIViewRepresentable {
                     line-height: 1.6 !important;
                     padding: 20px !important;
                 }
-                a { color: #CCFF00 !important; }
+                a { color: #506400ff !important; }
                 img { max-width: 100% !important; height: auto !important; border-radius: 8px !important; }
                 pre, code { background-color: #1e1e1e !important; color: #d4d4d4 !important; padding: 12px !important; border-radius: 6px !important; }
             """
             
             let cssScript = "var style = document.createElement('style'); style.innerHTML = '\(css)'; document.head.appendChild(style);"
-            webView.evaluateJavaScript(cssScript, completionHandler: nil)
+            parent.webView?.evaluateJavaScript(cssScript, completionHandler: nil)
             
             // YouTube video position tracking script
             if parent.isYouTubeURL(parent.url) {
@@ -1368,11 +1461,13 @@ struct WebViewRepresentable: UIViewRepresentable {
                         }
                     }, 5000);
                 """
-                webView.evaluateJavaScript(videoTrackingScript, completionHandler: nil)
+                parent.webView?.evaluateJavaScript(videoTrackingScript, completionHandler: nil)
                 print("🎬 YouTube video tracking script injected")
             }
         }
         
+        private var lastUIUpdate: TimeInterval = 0
+
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
             let contentHeight = scrollView.contentSize.height
             let frameHeight = scrollView.frame.height
@@ -1382,11 +1477,58 @@ struct WebViewRepresentable: UIViewRepresentable {
                 let percentage = offsetY / (contentHeight - frameHeight)
                 let clampedPercentage = min(max(percentage, 0), 1)
                 
-                DispatchQueue.main.async {
-                    self.parent.scrollProgress = clampedPercentage
+                // PERFORMANCE FIX: Throttle UI updates
+                let now = Date().timeIntervalSince1970
+                if now - lastUIUpdate > 0.032 {
+                    lastUIUpdate = now
+                    DispatchQueue.main.async {
+                        if abs(self.parent.scrollProgress - clampedPercentage) > 0.005 {
+                            self.parent.scrollProgress = clampedPercentage
+                        }
+                    }
                 }
+            }
+        }
+        
+        // PERFORMANCE FIX: Only save to DB when user stops scrolling
+        func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+            saveScrollPosition(scrollView)
+        }
+        
+        func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+            if !decelerate {
+                saveScrollPosition(scrollView)
+            }
+        }
+        
+        private func saveScrollPosition(_ scrollView: UIScrollView) {
+            // Use JS to get the exact scroll position (Absolute Y)
+            let script = """
+                (function() {
+                    return window.scrollY;
+                })();
+            """
+            
+            parent.webView?.evaluateJavaScript(script) { result, error in
+                guard let scrollY = result as? Double, error == nil else { return }
                 
-                parent.bookmark.lastScrollPercentage = percentage
+                print("💾 Saving Web View scroll position (Absolute): \(Int(scrollY))px")
+                
+                // Keep the percentage logic for UI progress bar correctness
+                let contentHeight = scrollView.contentSize.height
+                let frameHeight = scrollView.frame.height
+                let offsetY = scrollView.contentOffset.y
+                var percentage: Double = 0
+                if contentHeight > frameHeight {
+                    percentage = offsetY / (contentHeight - frameHeight)
+                }
+                let clampedPercentage = min(max(percentage, 0), 1)
+                
+                // Dispatch to main to update UI/Model
+                DispatchQueue.main.async {
+                    self.parent.bookmark.lastScrollY = scrollY
+                    self.parent.bookmark.lastScrollPercentage = clampedPercentage
+                }
             }
         }
         
@@ -1423,12 +1565,14 @@ struct WebViewRepresentable: UIViewRepresentable {
             decisionHandler(.allow)
         }
         
+        // MARK: - Navigation Policy (Security)
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             guard let url = navigationAction.request.url else {
-                decisionHandler(.allow)
+                decisionHandler(.cancel)
                 return
             }
             
+            // Handle App Store links (open in App Store)
             if url.host?.contains("itunes.apple.com") == true || url.host?.contains("apps.apple.com") == true {
                 if UIApplication.shared.canOpenURL(url) {
                     UIApplication.shared.open(url)
@@ -1437,13 +1581,27 @@ struct WebViewRepresentable: UIViewRepresentable {
                 }
             }
             
-            if let scheme = url.scheme?.lowercased() {
-                if scheme == "http" || scheme == "https" {
-                    decisionHandler(.allow)
-                } else {
-                    decisionHandler(.cancel)
+            // SECURITY: Only allow safe protocols
+            guard let scheme = url.scheme?.lowercased() else {
+                decisionHandler(.cancel)
+                return
+            }
+            
+            switch scheme {
+            case "http", "https", "about":
+                // Allow web navigation
+                decisionHandler(.allow)
+                
+            case "mailto", "tel", "sms":
+                // Open in system apps
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url)
                 }
-            } else {
+                decisionHandler(.cancel)
+                
+            default:
+                // Block all other schemes (file://, javascript://, data://, etc.)
+                print("🚫 Blocked navigation to unsafe scheme: \(scheme)")
                 decisionHandler(.cancel)
             }
         }
@@ -1744,6 +1902,32 @@ struct ContentStatusBanner: View {
                 String(localized: "reader.paywall.subtitle", defaultValue: "This article may be behind a paywall. Limited preview available."),
                 .purple
             )
+        } else if let reason = bookmark.webviewReason {
+            // New logic using specific webview reasons from backend
+            let message: String
+            switch reason {
+            case "spa_forced", "requires_javascript":
+                message = String(localized: "originalView.reason.spa")
+            case "protection_bypass", "captcha":
+                message = String(localized: "originalView.reason.protection")
+            default:
+                message = String(localized: "originalView.reason.generic")
+            }
+            
+            return (
+                 "bolt.fill",
+                 String(localized: "originalView.label"),
+                 message,
+                 .joltYellow
+             )
+        } else if bookmark.fetchMethod == "spa-bypass" {
+             // Legacy fallback
+             return (
+                 "bolt.fill",
+                 String(localized: "originalView.label"),
+                 String(localized: "originalView.banner"),
+                 .joltYellow
+             )
         } else {
             return (
                 "globe",

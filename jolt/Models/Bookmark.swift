@@ -26,6 +26,7 @@ final class Bookmark {
     var readAt: Date?
     var userNote: String? // User's personal note/context for saving
     var lastScrollPercentage: Double? // 0.0 to 1.0
+    var lastScrollY: Double? // Absolute scroll position (pixels)
     var metadata: [String: String]? // Platform specific data (e.g. videoId, author, stars)
     
     @Attribute(.preserveValueOnDeletion)
@@ -45,6 +46,13 @@ final class Bookmark {
     var snoozeCount: Int? // Track snoozes for scoring
     var intent: BookmarkIntent? // When user plans to read: now, tonight, weekend
     var lastVideoPosition: Int? // Video resume position in seconds
+    var webviewReason: String? // Reason for falling back to webview (e.g. spa_forced, requires_javascript)
+    
+    // v3.1 Enrichment Pipeline fields
+    var needsEnrichment: Bool = false
+    var enrichmentStatus: EnrichmentStatus = EnrichmentStatus.done // Default to done to avoid reprocessing
+    var enrichmentAttempts: Int = 0
+    var enrichmentNextAttemptAt: Date? = nil
     
     init(
         id: UUID = UUID(),
@@ -63,6 +71,7 @@ final class Bookmark {
         readAt: Date? = nil,
         userNote: String? = nil,
         lastScrollPercentage: Double? = nil,
+        lastScrollY: Double? = nil,
         metadata: [String: String]? = nil,
         isStarred: Bool? = false,
         isProtected: Bool? = nil,
@@ -75,7 +84,13 @@ final class Bookmark {
         recoveredAt: Date? = nil,
         snoozeCount: Int? = 0,
         intent: BookmarkIntent? = nil,
-        lastVideoPosition: Int? = nil
+        lastVideoPosition: Int? = nil,
+        webviewReason: String? = nil,
+        // v3.1 Enrichment
+        needsEnrichment: Bool = false,
+        enrichmentStatus: EnrichmentStatus = .done,
+        enrichmentAttempts: Int = 0,
+        enrichmentNextAttemptAt: Date? = nil
     ) {
         self.id = id
         self.userID = userID
@@ -93,6 +108,7 @@ final class Bookmark {
         self.readAt = readAt
         self.userNote = userNote
         self.lastScrollPercentage = lastScrollPercentage
+        self.lastScrollY = lastScrollY
         self.metadata = metadata
         self.isStarred = isStarred ?? false
         self.isProtected = isProtected
@@ -108,6 +124,12 @@ final class Bookmark {
         self.snoozeCount = snoozeCount ?? 0
         self.intent = intent
         self.lastVideoPosition = lastVideoPosition
+        self.webviewReason = webviewReason
+        
+        self.needsEnrichment = needsEnrichment
+        self.enrichmentStatus = enrichmentStatus
+        self.enrichmentAttempts = enrichmentAttempts
+        self.enrichmentNextAttemptAt = enrichmentNextAttemptAt
     }
 }
 
@@ -137,6 +159,19 @@ enum BookmarkStatus: String, Codable {
         default:
             self = .active // Default fallback
         }
+    }
+}
+    
+enum EnrichmentStatus: String, Codable {
+    case pending     // Needs processing
+    case inProgress  // Currently being processed
+    case done        // Successfully processed
+    case failed      // Processing failed (will retry)
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+        self = EnrichmentStatus(rawValue: rawValue) ?? .pending
     }
 }
 
@@ -450,6 +485,7 @@ extension Bookmark {
     
     /// Mark as completed (user finished reading)
     func markCompleted() {
+        print("✅ MARKING COMPLETED: \(self.title) (ID: \(self.id))")
         self.status = .completed
         self.readAt = Date()
         self.archivedAt = Date()
@@ -468,6 +504,13 @@ extension Bookmark {
         self.status = .expired
         self.archivedAt = Date()
         self.archivedReason = "auto"
+    }
+    
+    /// Burn manually (user swipe action)
+    func burn() {
+        self.status = .expired
+        self.archivedAt = Date()
+        self.archivedReason = "manual"
     }
     
     /// Recover from archive

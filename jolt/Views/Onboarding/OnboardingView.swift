@@ -20,7 +20,7 @@ struct OnboardingView: View {
     @State private var morningTime = Calendar.current.date(from: DateComponents(hour: 8, minute: 30)) ?? Date()
     @State private var eveningTime = Calendar.current.date(from: DateComponents(hour: 21, minute: 0)) ?? Date()
     
-    private let totalSteps = 5
+    private let totalSteps = 4
     
     var body: some View {
         ZStack {
@@ -54,13 +54,9 @@ struct OnboardingView: View {
                         eveningEnabled: $eveningDeliveryEnabled,
                         morningTime: $morningTime,
                         eveningTime: $eveningTime,
-                        onNext: nextStep
+                        onNext: completeOnboarding
                     )
                     .tag(4)
-                    
-                    // EKRAN 5: GÜVENLİ GİRİŞ (Training Mode)
-                    TrainingModeView(onFinish: completeOnboarding)
-                        .tag(5)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut(duration: 0.3), value: currentStep)
@@ -120,8 +116,7 @@ struct OnboardingView: View {
         // 4. Schedule Initial Notifications via centralized observer
         NotificationCenter.default.post(name: .routinesDidChange, object: nil)
         
-        // 5. Start Training Mode (3 gün dokunulmazlık)
-        ExpirationService.shared.startTrainingMode()
+
         
         // 6. Finish
         withAnimation {
@@ -316,14 +311,7 @@ struct TheLawView: View {
                     .scaleEffect(animationStep >= 3 ? 1 : 0.8)
                 }
                 
-                // Küçük Not
-                Text("onboarding.law.note".localized)
-                    .font(.system(size: 13))
-                    .foregroundColor(.gray.opacity(0.8))
-                    .italic()
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-                    .opacity(animationStep >= 4 ? 1 : 0)
+
             }
             
             Spacer()
@@ -950,170 +938,4 @@ struct DeliverySlotCard: View {
 
 // MARK: - EKRAN 5: GÜVENLİ GİRİŞ (Training Mode)
 
-struct TrainingModeView: View {
-    let onFinish: () -> Void
-    @State private var isPulsing = false
-    @State private var showContent = false
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
-            
-            VStack(spacing: 32) {
-                // Kalkan İkonu
-                ZStack {
-                    // Pulse rings - sadece bu animasyonlu
-                    Circle()
-                        .stroke(Color.green.opacity(0.3), lineWidth: 2)
-                        .frame(width: 160, height: 160)
-                        .scaleEffect(isPulsing ? 1.3 : 1.0)
-                        .opacity(isPulsing ? 0 : 0.5)
-                    
-                    Circle()
-                        .stroke(Color.green.opacity(0.3), lineWidth: 2)
-                        .frame(width: 160, height: 160)
-                        .scaleEffect(isPulsing ? 1.6 : 1.0)
-                        .opacity(isPulsing ? 0 : 0.3)
-                    
-                    // Main shield - sabit, animasyonsuz
-                    Circle()
-                        .fill(Color.green.opacity(0.15))
-                        .frame(width: 140, height: 140)
-                    
-                    Image(systemName: "shield.fill")
-                        .font(.system(size: 64))
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [Color.green, Color.green.opacity(0.7)],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                        .shadow(color: Color.green.opacity(0.5), radius: 20)
-                }
-                
-                // Content - sabit, animasyonsuz (sadece fade-in)
-                VStack(spacing: 16) {
-                    Text("onboarding.training.title".localized)
-                        .font(.system(size: 28, weight: .black))
-                        .foregroundColor(.white)
-                        .opacity(showContent ? 1 : 0)
-                    
-                    Text("onboarding.training.subtitle".localized)
-                        .font(.system(size: 16))
-                        .foregroundColor(.gray)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 32)
-                        .opacity(showContent ? 1 : 0)
-                    
-                    // 3 Gün Badge - sabit
-                    HStack(spacing: 8) {
-                        Image(systemName: "clock.badge.checkmark")
-                            .font(.system(size: 16))
-                        Text("onboarding.training.duration".localized)
-                            .font(.system(size: 16, weight: .bold))
-                    }
-                    .foregroundColor(.green)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-                    .background(Color.green.opacity(0.15))
-                    .cornerRadius(12)
-                    .opacity(showContent ? 1 : 0)
-                }
-            }
-            
-            Spacer()
-            
-            // Dev Buton - sabit
-            Button(action: onFinish) {
-                HStack(spacing: 8) {
-                    Text("onboarding.training.button".localized)
-                    Image(systemName: "bolt.fill")
-                }
-                .font(.system(size: 20, weight: .bold))
-                .foregroundColor(.black)
-                .frame(maxWidth: .infinity)
-                .frame(height: 60)
-                .background(Color.joltYellow)
-                .cornerRadius(16)
-            }
-            .opacity(showContent ? 1 : 0)
-            .padding(.horizontal, 24)
-            .padding(.bottom, 40)
-        }
-        .onAppear {
-            // Sadece pulse rings animasyonu - repeatForever
-            withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: false)) {
-                isPulsing = true
-            }
-            
-            // Content fade in - tek seferlik
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                withAnimation(.easeOut(duration: 0.6)) {
-                    showContent = true
-                }
-            }
-        }
-    }
-}
 
-// MARK: - Training Mode Banner (For Main App)
-
-struct TrainingModeBanner: View {
-    @State private var daysRemaining: Int = 0
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "shield.fill")
-                .font(.system(size: 20))
-                .foregroundColor(.green)
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text("training.banner.title".localized)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.white)
-                
-                Text("training.banner.subtitle".localized(with: daysRemaining))
-                    .font(.system(size: 12))
-                    .foregroundColor(.gray)
-            }
-            
-            Spacer()
-            
-            Text("training.banner.badge".localized)
-                .font(.system(size: 11, weight: .bold))
-                .foregroundColor(.green)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color.green.opacity(0.15))
-                .cornerRadius(8)
-        }
-        .padding(12)
-        .background(Color.white.opacity(0.05))
-        .cornerRadius(12)
-        .onAppear {
-            daysRemaining = ExpirationService.shared.trainingDaysRemaining()
-        }
-    }
-}
-
-// MARK: - Preview
-
-#Preview("Onboarding Flow") {
-    OnboardingView(hasCompletedOnboarding: .constant(false))
-}
-
-#Preview("Wake Up Call") {
-    WakeUpCallView(onNext: {})
-        .preferredColorScheme(.dark)
-}
-
-#Preview("The Law") {
-    TheLawView(onNext: {})
-        .preferredColorScheme(.dark)
-}
-
-#Preview("Training Mode") {
-    TrainingModeView(onFinish: {})
-        .preferredColorScheme(.dark)
-}

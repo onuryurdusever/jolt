@@ -12,7 +12,7 @@ import Combine
 
 struct FocusView: View {
     @Environment(\.modelContext) private var modelContext
-    @ObservedObject private var syncService = SyncService.shared
+    @ObservedObject private var enrichmentService = EnrichmentService.shared
     @Query private var allBookmarks: [Bookmark]
     @Query private var allRoutines: [Routine]
 
@@ -166,7 +166,7 @@ struct FocusView: View {
                             .padding(.bottom, 32)
                         }
                         .refreshable {
-                            await syncService.syncPendingBookmarks(context: modelContext)
+                            await enrichmentService.processPendingEnrichments(context: modelContext)
                         }
                     } else {
                         // Content - Using List for swipe actions support
@@ -228,7 +228,7 @@ struct FocusView: View {
                         .listStyle(.plain)
                         .scrollContentBackground(.hidden)
                         .refreshable {
-                            await syncService.syncPendingBookmarks(context: modelContext)
+                            await enrichmentService.processPendingEnrichments(context: modelContext)
                         }
                     }
                 }
@@ -499,6 +499,8 @@ struct FocusView: View {
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.success)
         
+        print("👆 USER ACTION: Completing \(bookmark.title)")
+        
         withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
             bookmark.markCompleted()
         }
@@ -529,15 +531,18 @@ struct FocusView: View {
         try? modelContext.save()
     }
     
-    /// v2.1: Burn bookmark - permanently delete
+    /// v2.1: Burn bookmark - move to burnt/expired status
     private func burnBookmark(_ bookmark: Bookmark) {
         let generator = UIImpactFeedbackGenerator(style: .heavy)
         generator.impactOccurred()
         
         withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-            modelContext.delete(bookmark)
+            bookmark.burn()
         }
         try? modelContext.save()
+        
+        // Update widgets
+        WidgetDataService.shared.updateWidgetData(modelContext: modelContext)
     }
     
     private func snoozeToNextDelivery(_ bookmark: Bookmark) {
@@ -872,6 +877,31 @@ struct FocusView: View {
             modelContext.insert(bookmark)
         }
         
+        // 6. 🧪 Test - Expires in 2 Minutes
+        let testExpiryItems = [
+            ("TEST: 2 Dakika Süresi Var ⏱️", "test.expire", 2, 2.0),
+            ("TEST: Çok Yakında Yanacak 🔥", "test.burn", 5, 2.0)
+        ]
+        
+        for (title, domain, minutes, minutesLeft) in testExpiryItems {
+             let scheduled = calendar.date(byAdding: .hour, value: -1, to: now)!
+             let expires = calendar.date(byAdding: .minute, value: Int(minutesLeft), to: now)!
+             
+             let bookmark = Bookmark(
+                 userID: "test_user",
+                 originalURL: "https://\(domain)/\(UUID().uuidString)",
+                 status: .active,
+                 scheduledFor: scheduled,
+                 title: title,
+                 readingTimeMinutes: minutes,
+                 type: .article,
+                 domain: domain,
+                 expiresAt: expires,
+                 intent: .now
+             )
+             modelContext.insert(bookmark)
+        }
+        
         try? modelContext.save()
         
         // Update Widgets
@@ -1004,7 +1034,7 @@ struct HeroFocusCard: View {
                         HStack(spacing: 3) {
                             Image(systemName: "clock")
                                 .font(.system(size: 10))
-                            Text("time.minutes".localized(with: bookmark.readingTimeMinutes))
+                            Text("\(bookmark.readingTimeMinutes) dk")
                                 .font(.system(size: 12, weight: .medium))
                         }
                         .foregroundColor(.joltMutedForeground)
@@ -1122,7 +1152,7 @@ struct UltraCompactRow: View {
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(bookmark.expirationUrgency.color)
                     
-                    Text("widget.focus.minutesRead".localized(with: bookmark.readingTimeMinutes))
+                    Text("\(bookmark.readingTimeMinutes) dk")
                         .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundColor(.joltMutedForeground)
                 }

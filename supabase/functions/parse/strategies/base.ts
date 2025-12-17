@@ -6,7 +6,8 @@ export type FetchMethod =
   | 'oembed'       // oEmbed endpoint
   | 'readability'  // HTML parsed with Readability
   | 'meta-only'    // Only metadata extracted (OG tags)
-  | 'webview';     // Must be shown in WebView
+  | 'webview'      // Must be shown in WebView
+  | 'spa-bypass';  // SPA domain - parsing skipped intentionally
 
 /**
  * Error information when parsing fails or content is restricted
@@ -66,11 +67,11 @@ export interface ParseResult {
   /** Error information if parsing failed or content is restricted */
   error?: ParseError;
   
-  /** Final URL after redirects */
-  finalUrl?: string;
-  
   /** Whether robots.txt was respected */
   robotsCompliant?: boolean;
+  
+  /** Reason for webview fallback (e.g., 'requires_javascript', 'paywall') */
+  webviewReason?: string;
 }
 
 /**
@@ -79,7 +80,7 @@ export interface ParseResult {
 export interface ParsingStrategy {
   name: string;
   matches(url: string): boolean;
-  parse(url: string, html?: string, clientIP?: string): Promise<ParseResult>;
+  parse(url: string, html?: string, clientIP?: string, userId?: string): Promise<ParseResult>;
 }
 
 /**

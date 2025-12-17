@@ -15,60 +15,34 @@ struct ContentView: View {
     @Query private var routines: [Routine]
     @Query private var bookmarks: [Bookmark]
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    @StateObject private var syncService = SyncService.shared
+    @StateObject private var enrichmentService = EnrichmentService.shared
     @StateObject private var networkMonitor = NetworkMonitor.shared
     
     var body: some View {
         Group {
             if hasCompletedOnboarding {
                 MainTabView()
-                    .environmentObject(syncService)
+                    .environmentObject(enrichmentService)
             } else {
                 OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
             }
         }
-        .preferredColorScheme(.dark)
-        .task {
-            // Auto-sync on app launch
-            if hasCompletedOnboarding {
-                await performAutoSync()
-                // Update widget data on launch
-                await MainActor.run {
-                    WidgetDataService.shared.updateWidgetData(modelContext: modelContext)
-                }
-                // Note: Notification scheduling triggered by scenePhase .active
-                // Check for Siri snooze request
-                handleSiriSnoozeRequest()
-            }
+        .onAppear {
+            // Signal First Paint to StartupManager
+            StartupManager.shared.onFirstPaint(context: modelContext)
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
-            // Auto-sync when app comes to foreground
-            if newPhase == .active && hasCompletedOnboarding {
-                Task {
-                    await performAutoSync()
-                    // Update widget data when app becomes active
-                    await MainActor.run {
-                        WidgetDataService.shared.updateWidgetData(modelContext: modelContext)
-                    }
-                    // Refresh notifications when app becomes active (single trigger point)
-                    NotificationCenter.default.post(name: .routinesDidChange, object: nil)
-                    // Check for Siri snooze request
-                    handleSiriSnoozeRequest()
-                }
-            }
-            
-            // Update widgets when app goes to background
-            if newPhase == .background && hasCompletedOnboarding {
-                WidgetDataService.shared.updateWidgetData(modelContext: modelContext)
-            }
+            // Delegate lifecycle events to StartupManager
+            StartupManager.shared.onScenePhaseChanged(newPhase, context: modelContext)
         }
+
         .onChange(of: networkMonitor.isOnline) { wasOnline, isOnline in
             // Process offline actions when internet restored
             if !wasOnline && isOnline && hasCompletedOnboarding {
                 print("🌐 Internet restored! Processing offline actions...")
                 Task {
-                    await syncService.processPendingOfflineActions(context: modelContext)
-                    await syncService.syncPendingBookmarks(context: modelContext)
+                    await enrichmentService.processPendingOfflineActions(context: modelContext)
+                    await enrichmentService.processPendingEnrichments(context: modelContext)
                 }
             }
         }
@@ -80,9 +54,11 @@ struct ContentView: View {
     
     private func performAutoSync() async {
         print("🔄 Auto-sync triggered")
-        await syncService.syncPendingBookmarks(context: modelContext)
+        await enrichmentService.processPendingEnrichments(context: modelContext)
     }
     
+    // KILL: Removed .task and .onChange for startup. 
+    // StartupManager will handle this via onAppear in step 7.
     // MARK: - Siri Snooze Handler
     
     private func handleSiriSnoozeRequest() {

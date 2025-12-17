@@ -1,66 +1,31 @@
-// Simple article extraction (without Mozilla Readability)
+import { parseHTML } from "npm:linkedom";
+import { Readability } from "npm:@mozilla/readability@0.5.0";
+
+// Article extraction using Mozilla Readability with LinkeDOM
 export function extractArticle(html: string, url: string) {
   try {
-    // Extract title
-    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i)
-    const title = titleMatch ? titleMatch[1].trim() : ''
-
-    // Extract main content (look for common article tags, ordered by specificity)
-    let contentMatch = 
-      // Semantic HTML5 tags
-      html.match(/<article[^>]*>([\s\S]*?)<\/article>/i) ||
-      html.match(/<main[^>]*>([\s\S]*?)<\/main>/i) ||
-      // Common class patterns
-      html.match(/<div[^>]*class="[^"]*\b(post-content|article-content|entry-content|post-body|article-body)\b[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
-      html.match(/<div[^>]*class="[^"]*\bcontent\b[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
-      html.match(/<div[^>]*class="[^"]*\bstory\b[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
-      // ID patterns
-      html.match(/<div[^>]*id="(content|main-content|article|post|story)"[^>]*>([\s\S]*?)<\/div>/i) ||
-      // WordPress/Blog patterns
-      html.match(/<div[^>]*class="[^"]*\bentry\b[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
-      html.match(/<section[^>]*class="[^"]*\b(article|content|post)\b[^"]*"[^>]*>([\s\S]*?)<\/section>/i) ||
-      // Fallback: look for the largest text block in body
-      null;
+    const { document } = parseHTML(html);
     
-    if (!contentMatch) {
-      // Last resort: try to extract body content and find largest paragraph cluster
-      const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-      if (bodyMatch) {
-        let body = bodyMatch[1];
-        // Remove header, nav, footer, sidebar
-        body = body.replace(/<(header|nav|footer|aside|sidebar)[^>]*>[\s\S]*?<\/\1>/gi, '');
-        // Remove script and style
-        body = body.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
-        body = body.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
-        body = body.replace(/<noscript[^>]*>[\s\S]*?<\/noscript>/gi, '');
-        
-        // Extract text content
-        const textContent = body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-        
-        // If we have meaningful content, return it
-        if (textContent.length > 200) {
-          const excerpt = textContent.substring(0, 200) + (textContent.length > 200 ? '...' : '');
-          return { title, content: body, textContent, excerpt };
-        }
-      }
-      return null;
-    }
+    if (!document) throw new Error("LinkeDOM parsing failed");
 
-    // Get the actual content (could be in group 1 or 2 depending on pattern)
-    let content = contentMatch[2] || contentMatch[1];
-    
-    // Remove script and style tags
-    content = content.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-    content = content.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-    content = content.replace(/<noscript[^>]*>[\s\S]*?<\/noscript>/gi, '')
-    
-    // Extract text for excerpt
-    const textContent = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
-    const excerpt = textContent.substring(0, 200) + (textContent.length > 200 ? '...' : '')
+    // Add required location object for Readability to resolve relative URLs
+    // @ts-ignore: Adding mock location to document
+    document.location = new URL(url);
 
-    return { title, content, textContent, excerpt }
-  } catch {
-    return null
+    const reader = new Readability(document);
+    const article = reader.parse();
+
+    if (!article) return null;
+
+    return {
+      title: article.title,
+      content: article.content,
+      textContent: article.textContent,
+      excerpt: article.excerpt
+    };
+  } catch (error) {
+    console.error("Readability parse error:", error);
+    return null;
   }
 }
 

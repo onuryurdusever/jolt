@@ -10,8 +10,8 @@ import SwiftData
 import Combine
 
 @MainActor
-class SyncService: ObservableObject {
-    static let shared = SyncService()
+class EnrichmentService: ObservableObject {
+    static let shared = EnrichmentService()
     
     @Published var isSyncing = false
     @Published var syncProgress: String = ""  // For UI feedback
@@ -117,91 +117,97 @@ class SyncService: ObservableObject {
         return true
     }
     
-    func syncPendingBookmarks(context: ModelContext) async {
+    func processPendingEnrichments(context: ModelContext) async {
         guard !isSyncing else {
-            print("⚠️ Sync already in progress")
+            print("⚠️ Enrichment skipped: Already in progress (Single-flight protection)")
+            return
+        }
+        
+        // Check network first
+        guard networkMonitor.isOnline else {
+            print("⚠️ Enrichment skipped: Offline")
             return
         }
         
         isSyncing = true
-        syncProgress = "Syncing..."
+        syncProgress = "Processing queue..."
         defer { 
             isSyncing = false
             syncProgress = ""
         }
         
         do {
-            // Query all bookmarks and filter for pending
-            let descriptor = FetchDescriptor<Bookmark>(
-                sortBy: [SortDescriptor(\.createdAt)]
-            )
-            
-            let allBookmarks = try context.fetch(descriptor)
-            print("📊 Total bookmarks in DB: \(allBookmarks.count)")
-            
-            // v2.1: Check for active bookmarks that need content fetching (no title OR no successful fetch method)
-            let pendingBookmarks = allBookmarks.filter { $0.status == .active && ($0.title == nil || $0.fetchMethod == nil) }
-            print("📊 Pending content fetch: \(pendingBookmarks.count)")
-            
-            // Debug: print all bookmark statuses with scheduledFor
+            // Predicate-based fetch: Only get what needs work
+
             let now = Date()
-            let activeCount = allBookmarks.filter { $0.status == .active }.count
-            let focusReadyCount = allBookmarks.filter { $0.status == .active && $0.scheduledFor <= now }.count
-            print("📊 Active bookmarks: \(activeCount), Focus-ready (scheduledFor <= now): \(focusReadyCount)")
+            let past = Date.distantPast
             
-            for bookmark in allBookmarks.prefix(5) {
-                let formatter = DateFormatter()
-                formatter.dateFormat = "yyyy-MM-dd HH:mm"
-                let scheduledStr = formatter.string(from: bookmark.scheduledFor)
-                let isFocusReady = bookmark.scheduledFor <= now ? "✅" : "⏳"
-                print("📖 \(isFocusReady) \(bookmark.title.prefix(30)) - \(bookmark.status.rawValue) - scheduled: \(scheduledStr)")
-            }
+            let descriptor = FetchDescriptor<Bookmark>(
+                predicate: #Predicate<Bookmark> { bookmark in
+                    bookmark.needsEnrichment &&
+                    (bookmark.enrichmentNextAttemptAt ?? past) <= now
+                },
+                sortBy: [SortDescriptor(\.createdAt, order: .forward)] // Process oldest first (FIFO)
+            )
+            // Limit batch size to prevent memory bloat
+            var fetchDescriptor = descriptor
+            fetchDescriptor.fetchLimit = 10
             
-            guard !pendingBookmarks.isEmpty else {
-                print("✅ No pending bookmarks to sync")
-                lastSyncDate = Date()
+            let batch = try context.fetch(fetchDescriptor)
+            
+            guard !batch.isEmpty else {
+                print("✅ Enrichment Queue Empty: Nothing to process")
                 return
             }
             
-            print("🔄 Syncing \(pendingBookmarks.count) pending bookmarks...")
-            syncProgress = "Parsing \(pendingBookmarks.count) items..."
+            print("🔄 Enrichment Batch Started: Processing \(batch.count) items...")
             
-            // Process in batches with concurrency limit
             await withTaskGroup(of: (Bookmark, ParsedContent?).self) { group in
-                var processed = 0
-                
-                for bookmark in pendingBookmarks {
-                    // Limit concurrent requests
-                    if processed >= Config.maxConcurrentRequests {
-                        // Wait for one to complete
-                        if let result = await group.next() {
-                            updateBookmark(result.0, with: result.1, context: context)
-                        }
-                        processed -= 1
-                    }
+                for bookmark in batch {
+                    // Mark in-progress
+                    bookmark.enrichmentStatus = .inProgress
                     
                     group.addTask {
                         let parsed = await self.parseURL(bookmark.originalURL)
                         return (bookmark, parsed)
                     }
-                    processed += 1
                 }
                 
-                // Process remaining results
-                for await result in group {
-                    updateBookmark(result.0, with: result.1, context: context)
+                for await (bookmark, parsed) in group {
+                    if let result = parsed, result.success != false {
+                        // Success path
+                        updateBookmark(bookmark, with: result, context: context)
+                        bookmark.needsEnrichment = false
+                        bookmark.enrichmentStatus = .done
+                        bookmark.enrichmentAttempts = 0
+                        bookmark.enrichmentNextAttemptAt = nil
+                        print("✅ Enriched: \(bookmark.title)")
+                    } else {
+                        // Failure path with Exponential Backoff
+                        bookmark.enrichmentAttempts += 1
+                        bookmark.enrichmentStatus = bookmark.enrichmentAttempts >= 5 ? .failed : .pending
+                        
+                        // Backoff: 1m, 10m, 1h, 6h, 24h
+                        let delayMinutes: Int
+                        switch bookmark.enrichmentAttempts {
+                        case 1: delayMinutes = 1
+                        case 2: delayMinutes = 10
+                        case 3: delayMinutes = 60
+                        case 4: delayMinutes = 360
+                        default: delayMinutes = 1440
+                        }
+                        
+                        bookmark.enrichmentNextAttemptAt = Calendar.current.date(byAdding: .minute, value: delayMinutes, to: Date())
+                        print("⚠️ Enrichment Failed for \(bookmark.originalURL). Retry #\(bookmark.enrichmentAttempts) in \(delayMinutes)m.")
+                    }
                 }
             }
             
-            // Save changes
             try context.save()
-            
-            lastSyncDate = Date()
-            
-            print("✅ Sync complete: \(pendingBookmarks.count) bookmarks processed")
+            print("✅ Enrichment Batch Complete")
             
         } catch {
-            print("❌ Sync failed: \(error)")
+            print("❌ Enrichment Fatal Error: \(error)")
         }
     }
     
@@ -303,13 +309,14 @@ class SyncService: ObservableObject {
             bookmark.isPaywalled = parsed.paywalled
             bookmark.fetchMethod = parsed.fetchMethod
             bookmark.parseConfidence = parsed.confidence
+            bookmark.webviewReason = parsed.webviewReason
             
             bookmark.type = .social
             bookmark.contentHTML = nil // Force webview
         } else {
             // Normal article/website parsing
             let title = parsed.title ?? ""
-            bookmark.title = title.isEmpty ? SyncService.shared.extractTitleFromURL(bookmark.originalURL) : title
+            bookmark.title = title.isEmpty ? EnrichmentService.shared.extractTitleFromURL(bookmark.originalURL) : title
             bookmark.excerpt = parsed.excerpt
             bookmark.contentHTML = parsed.content_html
             bookmark.coverImage = parsed.cover_image
@@ -320,6 +327,7 @@ class SyncService: ObservableObject {
             bookmark.isPaywalled = parsed.paywalled
             bookmark.fetchMethod = parsed.fetchMethod
             bookmark.parseConfidence = parsed.confidence
+            bookmark.webviewReason = parsed.webviewReason
             
             // Determine type based on parsed response
             let typeString = parsed.type ?? "webview"
@@ -413,11 +421,12 @@ struct ParsedContent: Codable {
     let fetchMethod: String?   // 'api', 'oembed', 'readability', 'meta-only', 'webview'
     let confidence: Double?    // 0.0-1.0 parse quality score
     let error: ParseError?     // Error details if parsing failed
+    let webviewReason: String? // Reason for falling back to webview
     
     enum CodingKeys: String, CodingKey {
         case success, type, title, excerpt, domain, cached
         case content_html, cover_image, reading_time_minutes
-        case protected, paywalled, confidence, error
+        case protected, paywalled, confidence, error, webviewReason
         case fetchMethod = "fetch_method"
     }
 }

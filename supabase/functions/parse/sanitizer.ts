@@ -1,52 +1,21 @@
 /**
  * HTML Sanitizer
  * 
- * Cleans HTML content for safe rendering:
- * - Removes <script> tags
- * - Removes <iframe> tags (except whitelisted domains)
- * - Removes on* event handlers (onclick, onload, etc.)
- * - Removes javascript: URLs
- * - Removes <style> tags with @import (potential tracking)
- * - Removes data: URLs in images (potential XSS)
- * - Removes <object>, <embed>, <applet> tags
- * - Removes <form> action URLs to external domains
+ * Cleans HTML content for safe rendering using REGEX (reliable, fast, no DOM parsing complexity)
  */
 
 // =============================================================================
 // CONFIGURATION
-// =============================================================================
+// ================================================================================
 
 const IFRAME_WHITELIST = [
-  // Video platforms
-  'youtube.com',
-  'youtube-nocookie.com',
+  'youtube.com', 'youtube-nocookie.com', 'youtu.be',
   'player.vimeo.com',
-  'www.dailymotion.com',
-  'player.twitch.tv',
-  
-  // Audio platforms
   'open.spotify.com',
   'w.soundcloud.com',
-  'embed.music.apple.com',
-  
-  // Social embeds
   'platform.twitter.com',
-  'www.instagram.com',
-  'www.facebook.com',
-  
-  // Productivity
-  'www.figma.com',
-  'codepen.io',
-  'codesandbox.io',
-  'stackblitz.com',
-  
-  // Maps
-  'www.google.com/maps',
-  'maps.google.com',
-  
-  // Documents
-  'docs.google.com',
-  'onedrive.live.com',
+  'instagram.com',
+  'tiktok.com' 
 ];
 
 // =============================================================================
@@ -57,7 +26,6 @@ export interface SanitizeOptions {
   allowIframes?: boolean;
   iframeWhitelist?: string[];
   removeImages?: boolean;
-  maxImageCount?: number;
 }
 
 export interface SanitizeResult {
@@ -74,7 +42,7 @@ export interface SanitizeResult {
 }
 
 // =============================================================================
-// MAIN SANITIZER
+// MAIN SANITIZER (Regex-based for reliability)
 // =============================================================================
 
 export function sanitizeHTML(html: string, options: SanitizeOptions = {}): SanitizeResult {
@@ -82,7 +50,6 @@ export function sanitizeHTML(html: string, options: SanitizeOptions = {}): Sanit
     allowIframes = true,
     iframeWhitelist = IFRAME_WHITELIST,
     removeImages = false,
-    maxImageCount = 50
   } = options;
   
   const stats = {
@@ -93,40 +60,75 @@ export function sanitizeHTML(html: string, options: SanitizeOptions = {}): Sanit
     forms: 0,
     objects: 0
   };
+
+  if (!html) return { html: '', removedElements: stats, hasUnsafeContent: false };
   
   let sanitized = html;
   
-  // 1. Remove <script> tags and their content
+  // 1. Remove <script> tags
   const scriptMatches = sanitized.match(/<script[\s\S]*?<\/script>/gi);
   stats.scripts = scriptMatches?.length || 0;
   sanitized = sanitized.replace(/<script[\s\S]*?<\/script>/gi, '');
-  
-  // Also remove <script ...> without closing tag
   sanitized = sanitized.replace(/<script[^>]*>/gi, '');
   
-  // 2. Remove <noscript> tags (often used for tracking pixels)
+  // 2. Remove <noscript>
   sanitized = sanitized.replace(/<noscript[\s\S]*?<\/noscript>/gi, '');
   
-  // 3. Handle <iframe> tags
+  // 3. Remove <object>, <embed>, <applet>
+  const objectMatches = sanitized.match(/<(object|embed|applet)[\s\S]*?<\/(object|embed|applet)>/gi);
+  stats.objects = objectMatches?.length || 0;
+  sanitized = sanitized.replace(/<(object|embed|applet)[\s\S]*?<\/(object|embed|applet)>/gi, '');
+  sanitized = sanitized.replace(/<(object|embed|applet)[^>]*>/gi, '');
+  
+// 4. Remove event handlers (on*)
+  const eventHandlerPattern = /\s+on\w+\s*=\s*["'][^"']*["']/gi;
+  const eventMatches = sanitized.match(eventHandlerPattern);
+  stats.eventHandlers = eventMatches?.length || 0;
+  sanitized = sanitized.replace(eventHandlerPattern, '');
+  sanitized = sanitized.replace(/\s+on\w+\s*=\s*[^\s>]+/gi, '');
+  
+  // 5. Remove dangerous URL schemes
+  const jsUrlPattern = /\bhref\s*=\s*["']?\s*javascript:[^"'\s>]*/gi;
+  const jsUrlMatches = sanitized.match(jsUrlPattern);
+  stats.dangerousUrls += jsUrlMatches?.length || 0;
+  sanitized = sanitized.replace(jsUrlPattern, 'href="#"');
+  sanitized = sanitized.replace(/\bsrc\s*=\s*["']?\s*javascript:[^"'\s>]*/gi, 'src=""');
+  
+  // 6. Remove data: URLs (except safe images)
+  sanitized = sanitized.replace(
+    /\bsrc\s*=\s*["']data:(?!image\/(png|jpeg|jpg|gif|webp))[^"']*["']/gi,
+    (match) => {
+      stats.dangerousUrls++;
+      return 'src=""';
+    }
+  );
+  
+  // 7. Harden links (add rel="noopener noreferrer")
+  sanitized = sanitized.replace(
+    /<a\s+([^>]*)>/gi,
+    (match, attrs) => {
+      if (!attrs.includes('rel=')) {
+        return `<a ${attrs} rel="noopener noreferrer">`;
+      }
+      return match;
+    }
+  );
+  
+  // 8. Handle iframes
   if (allowIframes) {
     sanitized = sanitized.replace(
       /<iframe([^>]*)src=["']([^"']+)["']([^>]*)>/gi,
       (match, before, src, after) => {
-        const isWhitelisted = iframeWhitelist.some(domain => 
-          src.includes(domain) || src.startsWith('//')
-        );
-        
+        const isWhitelisted = iframeWhitelist.some(domain => src.includes(domain));
         if (isWhitelisted) {
-          // Keep but add sandbox attribute for security
           const hasSandbox = /sandbox/i.test(match);
           if (!hasSandbox) {
             return `<iframe${before}src="${src}"${after} sandbox="allow-scripts allow-same-origin allow-popups">`;
           }
           return match;
         }
-        
         stats.iframes++;
-        return `<!-- iframe removed: ${getDomain(src)} -->`;
+        return `<!-- iframe removed: ${src} -->`;
       }
     );
   } else {
@@ -136,97 +138,27 @@ export function sanitizeHTML(html: string, options: SanitizeOptions = {}): Sanit
     sanitized = sanitized.replace(/<iframe[^>]*>/gi, '');
   }
   
-  // 4. Remove <object>, <embed>, <applet> tags
-  const objectMatches = sanitized.match(/<(object|embed|applet)[\s\S]*?<\/(object|embed|applet)>/gi);
-  stats.objects = objectMatches?.length || 0;
-  sanitized = sanitized.replace(/<(object|embed|applet)[\s\S]*?<\/(object|embed|applet)>/gi, '');
-  sanitized = sanitized.replace(/<(object|embed|applet)[^>]*>/gi, '');
+  // 9. Optionally remove images
+  if (removeImages) {
+    sanitized = sanitized.replace(/<img[^>]*>/gi, '');
+  }
   
-  // 5. Remove on* event handlers from all tags
-  const eventHandlerPattern = /\s+on\w+\s*=\s*["'][^"']*["']/gi;
-  const eventMatches = sanitized.match(eventHandlerPattern);
-  stats.eventHandlers = eventMatches?.length || 0;
-  sanitized = sanitized.replace(eventHandlerPattern, '');
-  
-  // Also handle unquoted event handlers
-  sanitized = sanitized.replace(/\s+on\w+\s*=\s*[^\s>]+/gi, '');
-  
-  // 6. Remove javascript: URLs
-  const jsUrlPattern = /\bhref\s*=\s*["']?\s*javascript:[^"'\s>]*/gi;
-  const jsUrlMatches = sanitized.match(jsUrlPattern);
-  stats.dangerousUrls += jsUrlMatches?.length || 0;
-  sanitized = sanitized.replace(jsUrlPattern, 'href="#"');
-  
-  // Also in src attributes
-  sanitized = sanitized.replace(/\bsrc\s*=\s*["']?\s*javascript:[^"'\s>]*/gi, 'src=""');
-  
-  // 7. Remove data: URLs in images (potential XSS via SVG)
-  // Keep data:image/png, data:image/jpeg, data:image/gif, data:image/webp
-  sanitized = sanitized.replace(
-    /\bsrc\s*=\s*["']data:(?!image\/(png|jpeg|jpg|gif|webp))[^"']*["']/gi,
-    (match) => {
-      stats.dangerousUrls++;
-      return 'src=""';
-    }
-  );
-  
-  // 8. Remove vbscript: URLs (IE legacy)
-  sanitized = sanitized.replace(/\bhref\s*=\s*["']?\s*vbscript:[^"'\s>]*/gi, 'href="#"');
-  
-  // 9. Remove <form> tags or neutralize them
+  // 10. Remove forms
   const formMatches = sanitized.match(/<form[\s\S]*?<\/form>/gi);
   stats.forms = formMatches?.length || 0;
   sanitized = sanitized.replace(
     /<form([^>]*)>/gi,
     (match, attrs) => {
-      // Remove action attribute or change to #
       return `<form${attrs.replace(/action\s*=\s*["'][^"']*["']/gi, 'action="#"')} onsubmit="return false;">`;
     }
   );
   
-  // 10. Remove <style> tags with @import (tracking/fingerprinting)
-  sanitized = sanitized.replace(/<style[^>]*>[\s\S]*?@import[\s\S]*?<\/style>/gi, '');
-  
-  // 11. Remove tracking pixels (1x1 images)
-  sanitized = sanitized.replace(
-    /<img[^>]*(?:width\s*=\s*["']?1["']?[^>]*height\s*=\s*["']?1["']?|height\s*=\s*["']?1["']?[^>]*width\s*=\s*["']?1["']?)[^>]*>/gi,
-    ''
-  );
-  
-  // 12. Remove <base> tag (can redirect all relative URLs)
-  sanitized = sanitized.replace(/<base[^>]*>/gi, '');
-  
-  // 13. Remove <meta http-equiv="refresh"> (auto-redirect)
+  // 11. Remove dangerous meta tags
   sanitized = sanitized.replace(/<meta[^>]*http-equiv\s*=\s*["']?refresh["']?[^>]*>/gi, '');
-  
-  // 14. Optionally limit image count
-  if (maxImageCount > 0) {
-    let imageCount = 0;
-    sanitized = sanitized.replace(/<img[^>]*>/gi, (match) => {
-      imageCount++;
-      if (imageCount > maxImageCount) {
-        return '<!-- image limit reached -->';
-      }
-      return match;
-    });
-  }
-  
-  // 15. Remove images entirely if requested
-  if (removeImages) {
-    sanitized = sanitized.replace(/<img[^>]*>/gi, '');
-  }
-  
-  // 16. Remove SVG <use> tags with external references (potential SSRF)
-  sanitized = sanitized.replace(/<use[^>]*href\s*=\s*["'](?!#)[^"']*["'][^>]*>/gi, '');
-  
-  // 17. Remove HTML comments (can contain IE conditional comments)
-  sanitized = sanitized.replace(/<!--[\s\S]*?-->/g, '');
-  
-  const hasUnsafeContent = stats.scripts > 0 || 
-                           stats.dangerousUrls > 0 || 
-                           stats.objects > 0 ||
-                           stats.eventHandlers > 5; // Some threshold
-  
+  sanitized = sanitized.replace(/<base[^>]*>/gi, '');
+
+  const hasUnsafeContent = stats.scripts > 0 || stats.dangerousUrls > 0 || stats.objects > 0;
+
   return {
     html: sanitized,
     removedElements: stats,
@@ -281,7 +213,9 @@ export function sanitizeURL(url: string): string {
       'source', 'via',
       'at_medium', 'at_campaign',
       'spm', 'share_token',
-      'si', 'feature' // Spotify, YouTube
+      'spm', 'share_token',
+      'si', 'feature', // Spotify, YouTube
+      'token', 'access_token', 'auth', 'key', 'password' // Security Hardening
     ];
     
     for (const param of trackingParams) {

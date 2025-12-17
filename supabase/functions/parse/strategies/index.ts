@@ -39,6 +39,12 @@ export class StrategyRegistry {
     this.strategies.push(new TwitchStrategy());
     this.strategies.push(new TikTokStrategy());
     this.strategies.push(new SoundCloudStrategy());
+
+    // Keep media strategies (they use APIs, SPA-safe)
+    // Note: Twitter disabled - oEmbed unreliable, SPA domain routing handles it
+    // this.strategies.push(new TwitterStrategy());
+    
+    // DISABLE text/social HTML strategies (most are SPA)
     this.strategies.push(new RedditStrategy());
     this.strategies.push(new LinkedInStrategy());
     this.strategies.push(new InstagramStrategy());

@@ -20,50 +20,7 @@ class ExpirationService {
     
     private init() {}
     
-    // MARK: - Training Mode
-    
-    /// Check if user is in training mode (first 3 days)
-    func isInTrainingMode() -> Bool {
-        guard let trainingStartDate = UserDefaults.standard.object(forKey: "trainingStartDate") as? Date else {
-            return false
-        }
-        let daysSinceStart = Calendar.current.dateComponents([.day], from: trainingStartDate, to: Date()).day ?? 0
-        return daysSinceStart < 3
-    }
-    
-    /// Days remaining in training mode
-    func trainingDaysRemaining() -> Int {
-        guard let trainingStartDate = UserDefaults.standard.object(forKey: "trainingStartDate") as? Date else {
-            return 0
-        }
-        let daysSinceStart = Calendar.current.dateComponents([.day], from: trainingStartDate, to: Date()).day ?? 0
-        return max(0, 3 - daysSinceStart)
-    }
-    
-    /// Start training mode for new users
-    func startTrainingMode() {
-        if UserDefaults.standard.object(forKey: "trainingStartDate") == nil {
-            UserDefaults.standard.set(Date(), forKey: "trainingStartDate")
-            print("🛡️ Training mode started")
-        }
-    }
-    
-    /// Check if training mode has ended and show alert if needed
-    func checkTrainingModeEnded() -> Bool {
-        guard let trainingStartDate = UserDefaults.standard.object(forKey: "trainingStartDate") as? Date else {
-            return false
-        }
-        
-        let trainingEndShown = UserDefaults.standard.bool(forKey: "trainingEndShown")
-        if trainingEndShown { return false }
-        
-        let daysSinceStart = Calendar.current.dateComponents([.day], from: trainingStartDate, to: Date()).day ?? 0
-        if daysSinceStart >= 3 {
-            UserDefaults.standard.set(true, forKey: "trainingEndShown")
-            return true // Show training ended alert
-        }
-        return false
-    }
+
     
     // MARK: - Premium Status
     
@@ -82,30 +39,34 @@ class ExpirationService {
     
     /// Process expired bookmarks - call on app launch and periodically
     func processExpiredBookmarks(modelContext: ModelContext) {
-        // Skip if in training mode
-        guard !isInTrainingMode() else {
-            print("🛡️ Training mode active - skipping expiration check")
+        let now = Date()
+        
+        // Fetch all bookmarks and filter in memory to avoid SwiftData predicate bugs
+        let descriptor = FetchDescriptor<Bookmark>()
+        
+        guard let allBookmarks = try? modelContext.fetch(descriptor) else {
+            print("❌ ExpirationService: Failed to fetch active bookmarks")
             return
         }
         
-        let now = Date()
+        // Filter in memory for safety
+        let bookmarks = allBookmarks.filter { $0.status == .active }
         
-        // Fetch active bookmarks that have expired
-        let activeStatus = BookmarkStatus.active
-        let descriptor = FetchDescriptor<Bookmark>(
-            predicate: #Predicate<Bookmark> { bookmark in
-                bookmark.status == activeStatus
-            }
-        )
-        
-        guard let bookmarks = try? modelContext.fetch(descriptor) else { return }
+        print("🔍 ExpirationService: Found \(bookmarks.count) active bookmarks (from \(allBookmarks.count) total)")
         
         var expiredCount = 0
         for bookmark in bookmarks {
-            if let expiresAt = bookmark.expiresAt, expiresAt < now {
-                bookmark.archiveExpired()
-                expiredCount += 1
-                print("📦 Auto-archived: \(bookmark.title)")
+            if let expiresAt = bookmark.expiresAt {
+                let timeDiff = expiresAt.timeIntervalSince(now)
+                print("   - [\(bookmark.title)] Expires in: \(Int(timeDiff))s (Date: \(expiresAt))")
+                
+                if expiresAt < now {
+                    bookmark.archiveExpired()
+                    expiredCount += 1
+                    print("   🔥 BURNING: \(bookmark.title)")
+                }
+            } else {
+                print("   - [\(bookmark.title)] No expiration date")
             }
         }
         
@@ -215,16 +176,7 @@ class ExpirationService {
         print("📅 Scheduled \(dyingBookmarks.count) expiration notifications")
     }
     
-    /// Send training mode ended notification
-    func sendTrainingEndedNotification() {
-        let content = UNMutableNotificationContent()
-        content.title = "notification.training.ended.title".localized
-        content.body = "notification.training.ended.body".localized
-        content.sound = .default
-        
-        let request = UNNotificationRequest(identifier: "jolt-training-ended", content: content, trigger: nil)
-        UNUserNotificationCenter.current().add(request)
-    }
+
     
     // MARK: - Stats
     
@@ -251,9 +203,9 @@ class ExpirationService {
         for bookmark in bookmarks {
             guard let archivedAt = bookmark.archivedAt, archivedAt >= weekStart else { continue }
             
-            if bookmark.archivedReason == "completed" {
+            if bookmark.status == .completed || bookmark.archivedReason == "completed" {
                 completed += 1
-            } else if bookmark.archivedReason == "auto" {
+            } else if bookmark.status == .expired || bookmark.archivedReason == "auto" {
                 autoArchived += 1
             }
             

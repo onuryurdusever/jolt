@@ -20,7 +20,7 @@ export class PinterestStrategy implements ParsingStrategy {
       
       return {
         type: "image",
-        title: data.title || "Pinterest Pin",
+        title: (data.title && data.title.trim().length > 0) ? data.title : `Pin by ${data.author_name}`,
         excerpt: `Pin by ${data.author_name}`,
         content_html: data.html,
         cover_image: data.thumbnail_url,

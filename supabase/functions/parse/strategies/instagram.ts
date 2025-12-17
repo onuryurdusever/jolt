@@ -30,10 +30,11 @@ export class InstagramStrategy implements ParsingStrategy {
       let image = undefined;
 
       try {
-        // Use honest UA - Instagram often blocks/requires login anyway
+        // Use Chrome UA to look like a real user
         const response = await fetch(url, {
           headers: {
-            "User-Agent": "Mozilla/5.0 (compatible; ReadabilityBot/1.0)"
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
           }
         });
 
@@ -46,18 +47,16 @@ export class InstagramStrategy implements ParsingStrategy {
             return match ? this.decodeHtmlEntities(match[1]) : null;
           };
 
-          const ogTitle = getMeta("og:title"); // Usually "Name (@user) on Instagram: 'Caption'"
-          const ogDesc = getMeta("og:description"); // Sometimes contains stats
+          const ogTitle = getMeta("og:title");
+          const ogDesc = getMeta("og:description");
           const ogImage = getMeta("og:image");
 
-          if (ogTitle) {
-            // Extract username and caption
-            // Format: "Name (@username) on Instagram: \"Caption...\""
+          if (ogTitle && ogTitle !== "Instagram") {
             const userMatch = ogTitle.match(/(.*) \(@([^\)]+)\) on Instagram/);
             if (userMatch) {
-              author = userMatch[2]; // username
+              author = userMatch[2];
               const name = userMatch[1];
-              title = `Post by ${name} (@${author})`;
+              title = `${name} (@${author})`;
             } else {
               title = ogTitle;
             }

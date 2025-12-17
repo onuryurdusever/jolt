@@ -503,7 +503,11 @@ struct QuickCaptureView: View {
                     domain: URL(string: url)?.host ?? "unknown",
                     userNote: userNote.isEmpty ? nil : userNote,
                     expiresAt: expiresAt,
-                    intent: intent
+
+                    intent: intent,
+                    // v3.1 Enrichment: Force enrichment for clipboard items
+                    needsEnrichment: true,
+                    enrichmentStatus: .pending
                 )
                 context.insert(bookmark)
             }
@@ -514,7 +518,7 @@ struct QuickCaptureView: View {
             if source == .clipboard {
                 defaults?.set(true, forKey: "needsSync")
                 Task {
-                    await SyncService.shared.syncPendingBookmarks(context: context)
+                    await EnrichmentService.shared.processPendingEnrichments(context: context)
                 }
             }
         } catch {

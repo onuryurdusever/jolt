@@ -10,17 +10,21 @@ export class RedditStrategy implements ParsingStrategy {
   async parse(url: string): Promise<ParseResult> {
     try {
       // Reddit allows appending .json to get data
-      // We need to handle the URL carefully to append .json correctly
-      let jsonUrl = url;
-      if (url.includes("?")) {
-        jsonUrl = url.replace("?", ".json?");
-      } else {
-        jsonUrl = `${url}.json`;
+      // Use old.reddit.com as it often has less aggressive bot protection/rate limiting
+      const urlObj = new URL(url);
+      urlObj.hostname = "old.reddit.com";
+      // Ensure path doesn't end in slash before appending .json
+      let path = urlObj.pathname;
+      if (path.endsWith("/")) {
+        path = path.slice(0, -1);
       }
+      urlObj.pathname = path + ".json";
+      
+      const jsonUrl = urlObj.toString();
 
       const response = await fetch(jsonUrl, {
         headers: {
-          "User-Agent": "Mozilla/5.0 (compatible; ReadabilityBot/1.0)"
+          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
       });
       

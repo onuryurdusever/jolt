@@ -38,21 +38,9 @@ struct joltApp: App {
     }()
     
     init() {
-        // Configure Audio Session to mix with others (Spotify, Apple Music)
-        do {
-            try AVAudioSession.sharedInstance().setCategory(.ambient, mode: .default, options: [.mixWithOthers])
-            try AVAudioSession.sharedInstance().setActive(true)
-        } catch {
-            print("❌ Failed to set audio session category: \(error)")
-        }
-        
-        // Initialize auth on app launch
-        Task {
-            await AuthService.shared.initializeAnonymousSession()
-        }
-        
-        // Note: Notification permission is requested during onboarding
+        // KILL: Removed side-effects (Audio, Auth) for deterministic startup.
     }
+
 
     var body: some Scene {
         WindowGroup {
@@ -60,26 +48,8 @@ struct joltApp: App {
                 .environmentObject(authService)
         }
         .modelContainer(sharedModelContainer)
-        .onChange(of: scenePhase) { _, newPhase in
-            let context = sharedModelContainer.mainContext
-            
-            switch newPhase {
-            case .background:
-                // Update badge when going to background
-                NotificationManager.shared.updateBadgeCount(modelContext: context)
-                
-            case .active:
-                // Schedule streak protection when app becomes active
-                NotificationManager.shared.scheduleStreakProtectionNotification(modelContext: context)
-                // Also update badge on foreground
-                NotificationManager.shared.updateBadgeCount(modelContext: context)
-                
-            case .inactive:
-                break
-                
-            @unknown default:
-                break
-            }
-        }
+        // KILL: Removed .onChange. Lifecycle managed by startupManager via ContentView.
     }
+
+
 }

@@ -18,8 +18,8 @@ import { Redis } from "https://esm.sh/@upstash/redis@1.29.0";
 // =============================================================================
 
 const CONFIG = {
-  // User-Agent: Generic, honest, no domain until announced
-  USER_AGENT: "Mozilla/5.0 (compatible; ReadabilityBot/1.0)",
+  // User-Agent: Mimic Chrome on macOS (matching Playground)
+  USER_AGENT: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
   
   // Size limits
   MAX_HTML_SIZE: 5 * 1024 * 1024,      // 5MB for HTML
@@ -231,16 +231,43 @@ function getRedis(): Redis | null {
 // RATE LIMITING
 // =============================================================================
 
-async function checkRateLimit(ip: string, domain: string): Promise<{ allowed: boolean; error?: FetchError }> {
+async function checkRateLimit(ip: string, domain: string, userId?: string): Promise<{ allowed: boolean; error?: FetchError }> {
   const redis = getRedis();
   if (!redis) return { allowed: true }; // Skip if Redis not configured
   
   try {
     const now = Math.floor(Date.now() / 1000);
-    const hourKey = `ratelimit:ip:${ip}:${Math.floor(now / 3600)}`;
     const minuteKey = `ratelimit:domain:${domain}:${Math.floor(now / 60)}`;
     
-    // Check IP rate limit (per hour)
+    // Domain Limit (Global for everyone)
+    const domainCount = await redis.incr(minuteKey);
+    if (domainCount === 1) await redis.expire(minuteKey, 60);
+    if (domainCount > CONFIG.RATE_LIMIT_PER_DOMAIN) {
+      return { 
+        allowed: false, 
+        error: { code: 'RATE_LIMITED', message: 'Domain rate limit exceeded. Try again later.' }
+      };
+    }
+
+    // USER-ID BASED LIMITING (Fix for NAT/Shared IP issues)
+    if (userId) {
+       const userKey = `ratelimit:user:${userId}:${Math.floor(now / 3600)}`;
+       const userCount = await redis.incr(userKey);
+       if (userCount === 1) await redis.expire(userKey, 3600);
+       
+       // Strict limit for individual users (100 per hour)
+       if (userCount > CONFIG.RATE_LIMIT_PER_IP) { // reusing same number constant
+          return {
+             allowed: false,
+             error: { code: 'RATE_LIMITED', message: 'User rate limit exceeded.' }
+          };
+       }
+       // If user is authenticated, we SKIP the strict IP check (or rely on the user limit)
+       return { allowed: true };
+    }
+
+    // IP BASED LIMITING (Fallback for unauthenticated or legacy calls)
+    const hourKey = `ratelimit:ip:${ip}:${Math.floor(now / 3600)}`;
     const ipCount = await redis.incr(hourKey);
     if (ipCount === 1) {
       await redis.expire(hourKey, 3600);
@@ -252,24 +279,13 @@ async function checkRateLimit(ip: string, domain: string): Promise<{ allowed: bo
       };
     }
     
-    // Check domain rate limit (per minute)
-    const domainCount = await redis.incr(minuteKey);
-    if (domainCount === 1) {
-      await redis.expire(minuteKey, 60);
-    }
-    if (domainCount > CONFIG.RATE_LIMIT_PER_DOMAIN) {
-      return { 
-        allowed: false, 
-        error: { code: 'RATE_LIMITED', message: 'Domain rate limit exceeded. Try again later.' }
-      };
-    }
-    
     return { allowed: true };
   } catch (error) {
     console.error('Redis rate limit error:', error);
     return { allowed: true }; // Fail open if Redis errors
   }
 }
+
 
 // =============================================================================
 // ROBOTS.TXT
@@ -376,10 +392,62 @@ function isPathAllowed(path: string, rules: RobotsRule): boolean {
 // MAIN FETCH FUNCTION
 // =============================================================================
 
+// =============================================================================
+// DNS VALIDATION (SSRF Protection)
+// =============================================================================
+
+async function validateDNS(hostname: string): Promise<{ safe: boolean; error?: string; ips?: string[] }> {
+  try {
+    // Skip if input is already an IP
+    if (/^(\d{1,3}\.){3}\d{1,3}$|^[a-fA-F0-9:]+$/.test(hostname)) {
+      if (isPrivateIP(hostname)) {
+        return { safe: false, error: 'Direct access to private IP blocked.' };
+      }
+      return { safe: true, ips: [hostname] };
+    }
+
+    // Resolve DNS (A and AAAA records)
+    const [ipv4, ipv6] = await Promise.allSettled([
+      Deno.resolveDns(hostname, "A"),
+      Deno.resolveDns(hostname, "AAAA")
+    ]);
+
+    const ips: string[] = [];
+    if (ipv4.status === "fulfilled") ips.push(...ipv4.value);
+    if (ipv6.status === "fulfilled") ips.push(...ipv6.value);
+
+    if (ips.length === 0) {
+      // No records found - let fetch try, but it's suspicious
+      return { safe: true, ips: [] }; 
+    }
+
+    // Check ALL resolved IPs
+    for (const ip of ips) {
+      if (isPrivateIP(ip)) {
+        return { safe: false, error: `DNS resolved to private IP: ${ip}` };
+      }
+    }
+
+    return { safe: true, ips };
+  } catch (error) {
+    // DNS resolution failed - let fetch handle the network error, 
+    // or block if strict mode is required. Here we fail open ONLY for resolution errors,
+    // assuming the fetch will fail if DNS is bad.
+    // However, for SSRF security, failing CLOSED is safer.
+    // Let's assume valid public domains must resolve.
+    return { safe: false, error: `DNS resolution failed: ${error instanceof Error ? error.message : 'Unknown'}` };
+  }
+}
+
+// =============================================================================
+// MAIN FETCH FUNCTION
+// =============================================================================
+
 export async function fetchURL(
   urlString: string, 
   options: FetchOptions = {},
-  clientIP?: string
+  clientIP?: string,
+  userId?: string
 ): Promise<FetchResult> {
   const {
     timeout = CONFIG.FETCH_TIMEOUT_MS,
@@ -389,7 +457,7 @@ export async function fetchURL(
     userAgent = CONFIG.USER_AGENT
   } = options;
   
-  // Validate URL
+  // Validate URL (Scheme & Format)
   const validation = isValidURL(urlString);
   if (!validation.valid || !validation.url) {
     return {
@@ -400,12 +468,22 @@ export async function fetchURL(
     };
   }
   
-  const url = validation.url;
-  const domain = url.hostname;
-  
-  // Rate limiting
-  if (clientIP) {
-    const rateCheck = await checkRateLimit(clientIP, domain);
+  let currentUrlObj = validation.url!;
+  const domain = currentUrlObj.hostname;
+
+  // Validate Port (Strict 80/443 Allowlist)
+  if (currentUrlObj.port && !['80', '443'].includes(currentUrlObj.port)) {
+    return {
+       success: false,
+       url: urlString,
+       redirectChain: [],
+       error: { code: 'INVALID_URL', message: 'Port restricted. Only 80/443 allowed.' }
+    };
+  }
+
+  // Rate limiting (IP or User ID)
+  if (clientIP || userId) {
+    const rateCheck = await checkRateLimit(clientIP || 'unknown', domain, userId);
     if (!rateCheck.allowed) {
       return {
         success: false,
@@ -419,7 +497,7 @@ export async function fetchURL(
   // Robots.txt check
   if (checkRobots) {
     const rules = await getRobotsRules(domain);
-    if (rules && !isPathAllowed(url.pathname, rules)) {
+    if (rules && !isPathAllowed(currentUrlObj.pathname, rules)) {
       return {
         success: false,
         url: urlString,
@@ -446,30 +524,46 @@ export async function fetchURL(
     }
     visitedUrls.add(currentUrl);
     
-    // Validate redirect URL
-    const redirectValidation = isValidURL(currentUrl);
-    if (!redirectValidation.valid) {
+    // Parse current URL
+    const curUrlParse = isValidURL(currentUrl);
+    if (!curUrlParse.valid || !curUrlParse.url) {
+        return {
+          success: false,
+          url: currentUrl,
+          redirectChain,
+          error: { code: 'INVALID_URL', message: 'Invalid redirect URL' }
+        };
+    }
+
+    // SSRF Check: Validate DNS before connecting
+    const dnsCheck = await validateDNS(curUrlParse.url.hostname);
+    if (!dnsCheck.safe) {
       return {
         success: false,
         url: currentUrl,
         redirectChain,
-        error: { code: 'INVALID_URL', message: 'Invalid redirect URL' }
+        error: { code: 'PRIVATE_IP', message: dnsCheck.error || 'Blocked by SSRF guard' }
       };
     }
-    
+
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeout);
       
       const response = await fetch(currentUrl, {
         signal: controller.signal,
-        redirect: 'manual', // Handle redirects manually
+        redirect: 'manual', // Handle redirects manually to re-validate IPs
         headers: {
-          'User-Agent': userAgent,
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.9',
-          'Accept-Encoding': 'gzip, deflate',
-          'Connection': 'keep-alive',
+            // Minimal & Safe Headers
+            'User-Agent': userAgent,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,text/plain;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Accept-Encoding': 'gzip, deflate',
+            'Connection': 'close', // Don't keep connections open unnecessarily
+            // Distinctly clear Auth/Cookies
+            'Authorization': '',
+            'Cookie': '',
+            'Range': 'bytes=0-' + maxSize
         }
       });
       
@@ -514,22 +608,36 @@ export async function fetchURL(
         };
       }
       
-      // Check Content-Length if available (Pre-flight check)
+      // Content-Type Guard
+      const contentType = response.headers.get('content-type') || '';
+      const allowedTypes = ['text/html', 'application/xhtml+xml', 'text/plain'];
+      const isAllowedType = allowedTypes.some(t => contentType.toLowerCase().includes(t));
+      
+      if (!isAllowedType) {
+         // Fail safely for unknown binary types (PDFs etc should be handled by separate pipeline if needed)
+         // For now, we return specific error to allow fallback
+         return {
+            success: false,
+            url: currentUrl,
+            redirectChain,
+            error: { code: 'NETWORK_ERROR', message: `Refused Content-Type: ${contentType}` }
+         };
+      }
+
+      // Check Content-Length if available
       const contentLength = response.headers.get('content-length');
       if (contentLength && parseInt(contentLength) > maxSize) {
         return {
           success: false,
           url: currentUrl,
           redirectChain,
-          error: { code: 'SIZE_LIMIT', message: `Content too large: ${contentLength} bytes (max: ${maxSize})` }
+          error: { code: 'SIZE_LIMIT', message: `Content too large: ${contentLength} bytes` }
         };
       }
       
       // Stream with size limit
-      const contentType = response.headers.get('content-type');
       const headerCharset = extractCharsetFromHeader(contentType);
       
-      // Read body with streaming size check
       const reader = response.body?.getReader();
       if (!reader) {
         return {
@@ -554,7 +662,7 @@ export async function fetchURL(
             success: false,
             url: currentUrl,
             redirectChain,
-            error: { code: 'SIZE_LIMIT', message: `Content exceeded ${maxSize} bytes during download` }
+            error: { code: 'SIZE_LIMIT', message: `Content exceeded ${maxSize} bytes` }
           };
         }
         
@@ -573,7 +681,6 @@ export async function fetchURL(
       let charset = headerCharset || 'utf-8';
       let decoded = decodeWithCharset(buffer.buffer, charset);
       
-      // If decoding failed, try to detect from HTML meta tag
       if (!decoded.success && !headerCharset) {
         const tempDecoded = new TextDecoder('utf-8', { fatal: false }).decode(buffer);
         const metaCharset = extractCharsetFromHTML(tempDecoded);
@@ -589,7 +696,7 @@ export async function fetchURL(
         url: currentUrl,
         redirectChain,
         charset,
-        contentType: contentType || undefined
+        contentType
       };
       
     } catch (error) {
@@ -611,12 +718,11 @@ export async function fetchURL(
     }
   }
   
-  // Should never reach here
   return {
     success: false,
     url: currentUrl,
     redirectChain,
-    error: { code: 'NETWORK_ERROR', message: 'Unexpected error in fetch loop' }
+    error: { code: 'NETWORK_ERROR', message: 'Unexpected exit' }
   };
 }
 

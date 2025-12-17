@@ -1,4 +1,5 @@
 import { ParsingStrategy, ParseResult } from "./base.ts";
+import { extractArticle } from "../utils.ts";
 
 export class TwitterStrategy implements ParsingStrategy {
   name = "Twitter";
@@ -21,13 +22,17 @@ export class TwitterStrategy implements ParsingStrategy {
       const data = await response.json();
       const domain = url.includes("x.com") ? "x.com" : "twitter.com";
 
+      // Parse the HTML from oEmbed using our Readability-based extractor
+      // We pass the original URL as context
+      const article = extractArticle(data.html, url);
+
       return {
-        type: "social",
+        type: "article", // CHANGED: Return 'article' so iOS uses ReaderView
         title: `Tweet by ${data.author_name}`,
-        excerpt: data.html.replace(/<[^>]+>/g, '').substring(0, 200), // Strip HTML for excerpt
-        content_html: data.html,
-        cover_image: null, // Twitter oEmbed doesn't provide image directly usually
-        reading_time_minutes: 2,
+        excerpt: article?.excerpt || data.html.replace(/<[^>]+>/g, '').substring(0, 200),
+        content_html: article?.content || data.html, // Use parsed content if avail, else raw HTML
+        cover_image: null,
+        reading_time_minutes: 1, // Short read
         domain: domain,
         metadata: {
           platform: "twitter",

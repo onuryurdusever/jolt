@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "joltfavico.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -12,6 +13,7 @@
           "value" : "dark"
         }
       ],
+      "filename" : "joltfavico_black.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -23,6 +25,7 @@
           "value" : "tinted"
         }
       ],
+      "filename" : "joltfavico 1.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

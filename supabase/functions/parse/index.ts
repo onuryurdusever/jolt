@@ -89,6 +89,27 @@ serve(async (req) => {
     }
 
     if (cached) {
+      // CACHE HEALING: Aggressive
+      // If cached result is for an SPA domain and has a generic title, FORCE INVALIDATION.
+      // We don't rely on fetch_method here because old cached rows might not have it.
+      
+      const domain = (cached.domain || "").toLowerCase();
+      const title = (cached.title || "").toLowerCase();
+      
+      const isSPADomain = domain.includes('x.com') || 
+                          domain.includes('twitter.com') || 
+                          domain.includes('reddit.com');
+                          
+      const isGenericTitle = title === domain || 
+                             ['x.com', 'twitter.com', 'reddit.com', 'x', 'twitter', 'reddit'].includes(title);
+      
+      if (isSPADomain && isGenericTitle) {
+        console.log(`♻️ Cache invalidation: Generic title '${cached.title}' for SPA '${domain}'. Re-fetching.`);
+        cached = null;
+      }
+    }
+
+    if (cached) {
       console.log(`✅ Cache hit for: ${sanitizedUrl}`)
       return new Response(
         JSON.stringify({ 
@@ -100,21 +121,63 @@ serve(async (req) => {
       )
     }
 
+    // EARLY CHECK: SPA Domain Routing
+    // Sites that require JavaScript get "Original View" (webview) intentionally
+    const { isSPADomain, getSPAWebViewReason, getSPAMetadata } = await import('./spa_domains.ts');
+    
+    if (isSPADomain(sanitizedUrl)) {
+      const domain = new URL(sanitizedUrl).hostname;
+      const webviewReason = getSPAWebViewReason(sanitizedUrl);
+      
+      console.log(`🌐 SPA domain detected: ${domain} → Original View (${webviewReason})`);
+      
+      // Fetch metadata (title/image) lightly
+      const { title, cover_image } = await getSPAMetadata(sanitizedUrl);
+      
+      const spaResult: ParseResult = {
+        type: 'webview',
+        title: title || domain, // Use domain as fallback
+        excerpt: null,
+        content_html: null,
+        cover_image: cover_image,
+        reading_time_minutes: 0,
+        domain,
+        metadata: null,
+        fetchMethod: 'spa-bypass',
+        confidence: 1.0,
+        webviewReason,
+        finalUrl: sanitizedUrl,
+        robotsCompliant: true
+      };
+      
+      // Cache SPA bypass result too (avoid redundant checks)
+      await supabase.from('parsed_cache').insert({
+        url_hash: urlHash,
+        ...spaResult
+      });
+      
+      return new Response(
+        JSON.stringify({ ...spaResult, success: true }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Parse content using Strategy Pattern
     const registry = new StrategyRegistry()
     const strategy = registry.getStrategy(sanitizedUrl)
     console.log(`🔍 Using strategy: ${strategy.name}`)
+
     
     let parsed: ParseResult;
     try {
-      parsed = await strategy.parse(sanitizedUrl, undefined, clientIP)
+      parsed = await strategy.parse(sanitizedUrl, undefined, clientIP, user_id)
     } catch (e) {
       // If a specific strategy fails, fallback to Default strategy
       // This ensures we always try to get at least some metadata (title, image)
       if (strategy.name !== 'Default') {
         console.warn(`⚠️ Strategy ${strategy.name} failed (${e instanceof Error ? e.message : 'Unknown'}), falling back to Default strategy`);
         const defaultStrategy = new DefaultStrategy();
-        parsed = await defaultStrategy.parse(sanitizedUrl, undefined, clientIP);
+        parsed = await defaultStrategy.parse(sanitizedUrl, undefined, clientIP, user_id);
       } else {
         throw e; // If Default fails, we really failed
       }

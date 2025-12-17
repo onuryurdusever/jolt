@@ -430,8 +430,7 @@
 "notification.lastDay.single.body" = "\"%@\" yarın kayboluyor. Oku veya ertele.";
 
 // Training Mode
-"notification.training.ended.title" = "Antrenman Bitti 💪";
-"notification.training.ended.body" = "Artık içerikler normal sürede silinecek.";
+
 
 // MARK: - Siri Shortcuts
 "siri.openFocus" = "Odağı Aç";
@@ -538,7 +537,7 @@
 "onboarding.law.title" = "7 Gün Kuralı";
 "onboarding.law.subtitle" = "Jolt'ta her içeriğin bir ömrü vardır.\nYa okursun, ya da yanar.";
 "onboarding.law.sevenDays" = "7 Gün Süren Var";
-"onboarding.law.note" = "* Merak etme, ilk 3 gün alışman için koruma altındasın.";
+
 "onboarding.law.button" = "Kabul Ediyorum";
 
 // MARK: - Onboarding v2.1 (How-To)
@@ -571,11 +570,7 @@
 "onboarding.delivery.minOneRequired" = "En az bir zaman dilimi seçmelisin.";
 "onboarding.delivery.button" = "Dozları Ayarla";
 
-// MARK: - Onboarding v2.1 (Training)
-"onboarding.training.title" = "Güvenli Giriş";
-"onboarding.training.subtitle" = "İlk 3 gün alışman için zırhın aktif.\nSilinme yok.";
-"onboarding.training.duration" = "3 Günlük Zırh";
-"onboarding.training.button" = "Eğitime Başla ⚡️";
+
 
 // MARK: - Premium
 "premium.title" = "Jolt Pro";
@@ -587,10 +582,7 @@
 "premium.cta" = "Jolt Pro'ya Geç";
 "premium.restore" = "Satın Alımları Geri Yükle";
 
-// MARK: - Training Banner
-"training.banner.title" = "Antrenman Modu Aktif";
-"training.banner.subtitle" = "%d gün kaldı";
-"training.banner.badge" = "Korumalı";
+
 
 // MARK: - Archive View
 "archive.title" = "Arşiv";
@@ -755,3 +747,13 @@
 "tutorial.mastery.complete" = "Eğitimi tamamladın.";
 "tutorial.mastery.next" = "Artık gerçek dünyaya dön ve <strong>ilk gerçek linkini Jolt'a gönder</strong>.";
 "tutorial.mastery.timer" = "Süren başladı. ⏳";
+
+// MARK: - Original View (SPA Sites)
+"originalView.label" = "Orijinal Görünüm";
+"originalView.reason.spa" = "Bu site dinamik JavaScript gerektiriyor. Orijinal görünüm açıldı.";
+"originalView.reason.protection" = "Site bot korumalı. Orijinal görünüm kullanılıyor.";
+"originalView.reason.generic" = "Okuma modu desteklenmiyor. Web görünümü açıldı.";
+"originalView.banner" = "Bu site dinamik (JavaScript). Orijinal görünüm açıldı.";
+"originalView.openInSafari" = "Safari'de Aç";
+"originalView.trackingNotice.title" = "Gizlilik Bilgisi";
+"originalView.trackingNotice.message" = "Orijinal site çerez ve tracker yükleyebilir. Jolt bu verileri kaydetmez (incognito mode).";

@@ -634,8 +634,10 @@ struct ExtensionQuickCaptureView: View {
                     type: detectBookmarkType(),
                     domain: URL(string: url)?.host ?? "unknown",
                     userNote: userNote.isEmpty ? nil : userNote,
-                    expiresAt: expiresAt,
-                    intent: intent
+                    intent: intent,
+                    // v3.1 Enrichment: Force enrichment for raw links from share extension
+                    needsEnrichment: true,
+                    enrichmentStatus: .pending
                 )
                 modelContext.insert(bookmark)
             }

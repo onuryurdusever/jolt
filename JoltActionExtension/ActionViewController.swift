@@ -122,7 +122,10 @@ class ActionViewController: UIViewController {
             type: .article,
             domain: domain,
             expiresAt: Date().addingTimeInterval(24 * 60 * 60), // 24 saat
-            intent: .now // Varsayılan olarak "Şimdi" intent'i
+            intent: .now, // Varsayılan olarak "Şimdi" intent'i
+            // v3.1 Enrichment: Force enrichment for new items
+            needsEnrichment: true,
+            enrichmentStatus: .pending
         )
         
         let context = container.mainContext
