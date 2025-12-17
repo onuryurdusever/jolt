@@ -59,6 +59,10 @@ struct PulseView: View {
 
     @Query private var allRoutines: [Routine]
     
+    // Callback for iPad/Mac sidebar toggle
+    var onToggleSidebar: (() -> Void)? = nil
+    var isSidebarVisible: Bool = false
+    
     struct DeliverySlot: Identifiable {
         let id: Int
     }
@@ -274,6 +278,18 @@ struct PulseView: View {
     
     private var headerSection: some View {
         HStack {
+            // Sidebar Toggle (iPad/Mac)
+            if let toggle = onToggleSidebar, !isSidebarVisible {
+                Button {
+                    toggle()
+                } label: {
+                    Image(systemName: "sidebar.left")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.joltMutedForeground)
+                }
+                .padding(.trailing, 12)
+            }
+            
             VStack(alignment: .leading, spacing: 4) {
                 Text("pulse.header.title".localized)
                     .font(.system(size: 12, weight: .semibold))

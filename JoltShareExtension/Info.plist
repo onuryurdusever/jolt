@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>tr</string>
+	<key>CFBundleDisplayName</key>
+	<string>Jolt</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionAttributes</key>

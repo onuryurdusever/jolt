@@ -16,6 +16,8 @@ struct FocusView: View {
     @Query private var allBookmarks: [Bookmark]
     @Query private var allRoutines: [Routine]
 
+    // Static flag for one-time expiration check
+    static var hasCheckedExpiration = false
     
     // Timer for refreshing "now" - triggers view update every 30 seconds
     private let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
@@ -125,6 +127,10 @@ struct FocusView: View {
         return filteredBookmarks
     }
     
+    // Callback for iPad/Mac sidebar toggle
+    var onToggleSidebar: (() -> Void)? = nil
+    var isSidebarVisible: Bool = false
+    
     // MARK: - Body
     
     var body: some View {
@@ -197,13 +203,32 @@ struct FocusView: View {
                                 .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 8, trailing: 20))
                                 .listRowSeparator(.hidden)
                                 .listRowBackground(Color.clear)
+                                .contextMenu {
+                                    Button {
+                                        completeBookmark(heroBookmark)
+                                    } label: {
+                                        Label("archive.action".localized, systemImage: "archivebox")
+                                    }
+                                    
+                                    Button {
+                                        snoozeToNextDelivery(heroBookmark)
+                                    } label: {
+                                        Label("snooze.action".localized, systemImage: "clock")
+                                    }
+                                    
+                                    Button(role: .destructive) {
+                                        burnBookmark(heroBookmark)
+                                    } label: {
+                                        Label("burn.action".localized, systemImage: "flame")
+                                    }
+                                }
                             }
                             
                             // Ultra-Compact Rows (Rest) with fade effect after 50%
                             ForEach(Array(visibleBookmarks.dropFirst().enumerated()), id: \.element.id) { index, bookmark in
                                 let totalItems = visibleBookmarks.count
                                 let actualIndex = index + 1 // +1 because we dropped first
-                                let fadeStartIndex = totalItems / 2
+                                let fadeStartIndex = 4
                                 let opacity = actualIndex >= fadeStartIndex ? 
                                     max(0.3, 1.0 - Double(actualIndex - fadeStartIndex) / Double(max(1, totalItems - fadeStartIndex)) * 0.7) : 1.0
                                 
@@ -218,6 +243,25 @@ struct FocusView: View {
                                 .listRowInsets(EdgeInsets(top: 4, leading: 20, bottom: 4, trailing: 20))
                                 .listRowSeparator(.hidden)
                                 .listRowBackground(Color.clear)
+                                .contextMenu {
+                                    Button {
+                                        completeBookmark(bookmark)
+                                    } label: {
+                                        Label("archive.action".localized, systemImage: "archivebox")
+                                    }
+                                    
+                                    Button {
+                                        snoozeToNextDelivery(bookmark)
+                                    } label: {
+                                        Label("snooze.action".localized, systemImage: "clock")
+                                    }
+                                    
+                                    Button(role: .destructive) {
+                                        burnBookmark(bookmark)
+                                    } label: {
+                                        Label("burn.action".localized, systemImage: "flame")
+                                    }
+                                }
                             }
                             
                             // v2.1 DOZ: "Sonra" bölümü - planlanmış içerikler
@@ -277,8 +321,11 @@ struct FocusView: View {
             }
             .onAppear {
                 currentTime = Date()
-                // v2.1: Process expired bookmarks on appear
-                ExpirationService.shared.processExpiredBookmarks(modelContext: modelContext)
+                // v2.1: Process expired bookmarks (once per session to avoid loops)
+                if !FocusView.hasCheckedExpiration {
+                    ExpirationService.shared.processExpiredBookmarks(modelContext: modelContext)
+                    FocusView.hasCheckedExpiration = true
+                }
             }
             .onReceive(timer) { _ in
                 currentTime = Date()
@@ -309,6 +356,19 @@ struct FocusView: View {
     
     private var minimalHeader: some View {
         HStack(alignment: .center) {
+            
+            // iPad/Mac Sidebar Toggle (if available & hidden)
+            if let toggle = onToggleSidebar, !isSidebarVisible {
+                Button {
+                    toggle()
+                } label: {
+                    Image(systemName: "sidebar.left")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.joltMutedForeground)
+                }
+                .padding(.trailing, 12)
+            }
+            
             // Left: Stats (Tappable for filter)
             Button {
                 showFilterSheet = true
@@ -369,11 +429,12 @@ struct FocusView: View {
                     showAddLinkOptions = true
                 } label: {
                     Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 22))
-                        .foregroundColor(.joltYellow)
+                    .font(.system(size: 22))
+                    .foregroundColor(.joltYellow)
                 }
                 .accessibilityLabel("a11y.focus.addLink".localized)
                 .accessibilityHint("a11y.focus.addLinkHint".localized)
+                .keyboardShortcut("n", modifiers: .command)
             }
         }
     }

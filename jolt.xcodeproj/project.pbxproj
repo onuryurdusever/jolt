@@ -886,7 +886,7 @@
 				DEVELOPMENT_TEAM = H789J2ZW6B;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = jolt/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = jolt;
+				INFOPLIST_KEY_CFBundleDisplayName = Jolt;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -917,7 +917,7 @@
 				DEVELOPMENT_TEAM = H789J2ZW6B;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = jolt/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = jolt;
+				INFOPLIST_KEY_CFBundleDisplayName = Jolt;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (

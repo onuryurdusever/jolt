@@ -13,6 +13,10 @@ struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Bookmark.archivedAt, order: .reverse) private var allBookmarks: [Bookmark]
     
+    // Callback for iPad/Mac sidebar toggle
+    var onToggleSidebar: (() -> Void)? = nil
+    var isSidebarVisible: Bool = false
+    
     // MARK: - State
     @State private var searchText = ""
     @State private var selectedFilter: HistoryFilter = .all
@@ -211,6 +215,18 @@ struct HistoryView: View {
     
     private var headerView: some View {
         HStack {
+            // Sidebar Toggle (iPad/Mac)
+            if let toggle = onToggleSidebar, !isSidebarVisible {
+                Button {
+                    toggle()
+                } label: {
+                    Image(systemName: "sidebar.left")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.joltMutedForeground)
+                }
+                .padding(.trailing, 12)
+            }
+            
             VStack(alignment: .leading, spacing: 4) {
                 Text("history.title".localized)
                     .font(.system(size: 12, weight: .semibold))

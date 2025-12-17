@@ -45,6 +45,19 @@ struct ReaderSettings {
     }
 }
 
+// MARK: - Web View Controller
+class WebViewController: ObservableObject {
+    weak var webView: WKWebView?
+    
+    func goBack() {
+        webView?.goBack()
+    }
+    
+    func goForward() {
+        webView?.goForward()
+    }
+}
+
 // MARK: - Main Reader View
 
 struct ReaderView: View {
@@ -60,6 +73,8 @@ struct ReaderView: View {
     @State private var showSettings = false
     @State private var useReaderMode = true // For webview toggle
     @State private var scrollProgress: Double = 0
+    
+
     
     // Reader Settings (persisted)
     @AppStorage("readerFontSize") private var fontSize: Double = 18
@@ -109,22 +124,10 @@ struct ReaderView: View {
                     }
             )
         }
+        .navigationTitle(bookmark.domain)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .toolbar {
-            ToolbarItem(placement: .principal) {
-                // Domain badge
-                HStack(spacing: 4) {
-                    if let platformIcon = bookmark.platformIcon {
-                        Image(systemName: platformIcon)
-                            .font(.system(size: 10))
-                    }
-                    Text(bookmark.domain)
-                        .font(.system(size: 12, weight: .medium))
-                }
-                .foregroundColor(.joltMutedForeground)
-            }
-            
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: 12) {
                     // Reader Mode Toggle (only for webview with contentHTML)
@@ -726,7 +729,6 @@ struct EnhancedArticleReaderView: View {
     let onJolt: () -> Void
     let isArchived: Bool
     
-    @State private var webView: WKWebView?
     @State private var isLoading = true
     
     var body: some View {
@@ -737,7 +739,6 @@ struct EnhancedArticleReaderView: View {
                 theme: theme,
                 lineHeight: lineHeight,
                 scrollProgress: $scrollProgress,
-                webView: $webView,
                 isLoading: $isLoading
             )
             .padding(.bottom, 76)
@@ -761,7 +762,6 @@ struct ArticleWebView: UIViewRepresentable {
     let theme: ReaderSettings.Theme
     let lineHeight: Double
     @Binding var scrollProgress: Double
-    @Binding var webView: WKWebView?
     @Binding var isLoading: Bool
     
     func makeUIView(context: Context) -> WKWebView {
@@ -778,10 +778,6 @@ struct ArticleWebView: UIViewRepresentable {
         // Load content
         loadContent(in: webView)
         
-        DispatchQueue.main.async {
-            self.webView = webView
-        }
-        
         return webView
     }
     
@@ -792,6 +788,15 @@ struct ArticleWebView: UIViewRepresentable {
     
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
+    }
+    
+    // Clean up to prevent crashes (Mac Catalyst / iPad SplitView)
+    static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
+        uiView.stopLoading()
+        uiView.navigationDelegate = nil
+        uiView.scrollView.delegate = nil
+        uiView.configuration.userContentController.removeAllUserScripts()
+        uiView.configuration.userContentController.removeAllScriptMessageHandlers()
     }
     
     private func loadContent(in webView: WKWebView) {
@@ -1020,33 +1025,25 @@ struct ArticleWebView: UIViewRepresentable {
         }
         
         private func saveScrollPosition(_ scrollView: UIScrollView) {
-            // Use JS to get the exact scroll position (Absolute Y)
-            let script = """
-                (function() {
-                    return window.scrollY;
-                })();
-            """
+            // OPTIMIZATION: Use native contentOffset instead of JS eval to prevent Catalyst IPC hangs
+            let scrollY = scrollView.contentOffset.y
             
-            parent.webView?.evaluateJavaScript(script) { result, error in
-                guard let scrollY = result as? Double, error == nil else { return }
-                
-                print("💾 Saving Article scroll position (Absolute): \(Int(scrollY))px")
-                
-                let contentHeight = scrollView.contentSize.height
-                let frameHeight = scrollView.frame.height
-                let offsetY = scrollView.contentOffset.y
-                var percentage: Double = 0
-                if contentHeight > frameHeight {
-                    percentage = offsetY / (contentHeight - frameHeight)
-                }
-                let clampedPercentage = min(max(percentage, 0), 1)
-                
-                // Dispatch to main to update UI/Model
-                DispatchQueue.main.async {
-                    self.parent.bookmark.lastScrollY = scrollY
-                    self.parent.bookmark.lastScrollPercentage = clampedPercentage
-                }
+            print("💾 Saving Article scroll position (Native): \(Int(scrollY))px")
+            
+            let contentHeight = scrollView.contentSize.height
+            let frameHeight = scrollView.frame.height
+            let clampedPercentage: Double
+            
+            if contentHeight > frameHeight {
+                let percentage = scrollY / (contentHeight - frameHeight)
+                clampedPercentage = min(max(percentage, 0), 1)
+            } else {
+                clampedPercentage = 0
             }
+            
+            // Update Model directly (on main thread, since delegate is on main)
+            self.parent.bookmark.lastScrollY = Double(scrollY)
+            self.parent.bookmark.lastScrollPercentage = clampedPercentage
         }
         
         // Handle link clicks - open in Safari
@@ -1166,7 +1163,7 @@ struct WebReaderView: View {
     
     @State private var isLoading = true
     @State private var loadingProgress: Double = 0
-    @State private var webView: WKWebView?
+    @StateObject private var webController = WebViewController()
     @State private var canGoBack = false
     @State private var canGoForward = false
     @State private var showOffline = false
@@ -1181,7 +1178,6 @@ struct WebReaderView: View {
                     theme: .dark,
                     lineHeight: 1.6,
                     scrollProgress: $scrollProgress,
-                    webView: .constant(nil),
                     isLoading: .constant(false)
                 )
                 .padding(.bottom, 76)
@@ -1192,7 +1188,7 @@ struct WebReaderView: View {
                         bookmark: bookmark,
                         isLoading: $isLoading,
                         progress: $loadingProgress,
-                        webView: $webView,
+                        webController: webController,
                         canGoBack: $canGoBack,
                         canGoForward: $canGoForward,
                         scrollProgress: $scrollProgress,
@@ -1240,8 +1236,8 @@ struct WebReaderView: View {
                 canGoForward: canGoForward,
                 scrollProgress: scrollProgress,
                 isArchived: isArchived,
-                onBack: { webView?.goBack() },
-                onForward: { webView?.goForward() },
+                onBack: { webController.goBack() },
+                onForward: { webController.goForward() },
                 onJolt: onJolt
             )
         }
@@ -1253,7 +1249,7 @@ struct WebViewRepresentable: UIViewRepresentable {
     let bookmark: Bookmark
     @Binding var isLoading: Bool
     @Binding var progress: Double
-    @Binding var webView: WKWebView?
+    @ObservedObject var webController: WebViewController
     @Binding var canGoBack: Bool
     @Binding var canGoForward: Bool
     @Binding var scrollProgress: Double
@@ -1335,9 +1331,7 @@ struct WebViewRepresentable: UIViewRepresentable {
             }
         }
         
-        DispatchQueue.main.async {
-            self.webView = webView
-        }
+        webController.webView = webView
         
         return webView
     }
@@ -1502,34 +1496,26 @@ struct WebViewRepresentable: UIViewRepresentable {
         }
         
         private func saveScrollPosition(_ scrollView: UIScrollView) {
-            // Use JS to get the exact scroll position (Absolute Y)
-            let script = """
-                (function() {
-                    return window.scrollY;
-                })();
-            """
+            // OPTIMIZATION: Use native contentOffset instead of JS eval to prevent Catalyst IPC hangs
+            // Note: For general web pages, this might be slightly off if zoom != 1.0, but it avoids the crash/hang.
+            let scrollY = scrollView.contentOffset.y
             
-            parent.webView?.evaluateJavaScript(script) { result, error in
-                guard let scrollY = result as? Double, error == nil else { return }
-                
-                print("💾 Saving Web View scroll position (Absolute): \(Int(scrollY))px")
-                
-                // Keep the percentage logic for UI progress bar correctness
-                let contentHeight = scrollView.contentSize.height
-                let frameHeight = scrollView.frame.height
-                let offsetY = scrollView.contentOffset.y
-                var percentage: Double = 0
-                if contentHeight > frameHeight {
-                    percentage = offsetY / (contentHeight - frameHeight)
-                }
-                let clampedPercentage = min(max(percentage, 0), 1)
-                
-                // Dispatch to main to update UI/Model
-                DispatchQueue.main.async {
-                    self.parent.bookmark.lastScrollY = scrollY
-                    self.parent.bookmark.lastScrollPercentage = clampedPercentage
-                }
+            print("💾 Saving Web View scroll position (Native): \(Int(scrollY))px")
+            
+            let contentHeight = scrollView.contentSize.height
+            let frameHeight = scrollView.frame.height
+            let clampedPercentage: Double
+            
+            if contentHeight > frameHeight {
+                let percentage = scrollY / (contentHeight - frameHeight)
+                clampedPercentage = min(max(percentage, 0), 1)
+            } else {
+                clampedPercentage = 0
             }
+            
+            // Update Model directly
+            self.parent.bookmark.lastScrollY = Double(scrollY)
+            self.parent.bookmark.lastScrollPercentage = clampedPercentage
         }
         
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {

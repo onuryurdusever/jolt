@@ -418,12 +418,17 @@ extension Bookmark {
     
     /// Expiration urgency level for UI styling
     var expirationUrgency: ExpirationUrgency {
+        // Red check: Less than 1 hour (3600 seconds)
+        if let timeRemaining = timeUntilExpiration, timeRemaining < 3600 {
+            return .critical
+        }
+        
         guard let days = daysUntilExpiration else { return .safe }
         switch days {
-        case 0: return .critical // <24 hours
-        case 1: return .urgent   // 1 day (Son gün!)
-        case 2...3: return .warning // 2-3 days
-        default: return .safe    // 4+ days
+        case 0: return .urgent   // <24 hours but > 1 hour (Orange)
+        case 1: return .warning  // 1 day (Yellow)
+        case 2...3: return .warning // 2-3 days (Yellow)
+        default: return .safe    // 4+ days (Green)
         }
     }
     

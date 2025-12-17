@@ -14,6 +14,7 @@ struct SettingsView: View {
     @State private var isExporting = false
     @State private var exportURL: URL?
     @State private var showShareSheet = false
+    @State private var isExportReady = false
 
     
     var body: some View {
@@ -51,24 +52,36 @@ struct SettingsView: View {
                     }
                     
                     Section {
-                        Button {
-                            exportData()
-                        } label: {
-                            if isExporting {
+                        if isExportReady, let url = exportURL {
+                            ShareLink(item: url) {
                                 HStack {
-                                    Text("common.exporting".localized)
+                                    Text("settings.shareExport".localized)
                                     Spacer()
-                                    ProgressView()
-                                }
-                            } else {
-                                HStack {
-                                    Text("settings.exportData".localized)
-                                    Spacer()
-                                    Image(systemName: "square.and.arrow.up")
+                                    Image(systemName: "square.and.arrow.up.fill")
                                 }
                             }
+                            .foregroundColor(.joltForeground)
+                        } else {
+                            Button {
+                                exportData()
+                            } label: {
+                                if isExporting {
+                                    HStack {
+                                        Text("common.exporting".localized)
+                                        Spacer()
+                                        ProgressView()
+                                    }
+                                } else {
+                                    HStack {
+                                        Text("settings.exportData".localized)
+                                        Spacer()
+                                        Image(systemName: "square.and.arrow.up")
+                                    }
+                                }
+                            }
+                            .foregroundColor(.joltForeground)
+                            .disabled(isExporting)
                         }
-                        .foregroundColor(.joltForeground)
                     } header: {
                         Text("settings.dataManagement".localized)
                             .foregroundColor(.gray)
@@ -89,11 +102,7 @@ struct SettingsView: View {
                     .foregroundColor(Color(hex: "#CCFF00"))
                 }
             }
-            .sheet(isPresented: $showShareSheet) {
-                if let url = exportURL {
-                    ShareSheet(activityItems: [url])
-                }
-            }
+            // Removed .sheet(isPresented: $showShareSheet)
             .alert("alert.clearImageCache.title".localized, isPresented: $showClearImageCacheAlert) {
                 Button("common.cancel".localized, role: .cancel) { }
                 Button("common.clear".localized, role: .destructive) {
@@ -130,8 +139,6 @@ struct SettingsView: View {
                 )
             }
             
-
-            
             let exportData = ExportData(
                 version: "1.0",
                 exportedAt: Date(),
@@ -154,13 +161,16 @@ struct SettingsView: View {
                 
                 await MainActor.run {
                     self.exportURL = fileURL
-                    self.showShareSheet = true
                     self.isExporting = false
+                    self.isExportReady = true // Set to true when export is ready
+                    // We don't automatically show sheet anymore to avoid iPad crash
+                    // UI will update to show ShareLink
                 }
             } catch {
                 print("❌ Export failed: \(error)")
                 await MainActor.run {
                     self.isExporting = false
+                    self.isExportReady = false // Reset if export failed
                 }
             }
         }

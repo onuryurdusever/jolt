@@ -196,11 +196,44 @@ struct MainTabView: View {
                 // Detail View based on selection
                 switch selectedTab {
                 case .focus:
-                    FocusView()
+                    FocusView(
+                        onToggleSidebar: {
+                            withAnimation {
+                                if columnVisibility == .detailOnly {
+                                    columnVisibility = .all
+                                } else {
+                                    columnVisibility = .detailOnly
+                                }
+                            }
+                        },
+                        isSidebarVisible: columnVisibility != .detailOnly
+                    )
                 case .history:
-                    HistoryView()
+                    HistoryView(
+                        onToggleSidebar: {
+                            withAnimation {
+                                if columnVisibility == .detailOnly {
+                                    columnVisibility = .all
+                                } else {
+                                    columnVisibility = .detailOnly
+                                }
+                            }
+                        },
+                        isSidebarVisible: columnVisibility != .detailOnly
+                    )
                 case .pulse:
-                    PulseView()
+                    PulseView(
+                        onToggleSidebar: {
+                            withAnimation {
+                                if columnVisibility == .detailOnly {
+                                    columnVisibility = .all
+                                } else {
+                                    columnVisibility = .detailOnly
+                                }
+                            }
+                        },
+                        isSidebarVisible: columnVisibility != .detailOnly
+                    )
                 }
             }
             .tint(Color.joltYellow)

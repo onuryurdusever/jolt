@@ -29,7 +29,16 @@ class AuthService: ObservableObject {
         
         self.client = SupabaseClient(
             supabaseURL: supabaseURL,
-            supabaseKey: supabaseKey
+            supabaseKey: supabaseKey,
+            options: SupabaseClientOptions(
+                auth: .init(
+                    storage: KeychainLocalStorage(
+                        service: "supabase.gotrue.swift",
+                        accessGroup: "group.com.jolt.shared"
+                    ),
+                    emitLocalSessionAsInitialSession: true
+                )
+            )
         )
         
         loadSession()
