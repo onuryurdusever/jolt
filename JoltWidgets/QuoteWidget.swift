@@ -20,14 +20,14 @@ struct QuoteEntry: TimelineEntry {
 
 struct JoltQuotes {
     static var quotes: [String] {
-        (1...15).map { "quote.\($0)".localized }
+        (1...30).map { "quote.\($0)".widgetLocalized }
     }
     
     static func quoteOfTheDay() -> String {
         let calendar = Calendar.current
         let dayOfYear = calendar.ordinality(of: .day, in: .year, for: Date()) ?? 0
-        let index = dayOfYear % 15
-        return "quote.\(index + 1)".localized
+        let index = dayOfYear % 30
+        return "quote.\(index + 1)".widgetLocalized
     }
 }
 
@@ -112,7 +112,7 @@ struct QuoteWidgetEntryView: View {
                     .font(.system(size: 9))
                     .foregroundColor(.widgetJoltYellow)
                 
-                Text("widget.quote.jolt".localized)
+                Text("widget.quote.jolt".widgetLocalized)
                     .font(.system(size: 9, weight: .semibold))
                     .foregroundColor(.gray)
             }
@@ -147,7 +147,7 @@ struct QuoteWidgetEntryView: View {
                         .font(.system(size: 9))
                         .foregroundColor(.widgetJoltYellow)
                     
-                    Text("widget.quote.dailyInspiration".localized)
+                    Text("widget.quote.dailyInspiration".widgetLocalized)
                         .font(.system(size: 9, weight: .medium))
                         .foregroundColor(.gray)
                 }
@@ -166,13 +166,13 @@ struct QuoteWidgetEntryView: View {
                             .font(.system(size: 20, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
                         
-                        Text("widget.quote.todayLabel".localized)
+                        Text("widget.quote.todayLabel".widgetLocalized)
                             .font(.system(size: 8))
                             .foregroundColor(.gray)
                     }
                 }
                 
-                Text("widget.quote.startReading".localized)
+                Text("widget.quote.startReading".widgetLocalized)
                     .font(.system(size: 9, weight: .medium))
                     .foregroundColor(.widgetJoltYellow)
             }
@@ -210,8 +210,8 @@ struct QuoteWidget: Widget {
             QuoteWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("widget.quote.name".localized)
-        .description("widget.quote.desc".localized)
+        .configurationDisplayName("widget.quote.name".widgetLocalized)
+        .description("widget.quote.desc".widgetLocalized)
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular])
     }
 }

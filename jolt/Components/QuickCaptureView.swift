@@ -56,9 +56,10 @@ class LinkMetadataLoader: ObservableObject {
                 
                 if let imageProvider = metadata.imageProvider {
                     imageProvider.loadObject(ofClass: UIImage.self) { [weak self] image, error in
-                        DispatchQueue.main.async {
-                            if let uiImage = image as? UIImage {
-                                self?.imageData = uiImage.jpegData(compressionQuality: 0.7)
+                        if let uiImage = image as? UIImage {
+                            let data = uiImage.jpegData(compressionQuality: 0.7)
+                            DispatchQueue.main.async {
+                                self?.imageData = data
                             }
                         }
                     }
@@ -95,6 +96,7 @@ struct QuickCaptureView: View {
     
     // Metadata
     @StateObject private var metadataLoader = LinkMetadataLoader()
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
     
     // UI State
     @State private var userNote: String = ""
@@ -122,8 +124,8 @@ struct QuickCaptureView: View {
         metadataLoader.title ?? domain
     }
     
-    private var isPremium: Bool {
-        defaults?.bool(forKey: "isPremium") ?? false
+    private var isPro: Bool {
+        UserDefaults(suiteName: "group.com.jolt.shared")?.bool(forKey: "is_pro") ?? false
     }
     
     // DOZ v2.1: Kullanıcının aktif sabah/akşam rutinleri
@@ -474,7 +476,7 @@ struct QuickCaptureView: View {
         let intent: BookmarkIntent = finalScheduledFor.timeIntervalSinceNow < 60 ? .now : .tomorrow
         
         // Expiration: Premium 30 gün, Free 7 gün
-        let expiresAt = calendar.date(byAdding: .day, value: isPremium ? 30 : 7, to: Date())
+        let expiresAt = calendar.date(byAdding: .day, value: subscriptionManager.isPro ? 30 : 7, to: Date())
         
         do {
             if let existing = try context.fetch(descriptor).first {

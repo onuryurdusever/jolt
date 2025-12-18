@@ -10,6 +10,7 @@ import SwiftUI
 import SwiftData
 import WebKit
 import PDFKit
+import Combine
 
 // MARK: - Reader Settings
 
@@ -46,6 +47,7 @@ struct ReaderSettings {
 }
 
 // MARK: - Web View Controller
+@MainActor
 class WebViewController: ObservableObject {
     weak var webView: WKWebView?
     
@@ -961,6 +963,7 @@ struct ArticleWebView: UIViewRepresentable {
         """
     }
     
+    @MainActor
     class Coordinator: NSObject, WKNavigationDelegate, UIScrollViewDelegate {
         var parent: ArticleWebView
         
@@ -1047,7 +1050,7 @@ struct ArticleWebView: UIViewRepresentable {
         }
         
         // Handle link clicks - open in Safari
-        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping @MainActor (WKNavigationActionPolicy) -> Void) {
             if navigationAction.navigationType == .linkActivated {
                 if let url = navigationAction.request.url {
                     UIApplication.shared.open(url)
@@ -1338,10 +1341,29 @@ struct WebViewRepresentable: UIViewRepresentable {
     
     func updateUIView(_ webView: WKWebView, context: Context) {}
     
+    // SAFETY: Clean up WKWebView to prevent WebContent process crashes
+    static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
+        // Stop any active loading
+        uiView.stopLoading()
+        
+        // Remove script handlers to break retain cycles
+        uiView.configuration.userContentController.removeAllScriptMessageHandlers()
+        uiView.configuration.userContentController.removeAllUserScripts()
+        
+        // Clear delegates
+        uiView.navigationDelegate = nil
+        uiView.uiDelegate = nil
+        uiView.scrollView.delegate = nil
+        
+        // Cleanup coordinator observations
+        coordinator.cleanup()
+    }
+    
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
     
+    @MainActor
     class Coordinator: NSObject, WKNavigationDelegate, UIScrollViewDelegate, WKScriptMessageHandler {
         var parent: WebViewRepresentable
         private var progressObservation: NSKeyValueObservation?
@@ -1353,6 +1375,15 @@ struct WebViewRepresentable: UIViewRepresentable {
         init(_ parent: WebViewRepresentable) {
             self.parent = parent
             super.init()
+        }
+        
+        func cleanup() {
+            progressObservation?.invalidate()
+            backObservation?.invalidate()
+            forwardObservation?.invalidate()
+            progressObservation = nil
+            backObservation = nil
+            forwardObservation = nil
         }
         
         // MARK: - WKScriptMessageHandler (Video Position Tracking)
@@ -1414,7 +1445,7 @@ struct WebViewRepresentable: UIViewRepresentable {
             // Restore scroll position
             if let lastY = parent.bookmark.lastScrollY {
                 let script = "setTimeout(function() { window.scrollTo(0, \(lastY)); }, 500);"
-                parent.webView?.evaluateJavaScript(script, completionHandler: nil)
+                parent.webController.webView?.evaluateJavaScript(script, completionHandler: nil)
             } else if let lastScroll = parent.bookmark.lastScrollPercentage {
                 // Fallback for legacy bookmarks
                  let script = """
@@ -1423,7 +1454,7 @@ struct WebViewRepresentable: UIViewRepresentable {
                         window.scrollTo(0, scrollableHeight * \(lastScroll));
                     }, 500);
                 """
-                parent.webView?.evaluateJavaScript(script, completionHandler: nil)
+                parent.webController.webView?.evaluateJavaScript(script, completionHandler: nil)
             }
             
             webView.scrollView.delegate = self
@@ -1443,7 +1474,7 @@ struct WebViewRepresentable: UIViewRepresentable {
             """
             
             let cssScript = "var style = document.createElement('style'); style.innerHTML = '\(css)'; document.head.appendChild(style);"
-            parent.webView?.evaluateJavaScript(cssScript, completionHandler: nil)
+            parent.webController.webView?.evaluateJavaScript(cssScript, completionHandler: nil)
             
             // YouTube video position tracking script
             if parent.isYouTubeURL(parent.url) {
@@ -1455,7 +1486,7 @@ struct WebViewRepresentable: UIViewRepresentable {
                         }
                     }, 5000);
                 """
-                parent.webView?.evaluateJavaScript(videoTrackingScript, completionHandler: nil)
+                parent.webController.webView?.evaluateJavaScript(videoTrackingScript, completionHandler: nil)
                 print("🎬 YouTube video tracking script injected")
             }
         }
@@ -1538,7 +1569,7 @@ struct WebViewRepresentable: UIViewRepresentable {
             self.progressObservation?.invalidate()
         }
         
-        func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+        func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping @MainActor (WKNavigationResponsePolicy) -> Void) {
             if let httpResponse = navigationResponse.response as? HTTPURLResponse {
                 if httpResponse.statusCode == 404 || httpResponse.statusCode >= 500 {
                     DispatchQueue.main.async {
@@ -1552,7 +1583,7 @@ struct WebViewRepresentable: UIViewRepresentable {
         }
         
         // MARK: - Navigation Policy (Security)
-        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping @MainActor (WKNavigationActionPolicy) -> Void) {
             guard let url = navigationAction.request.url else {
                 decisionHandler(.cancel)
                 return

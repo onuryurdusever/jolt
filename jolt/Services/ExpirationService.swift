@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftData
-import UserNotifications
+@preconcurrency import UserNotifications
 
 /// Manages the v2.1 Expiration Engine
 /// - Auto-archives expired bookmarks (7 days for free, 14 for premium)
@@ -77,6 +77,31 @@ class ExpirationService {
             // Update widgets
             WidgetDataService.shared.updateWidgetData(modelContext: modelContext)
         }
+    }
+    
+    /// Toplu süre güncelleme (Pro ayarı değişince kullanıcının isteğiyle)
+    func bulkUpdateExpiration(modelContext: ModelContext, newDays: Int, isPro: Bool) {
+        let descriptor = FetchDescriptor<Bookmark>(
+            predicate: #Predicate<Bookmark> { $0.status.rawValue == "active" }
+        )
+        
+        guard let bookmarks = try? modelContext.fetch(descriptor) else { return }
+        
+        print("🔄 Bulk updating \(bookmarks.count) bookmarks to \(newDays) days...")
+        
+        for bookmark in bookmarks {
+            // Re-calculate expiresAt from scheduledDate (preferred) or createdAt
+            let sourceDate = bookmark.scheduledFor
+            bookmark.expiresAt = Calendar.current.date(byAdding: .day, value: newDays, to: sourceDate)
+        }
+        
+        try? modelContext.save()
+        
+        // Bildirimleri yeniden planla
+        NotificationManager.shared.scheduleSmartNotifications(modelContext: modelContext)
+        
+        // Widgetları güncelle
+        WidgetDataService.shared.updateWidgetData(modelContext: modelContext)
     }
     
     /// Hard delete old archived bookmarks (30+ days)
@@ -187,10 +212,6 @@ class ExpirationService {
         let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: now))!
         
         // Fetch all bookmarks archived/completed this week
-        let completedStatus = BookmarkStatus.completed
-        let expiredStatus = BookmarkStatus.expired
-        let archivedStatus = BookmarkStatus.archived
-        
         let descriptor = FetchDescriptor<Bookmark>()
         guard let bookmarks = try? modelContext.fetch(descriptor) else {
             return WeeklyStats(completed: 0, autoArchived: 0, snoozed: 0)

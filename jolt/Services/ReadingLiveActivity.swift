@@ -240,7 +240,7 @@ class ReadingActivityManager: ObservableObject {
         )
         
         Task {
-            await activity.update(using: state)
+            await activity.update(.init(state: state, staleDate: nil))
         }
     }
     
@@ -257,12 +257,9 @@ class ReadingActivityManager: ObservableObject {
                 startTime: Date()
             )
             
-            await activity.end(
-                .init(state: finalState, staleDate: nil),
-                dismissalPolicy: .after(.now + 5)
-            )
+            await activity.end(.init(state: finalState, staleDate: nil), dismissalPolicy: .after(.now + 5))
         } else {
-            await activity.end(dismissalPolicy: .immediate)
+            await activity.end(nil, dismissalPolicy: .immediate)
         }
         
         currentActivity = nil
@@ -273,7 +270,7 @@ class ReadingActivityManager: ObservableObject {
     
     func endAllActivities() async {
         for activity in Activity<ReadingActivityAttributes>.activities {
-            await activity.end(dismissalPolicy: .immediate)
+            await activity.end(nil, dismissalPolicy: .immediate)
         }
         currentActivity = nil
     }

@@ -198,15 +198,22 @@ actor NotificationScheduler {
                 print("📊 \(itemCount) items will be in Focus at \(notificationDate)")
                 #endif
                 
+                let firstItemTitle = focusItems.first?.title
+                let body = await MainActor.run { [firstItemTitle] in
+                    if itemCount == 1, let title = firstItemTitle {
+                        return title
+                    } else {
+                        return "notification.queueReady.body".localized(with: itemCount)
+                    }
+                }
+                
+                let routineHour = routine.hour
+                let title = await MainActor.run { [routineHour] in getDynamicTitle(for: routineHour) }
+                
                 // Bildirim içeriği
                 let content = UNMutableNotificationContent()
-                content.title = getDynamicTitle(for: routine.hour)
-                
-                if itemCount == 1, let firstItem = focusItems.first {
-                    content.body = firstItem.title
-                } else {
-                    content.body = "notification.queueReady.body".localized(with: itemCount)
-                }
+                content.title = title
+                content.body = body
                 
                 content.sound = .default
                 content.interruptionLevel = .timeSensitive
@@ -244,6 +251,7 @@ actor NotificationScheduler {
         #endif
     }
     
+    @MainActor
     private func getDynamicTitle(for hour: Int) -> String {
         switch hour {
         case 5..<12:
@@ -394,8 +402,8 @@ class NotificationManager {
             }
             
             let content = UNMutableNotificationContent()
-            content.title = "notification.streak.protect.title".localized
-            content.body = "notification.streak.protect.body".localized(with: currentStreak)
+            content.title = "notification.streak.protect.title".localized(with: currentStreak)
+            content.body = "notification.streak.protect.body".localized
             content.sound = .default
             content.interruptionLevel = .timeSensitive
             

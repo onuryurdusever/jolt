@@ -12,11 +12,12 @@ import SwiftData
 // MARK: - Open Focus Intent
 
 struct OpenFocusIntent: AppIntent {
-    static var title: LocalizedStringResource = "Odak'ı Aç"
-    static var description = IntentDescription("Jolt Odak sekmesini açar")
+    static let title: LocalizedStringResource = "siri.openFocus.title"
+    static let description = IntentDescription("siri.openFocus.description")
     
-    static var openAppWhenRun: Bool = true
+    static let openAppWhenRun: Bool = true
     
+    @MainActor
     func perform() async throws -> some IntentResult {
         return .result()
     }
@@ -25,23 +26,24 @@ struct OpenFocusIntent: AppIntent {
 // MARK: - Show Next Bookmark Intent
 
 struct ShowNextBookmarkIntent: AppIntent {
-    static var title: LocalizedStringResource = "Sonraki İçeriği Göster"
-    static var description = IntentDescription("Okuma listenizde sonraki içeriği gösterir")
+    static let title: LocalizedStringResource = "siri.showNextBookmark.title"
+    static let description = IntentDescription("siri.showNextBookmark.description")
     
+    @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let defaults = UserDefaults(suiteName: "group.com.jolt.shared")
         
         guard let data = defaults?.data(forKey: "widget_data"),
               let decoded = try? JSONDecoder().decode(WidgetData.self, from: data) else {
-            return .result(dialog: "Okuma listeniz boş! Tebrikler 🎉")
+            return .result(dialog: IntentDialog(stringLiteral: "siri.showNextBookmark.empty".localized))
         }
         
         if let title = decoded.nextBookmarkTitle,
            let domain = decoded.nextBookmarkDomain,
            let time = decoded.nextBookmarkReadingTime {
-            return .result(dialog: "Sıradaki: \(title). \(domain)'dan, \(time) dakikalık okuma.")
+            return .result(dialog: IntentDialog(stringLiteral: "siri.showNextBookmark.success".localized(with: title, domain, time)))
         } else {
-            return .result(dialog: "Tüm içerikleri okudunuz! Harika iş 🎉")
+            return .result(dialog: IntentDialog(stringLiteral: "siri.showNextBookmark.allCaughtUp".localized))
         }
     }
 }
@@ -49,147 +51,141 @@ struct ShowNextBookmarkIntent: AppIntent {
 // MARK: - Get Streak Intent
 
 struct GetStreakIntent: AppIntent {
-    static var title: LocalizedStringResource = "Okuma Serisi"
-    static var description = IntentDescription("Mevcut okuma serinizi gösterir")
+    static let title: LocalizedStringResource = "siri.getStreak.title"
+    static let description = IntentDescription("siri.getStreak.description")
     
+    @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let streak = UserDefaults.standard.integer(forKey: "currentStreak")
         
-        let dialog: IntentDialog
+        let dialogString: String
         switch streak {
         case 0:
-            dialog = "Henüz bir okuma seriniz yok. Bugün başlayın!"
+            dialogString = "siri.getStreak.zero".localized
         case 1:
-            dialog = "1 günlük okuma serisi. Harika başlangıç!"
+            dialogString = "siri.getStreak.one".localized
         case 2...6:
-            dialog = "\(streak) günlük okuma serisi. Devam edin!"
+            dialogString = "siri.getStreak.multiple".localized(with: streak)
         case 7...13:
-            dialog = "\(streak) günlük seri! Bir haftayı geçtiniz, muhteşem!"
+            dialogString = "siri.getStreak.week".localized(with: streak)
         case 14...29:
-            dialog = "\(streak) günlük seri! İki haftayı aştınız, inanılmaz!"
+            dialogString = "siri.getStreak.twoWeeks".localized(with: streak)
         default:
-            dialog = "\(streak) günlük muazzam seri! Efsanesiniz!"
+            dialogString = "siri.getStreak.legend".localized(with: streak)
         }
         
-        return .result(dialog: dialog)
+        return .result(dialog: IntentDialog(stringLiteral: dialogString))
     }
 }
 
 // MARK: - Get Today Stats Intent
 
 struct GetTodayStatsIntent: AppIntent {
-    static var title: LocalizedStringResource = "Bugünün İstatistikleri"
-    static var description = IntentDescription("Bugün okuduklarınızı gösterir")
+    static let title: LocalizedStringResource = "siri.getTodayStats.title"
+    static let description = IntentDescription("siri.getTodayStats.description")
     
+    @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let defaults = UserDefaults(suiteName: "group.com.jolt.shared")
         
         guard let data = defaults?.data(forKey: "widget_data"),
               let decoded = try? JSONDecoder().decode(WidgetData.self, from: data) else {
-            return .result(dialog: "Bugün henüz içerik okumadınız. Şimdi başlayın!")
+            return .result(dialog: IntentDialog(stringLiteral: "siri.getTodayStats.empty".localized))
         }
         
         let todayJolts = decoded.todayJolts
         let totalJolts = decoded.totalJolts
         
-        let dialog: IntentDialog
+        let dialogString: String
         switch todayJolts {
         case 0:
-            dialog = "Bugün henüz içerik okumadınız. Hadi başlayalım!"
+            dialogString = "siri.getTodayStats.empty".localized
         case 1:
-            dialog = "Bugün 1 içerik okudunuz. Toplam \(totalJolts) içerik."
+            dialogString = "siri.getTodayStats.one".localized(with: totalJolts)
         case 2...4:
-            dialog = "Bugün \(todayJolts) içerik okudunuz. Güzel gidiyorsunuz! Toplam \(totalJolts)."
+            dialogString = "siri.getTodayStats.multiple".localized(with: todayJolts, totalJolts)
         default:
-            dialog = "Bugün \(todayJolts) içerik okudunuz! Muhteşem performans! Toplam \(totalJolts)."
+            dialogString = "siri.getTodayStats.legend".localized(with: todayJolts, totalJolts)
         }
         
-        return .result(dialog: dialog)
+        return .result(dialog: IntentDialog(stringLiteral: dialogString))
     }
 }
 
 // MARK: - Get Pending Count Intent
 
 struct GetPendingCountIntent: AppIntent {
-    static var title: LocalizedStringResource = "Bekleyen İçerikler"
-    static var description = IntentDescription("Kaç içerik beklediğini gösterir")
+    static let title: LocalizedStringResource = "siri.getPendingCount.title"
+    static let description = IntentDescription("siri.getPendingCount.description")
     
+    @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let defaults = UserDefaults(suiteName: "group.com.jolt.shared")
         
         guard let data = defaults?.data(forKey: "widget_data"),
               let decoded = try? JSONDecoder().decode(WidgetData.self, from: data) else {
-            return .result(dialog: "Bekleyen içerik yok!")
+            return .result(dialog: IntentDialog(stringLiteral: "siri.getPendingCount.empty".localized))
         }
         
         let pending = decoded.pendingCount
         
-        let dialog: IntentDialog
+        let dialogString: String
         switch pending {
         case 0:
-            dialog = "Bekleyen içerik yok! Inbox zero başardınız!"
+            dialogString = "siri.getPendingCount.empty".localized
         case 1:
-            dialog = "1 içerik bekliyor. Hızlıca halledebilirsiniz!"
+            dialogString = "siri.getPendingCount.one".localized
         case 2...5:
-            dialog = "\(pending) içerik bekliyor. Kısa bir okuma seansı yeterli!"
+            dialogString = "siri.getPendingCount.few".localized(with: pending)
         case 6...10:
-            dialog = "\(pending) içerik bekliyor. Bugün birkaçını okuyun!"
+            dialogString = "siri.getPendingCount.many".localized(with: pending)
         default:
-            dialog = "\(pending) içerik bekliyor. Biraz birikmişler, ama sorun değil!"
+            dialogString = "siri.getPendingCount.veryMany".localized(with: pending)
         }
         
-        return .result(dialog: dialog)
+        return .result(dialog: IntentDialog(stringLiteral: dialogString))
     }
 }
 
 // MARK: - Weekly Summary Intent
 
 struct WeeklySummaryIntent: AppIntent {
-    static var title: LocalizedStringResource = "Haftalık Özet"
-    static var description = IntentDescription("Bu haftaki okuma özetinizi gösterir")
+    static let title: LocalizedStringResource = "siri.weeklySummary.title"
+    static let description = IntentDescription("siri.weeklySummary.description")
     
+    @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let defaults = UserDefaults(suiteName: "group.com.jolt.shared")
         let streak = UserDefaults.standard.integer(forKey: "currentStreak")
         
         guard let data = defaults?.data(forKey: "widget_data"),
               let decoded = try? JSONDecoder().decode(WidgetData.self, from: data) else {
-            return .result(dialog: "Henüz veri yok. Okumaya başlayın!")
+            return .result(dialog: IntentDialog(stringLiteral: "siri.weeklySummary.noData".localized))
         }
         
         let total = decoded.totalJolts
         let pending = decoded.pendingCount
         
-        let dialog: IntentDialog = """
-        Haftalık özet: \(streak) günlük okuma serisi. \
-        Toplam \(total) içerik okudunuz. \
-        \(pending) içerik bekliyor.
-        """
+        let dialogString = "siri.weeklySummary.dialog".localized(with: streak, total, pending)
         
-        return .result(dialog: dialog)
+        return .result(dialog: IntentDialog(stringLiteral: dialogString))
     }
 }
 
 // MARK: - Motivational Quote Intent
 
 struct MotivationIntent: AppIntent {
-    static var title: LocalizedStringResource = "Motivasyon"
-    static var description = IntentDescription("Okuma motivasyonu verir")
+    static let title: LocalizedStringResource = "siri.motivation.title"
+    static let description = IntentDescription("siri.motivation.description")
     
+    @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let quotes = [
-            "Bugün okuduğunuz bir sayfa, yarın atacağınız bir adımdır.",
-            "Okumak zihnin egzersizidir. Bugün kaç tur attınız?",
-            "Her okunan makale yeni bir kapı açar.",
-            "5 dakikanız var mı? Bir makale okumaya yeter!",
-            "Bookmark mezarlığınızı temizleme zamanı!",
-            "Bilgi güçtür. Bugün biraz güç toplayın!",
-            "Küçük adımlar, büyük değişimler yaratır.",
-            "Okuyan insan, düşünen insandır."
-        ]
+        // Use localized quotes from Localizable.strings
+        let totalQuotes = 30
+        let randomIndex = Int.random(in: 1...totalQuotes)
+        let dialogString = "quote.\(randomIndex)".localized
         
-        let randomQuote = quotes.randomElement() ?? quotes[0]
-        return .result(dialog: "\(randomQuote)")
+        return .result(dialog: IntentDialog(stringLiteral: dialogString))
     }
 }
 
@@ -210,11 +206,12 @@ private struct WidgetData: Codable {
 // MARK: - Snooze Next Bookmark Intent
 
 struct SnoozeNextBookmarkIntent: AppIntent {
-    static var title: LocalizedStringResource = "Sıradakini Ertele"
-    static var description = IntentDescription("Sıradaki içeriği bir sonraki rutine erteler")
+    static let title: LocalizedStringResource = "siri.snoozeNext.title"
+    static let description = IntentDescription("siri.snoozeNext.description")
     
-    static var openAppWhenRun: Bool = true
+    static let openAppWhenRun: Bool = true
     
+    @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
         // Save snooze request to UserDefaults - app will handle it when opened
         let defaults = UserDefaults(suiteName: "group.com.jolt.shared")
@@ -225,10 +222,10 @@ struct SnoozeNextBookmarkIntent: AppIntent {
         if let data = defaults?.data(forKey: "widget_data"),
            let decoded = try? JSONDecoder().decode(WidgetData.self, from: data),
            let title = decoded.nextBookmarkTitle {
-            return .result(dialog: "\(title) bir sonraki rutine ertelendi.")
+            return .result(dialog: IntentDialog(stringLiteral: "siri.snoozeNext.success".localized(with: title)))
         }
         
-        return .result(dialog: "Ertelenecek içerik bulunamadı.")
+        return .result(dialog: IntentDialog(stringLiteral: "siri.snoozeNext.notFound".localized))
     }
 }
 
@@ -240,11 +237,10 @@ struct JoltShortcutsProvider: AppShortcutsProvider {
         AppShortcut(
             intent: OpenFocusIntent(),
             phrases: [
-                "\(.applicationName)'u aç",
-                "\(.applicationName) aç",
-                "Open \(.applicationName)"
+                "\(.applicationName) open",
+                "\(.applicationName) start"
             ],
-            shortTitle: "Aç",
+            shortTitle: "common.open",
             systemImageName: "bolt.fill"
         )
         
@@ -252,11 +248,10 @@ struct JoltShortcutsProvider: AppShortcutsProvider {
         AppShortcut(
             intent: ShowNextBookmarkIntent(),
             phrases: [
-                "\(.applicationName) sıradaki ne",
-                "\(.applicationName) sonraki",
-                "\(.applicationName) ne okuyacağım"
+                "\(.applicationName) next",
+                "\(.applicationName) show next"
             ],
-            shortTitle: "Sonraki",
+            shortTitle: "focus.later",
             systemImageName: "book.fill"
         )
         
@@ -264,11 +259,10 @@ struct JoltShortcutsProvider: AppShortcutsProvider {
         AppShortcut(
             intent: GetStreakIntent(),
             phrases: [
-                "\(.applicationName) serim kaç",
                 "\(.applicationName) streak",
-                "\(.applicationName) seri"
+                "\(.applicationName) my streak"
             ],
-            shortTitle: "Seri",
+            shortTitle: "pulse.dayStreak",
             systemImageName: "flame.fill"
         )
         
@@ -276,11 +270,10 @@ struct JoltShortcutsProvider: AppShortcutsProvider {
         AppShortcut(
             intent: GetTodayStatsIntent(),
             phrases: [
-                "\(.applicationName) bugün kaç",
-                "\(.applicationName) bugün",
-                "\(.applicationName) günlük"
+                "\(.applicationName) today",
+                "\(.applicationName) daily"
             ],
-            shortTitle: "Bugün",
+            shortTitle: "pulse.today",
             systemImageName: "sun.max.fill"
         )
         
@@ -288,11 +281,10 @@ struct JoltShortcutsProvider: AppShortcutsProvider {
         AppShortcut(
             intent: GetPendingCountIntent(),
             phrases: [
-                "\(.applicationName) kaç bekliyor",
-                "\(.applicationName) bekleyenler",
+                "\(.applicationName) pending",
                 "\(.applicationName) inbox"
             ],
-            shortTitle: "Bekleyenler",
+            shortTitle: "focus.title",
             systemImageName: "tray.full.fill"
         )
         
@@ -300,11 +292,10 @@ struct JoltShortcutsProvider: AppShortcutsProvider {
         AppShortcut(
             intent: WeeklySummaryIntent(),
             phrases: [
-                "\(.applicationName) haftalık",
-                "\(.applicationName) özet",
-                "\(.applicationName) rapor"
+                "\(.applicationName) weekly",
+                "\(.applicationName) report"
             ],
-            shortTitle: "Haftalık",
+            shortTitle: "pulse.thisWeek",
             systemImageName: "calendar"
         )
         
@@ -312,11 +303,10 @@ struct JoltShortcutsProvider: AppShortcutsProvider {
         AppShortcut(
             intent: MotivationIntent(),
             phrases: [
-                "\(.applicationName) motive et",
-                "\(.applicationName) motivasyon",
-                "\(.applicationName) ilham"
+                "\(.applicationName) motivate",
+                "\(.applicationName) inspire"
             ],
-            shortTitle: "Motivasyon",
+            shortTitle: "pulse.settings.support",
             systemImageName: "sparkles"
         )
         
@@ -324,11 +314,10 @@ struct JoltShortcutsProvider: AppShortcutsProvider {
         AppShortcut(
             intent: SnoozeNextBookmarkIntent(),
             phrases: [
-                "\(.applicationName) ertele",
-                "\(.applicationName) sonra oku",
-                "\(.applicationName) şimdi değil"
+                "\(.applicationName) snooze",
+                "\(.applicationName) not now"
             ],
-            shortTitle: "Ertele",
+            shortTitle: "snooze.action",
             systemImageName: "clock.arrow.circlepath"
         )
     }

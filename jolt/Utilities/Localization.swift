@@ -12,18 +12,18 @@ import SwiftUI
 
 extension String {
     /// Returns the localized version of the string
-    var localized: String {
-        NSLocalizedString(self, comment: "")
+    nonisolated var localized: String {
+        LanguageManager.currentBundle.localizedString(forKey: self, value: nil, table: nil)
     }
     
     /// Returns the localized string with format arguments
-    func localized(with arguments: CVarArg...) -> String {
+    nonisolated func localized(with arguments: CVarArg...) -> String {
         String(format: self.localized, arguments: arguments)
     }
     
     /// Returns localized string from a specific table
-    func localized(table: String) -> String {
-        NSLocalizedString(self, tableName: table, comment: "")
+    nonisolated func localized(table: String) -> String {
+        LanguageManager.currentBundle.localizedString(forKey: self, value: nil, table: table)
     }
 }
 
@@ -246,35 +246,35 @@ struct Plurals {
     /// Usage: Plurals.articles(count: 5) -> "5 articles"
     static func articles(count: Int) -> String {
         String.localizedStringWithFormat(
-            NSLocalizedString("plural.articles", comment: ""),
+            LanguageManager.shared.bundle.localizedString(forKey: "plural.articles", value: nil, table: nil),
             count
         )
     }
     
     static func days(count: Int) -> String {
         String.localizedStringWithFormat(
-            NSLocalizedString("plural.days", comment: ""),
+            LanguageManager.shared.bundle.localizedString(forKey: "plural.days", value: nil, table: nil),
             count
         )
     }
     
     static func minutes(count: Int) -> String {
         String.localizedStringWithFormat(
-            NSLocalizedString("plural.minutes", comment: ""),
+            LanguageManager.shared.bundle.localizedString(forKey: "plural.minutes", value: nil, table: nil),
             count
         )
     }
     
     static func hours(count: Int) -> String {
         String.localizedStringWithFormat(
-            NSLocalizedString("plural.hours", comment: ""),
+            LanguageManager.shared.bundle.localizedString(forKey: "plural.hours", value: nil, table: nil),
             count
         )
     }
     
     static func bookmarks(count: Int) -> String {
         String.localizedStringWithFormat(
-            NSLocalizedString("plural.bookmarks", comment: ""),
+            LanguageManager.shared.bundle.localizedString(forKey: "plural.bookmarks", value: nil, table: nil),
             count
         )
     }

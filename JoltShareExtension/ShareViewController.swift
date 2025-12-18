@@ -198,11 +198,10 @@ class ExtensionMetadataLoader: ObservableObject {
                 self.title = metadata.title
                 
                 if let imageProvider = metadata.imageProvider {
-                    imageProvider.loadObject(ofClass: UIImage.self) { [weak self] image, error in
+                    imageProvider.loadObject(ofClass: UIImage.self) { [weak self] item, error in
+                        let data = (item as? UIImage)?.jpegData(compressionQuality: 0.7)
                         DispatchQueue.main.async {
-                            if let uiImage = image as? UIImage {
-                                self?.imageData = uiImage.jpegData(compressionQuality: 0.7)
-                            }
+                            self?.imageData = data
                         }
                     }
                 }
@@ -230,6 +229,8 @@ struct ExtensionQuickCaptureView: View {
     @StateObject private var metadataLoader = ExtensionMetadataLoader()
     
     @State private var userNote: String = ""
+    @State private var selectedCollection: JoltCollection?
+    @Query(sort: \JoltCollection.orderIndex) private var collections: [JoltCollection]
 
     @State private var showSuccess = false
     @State private var isDuplicate = false
@@ -246,8 +247,8 @@ struct ExtensionQuickCaptureView: View {
         metadataLoader.title ?? domain
     }
     
-    private var isPremium: Bool {
-        defaults?.bool(forKey: "isPremium") ?? false
+    private var isPro: Bool {
+        defaults?.bool(forKey: "is_pro") ?? false
     }
     
 
@@ -280,6 +281,8 @@ struct ExtensionQuickCaptureView: View {
                         doseSelectionButtons
                             .padding(.horizontal, 20)
                         
+                        collectionSelector
+                        
                         noteInput
                             .padding(.horizontal, 20)
                         
@@ -310,7 +313,7 @@ struct ExtensionQuickCaptureView: View {
     
     private var headerView: some View {
         HStack {
-            Text("shareExtension.joltIt".localized)
+            Text("shareExtension.joltIt".shareLocalized)
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.white)
             
@@ -388,7 +391,7 @@ struct ExtensionQuickCaptureView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 10))
-                        Text("shareExtension.alreadySaved".localized)
+                        Text("shareExtension.alreadySaved".shareLocalized)
                             .font(.system(size: 11, weight: .medium))
                     }
                     .foregroundColor(Color(hex: "#CCFF00"))
@@ -437,7 +440,7 @@ struct ExtensionQuickCaptureView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "bolt.fill")
                         .font(.system(size: 16, weight: .bold))
-                    Text(isDuplicate ? "shareExtension.bumpToTop".localized : "shareExtension.readNow".localized)
+                    Text(isDuplicate ? "shareExtension.bumpToTop".shareLocalized : "shareExtension.readNow".shareLocalized)
                         .font(.system(size: 16, weight: .bold))
                 }
                 .foregroundColor(.black)
@@ -457,15 +460,15 @@ struct ExtensionQuickCaptureView: View {
         let now = Date()
         
         guard let morning = morningRoutine else {
-            return "shareExtension.toMorning".localized
+            return "shareExtension.toMorning".shareLocalized
         }
         
         let morningTime = calendar.date(bySettingHour: morning.hour, minute: morning.minute, second: 0, of: now) ?? now
         
         if morningTime > now {
-            return "shareExtension.toMorning".localized // "Sabaha"
+            return "shareExtension.toMorning".shareLocalized // "Sabaha"
         } else {
-            return "shareExtension.tomorrowMorning".localized // "Yarın Sabaha"
+            return "shareExtension.tomorrowMorning".shareLocalized // "Yarın Sabaha"
         }
     }
     
@@ -474,15 +477,15 @@ struct ExtensionQuickCaptureView: View {
         let now = Date()
         
         guard let evening = eveningRoutine else {
-            return "shareExtension.toEvening".localized
+            return "shareExtension.toEvening".shareLocalized
         }
         
         let eveningTime = calendar.date(bySettingHour: evening.hour, minute: evening.minute, second: 0, of: now) ?? now
         
         if eveningTime > now {
-            return "shareExtension.toEvening".localized // "Akşama"
+            return "shareExtension.toEvening".shareLocalized // "Akşama"
         } else {
-            return "shareExtension.tomorrowEvening".localized // "Yarın Akşama"
+            return "shareExtension.tomorrowEvening".shareLocalized // "Yarın Akşama"
         }
     }
     
@@ -534,7 +537,7 @@ struct ExtensionQuickCaptureView: View {
                 .font(.system(size: 12))
                 .foregroundColor(Color(hex: "#8E8E93"))
             
-            TextField("share.notePlaceholder".localized, text: $userNote, axis: .vertical)
+            TextField("share.notePlaceholder".shareLocalized, text: $userNote, axis: .vertical)
                 .font(.system(size: 14))
                 .foregroundColor(.white)
                 .lineLimit(1...3)
@@ -542,6 +545,71 @@ struct ExtensionQuickCaptureView: View {
         .padding(12)
         .background(Color(hex: "#1C1C1E"))
         .cornerRadius(12)
+    }
+    
+    private var collectionSelector: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("share.collection.title".shareLocalized)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.6))
+                
+                Spacer()
+                
+                if !isPro {
+                    HStack(spacing: 4) {
+                        Image(systemName: "crown.fill")
+                        Text("PRO")
+                    }
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(.yellow)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.yellow.opacity(0.2))
+                    .cornerRadius(4)
+                }
+            }
+            .padding(.horizontal, 20)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    // "None" or "Inbox"
+                    Button {
+                        selectedCollection = nil
+                    } label: {
+                        Text("share.collection.none".shareLocalized)
+                            .font(.system(size: 12, weight: .medium))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(selectedCollection == nil ? Color(hex: "#CCFF00") : Color(hex: "#2C2C2E"))
+                            .foregroundColor(selectedCollection == nil ? .black : .white)
+                            .cornerRadius(8)
+                    }
+                    .disabled(!isPro)
+                    .opacity(isPro ? 1.0 : 0.5)
+                    
+                    ForEach(collections) { collection in
+                        Button {
+                            selectedCollection = collection
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text(collection.emoji ?? "📁")
+                                Text(collection.name)
+                            }
+                            .font(.system(size: 12, weight: .medium))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(selectedCollection?.id == collection.id ? Color(hex: "#CCFF00") : Color(hex: "#2C2C2E"))
+                            .foregroundColor(selectedCollection?.id == collection.id ? .black : .white)
+                            .cornerRadius(8)
+                        }
+                        .disabled(!isPro)
+                        .opacity(isPro ? 1.0 : 0.5)
+                    }
+                }
+                .padding(.horizontal, 20)
+            }
+        }
     }
     
 
@@ -560,7 +628,7 @@ struct ExtensionQuickCaptureView: View {
                     .scaleEffect(showSuccess ? 1.0 : 0.5)
                     .opacity(showSuccess ? 1.0 : 0)
                 
-                Text("shareExtension.saved".localized)
+                Text("shareExtension.saved".shareLocalized)
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.white)
                     .opacity(showSuccess ? 1.0 : 0)
@@ -602,8 +670,7 @@ struct ExtensionQuickCaptureView: View {
         // Artık scheduledFor tek önemli alan
         let intent: BookmarkIntent = finalScheduledFor.timeIntervalSinceNow < 60 ? .now : .tomorrow
         
-        // Expiration: Premium 30 gün, Free 7 gün
-        let expiresAt = calendar.date(byAdding: .day, value: isPremium ? 30 : 7, to: Date())
+        // Expiration logic moved to Bookmark model
         
         do {
             if let existing = try modelContext.fetch(descriptor).first {
@@ -613,7 +680,8 @@ struct ExtensionQuickCaptureView: View {
                 existing.userNote = userNote.isEmpty ? nil : userNote
                 
                 existing.intent = intent
-                existing.expiresAt = expiresAt
+                existing.expiresAt = intent.calculateExpiresAt(from: finalScheduledFor, isPro: isPro)
+                existing.collection = selectedCollection
                 
                 // v2.1 Logic Fix: ALWAYS reset status for existing items when "pulling forward"
                 // or rescheduling. This brings "archived/history" items back to Focus.
@@ -634,10 +702,12 @@ struct ExtensionQuickCaptureView: View {
                     type: detectBookmarkType(),
                     domain: URL(string: url)?.host ?? "unknown",
                     userNote: userNote.isEmpty ? nil : userNote,
+                    expiresAt: intent.calculateExpiresAt(from: finalScheduledFor, isPro: isPro),
                     intent: intent,
                     // v3.1 Enrichment: Force enrichment for raw links from share extension
                     needsEnrichment: true,
-                    enrichmentStatus: .pending
+                    enrichmentStatus: .pending,
+                    collection: selectedCollection
                 )
                 modelContext.insert(bookmark)
             }
@@ -670,19 +740,19 @@ struct ExtensionQuickCaptureView: View {
         
         if calendar.isDateInToday(date) {
             if hour < 12 {
-                return "share.time.thisMorning".localized
+                return "share.time.thisMorning".shareLocalized
             } else if hour < 17 {
-                return "share.time.thisAfternoon".localized
+                return "share.time.thisAfternoon".shareLocalized
             } else {
-                return "share.time.tonight".localized(with: timeString)
+                return "share.time.tonight".shareLocalized(with: timeString)
             }
         } else if calendar.isDateInTomorrow(date) {
-            return "share.time.tomorrow".localized(with: timeString)
+            return "share.time.tomorrow".shareLocalized(with: timeString)
         } else {
             let dayFormatter = DateFormatter()
             dayFormatter.locale = Locale(identifier: "tr_TR")
             dayFormatter.dateFormat = "EEEE"
-            return "share.time.day".localized(with: dayFormatter.string(from: date), timeString)
+            return "share.time.day".shareLocalized(with: dayFormatter.string(from: date), timeString)
         }
     }
     

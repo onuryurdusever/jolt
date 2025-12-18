@@ -120,7 +120,7 @@ struct StreakWidgetEntryView: View {
                 }
             }
             
-            Text("widget.streak.dayStreak".localized)
+            Text("widget.streak.dayStreak".widgetLocalized)
                 .font(.system(size: 9, weight: .semibold))
                 .foregroundColor(.gray)
                 .tracking(1)
@@ -167,7 +167,7 @@ struct StreakWidgetEntryView: View {
                         .font(.system(size: 32, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
                     
-                    Text("widget.streak".localized)
+                    Text("widget.streak".widgetLocalized)
                         .font(.system(size: 8, weight: .semibold))
                         .foregroundColor(.gray)
                         .tracking(1)
@@ -176,8 +176,8 @@ struct StreakWidgetEntryView: View {
             
             // Stats
             VStack(alignment: .leading, spacing: 12) {
-                StatRow(icon: "bolt.fill", value: "\(entry.todayJolts)", label: "widget.streak.today".localized, color: .widgetJoltYellow)
-                StatRow(icon: "checkmark.circle.fill", value: "\(entry.totalJolts)", label: "widget.streak.total".localized, color: .green)
+                StatRow(icon: "bolt.fill", value: "\(entry.todayJolts)", label: "widget.streak.today".widgetLocalized, color: .widgetJoltYellow)
+                StatRow(icon: "checkmark.circle.fill", value: "\(entry.totalJolts)", label: "widget.streak.total".widgetLocalized, color: .green)
             }
             
             Spacer()
@@ -210,10 +210,10 @@ struct StreakWidgetEntryView: View {
                 .font(.system(size: 20))
             
             VStack(alignment: .leading, spacing: 2) {
-                Text("widget.streak.dayStreakCount".localized(with: entry.currentStreak))
+                Text("widget.streak.dayStreakCount".widgetLocalized(with: entry.currentStreak))
                     .font(.system(size: 14, weight: .semibold))
                 
-                Text("widget.streak.joltsToday".localized(with: entry.todayJolts))
+                Text("widget.streak.joltsToday".widgetLocalized(with: entry.todayJolts))
                     .font(.system(size: 11))
                     .foregroundColor(.secondary)
             }
@@ -264,8 +264,8 @@ struct StreakWidget: Widget {
             StreakWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("widget.streak.name".localized)
-        .description("widget.streak.desc".localized)
+        .configurationDisplayName("widget.streak.name".widgetLocalized)
+        .description("widget.streak.desc".widgetLocalized)
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryRectangular])
     }
 }

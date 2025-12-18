@@ -47,7 +47,17 @@ export function scrapeMetaTags(html: string) {
   const image = getMetaContent(/<meta[^>]*property="og:image"[^>]*content="([^"]+)"/i) ||
                getMetaContent(/<meta[^>]*name="twitter:image"[^>]*content="([^"]+)"/i)
 
-  return { title, description, image }
+  // Double decoding safety: some meta tags are served percent-encoded
+  const safeDecode = (str: string | null) => {
+    if (!str) return str;
+    try {
+      return decodeURIComponent(str);
+    } catch {
+      return str;
+    }
+  };
+
+  return { title: safeDecode(title), description: safeDecode(description), image }
 }
 
 // Extract cover image
@@ -104,6 +114,13 @@ export function extractTitleFromURL(url: string): string {
     
     // Replace dashes and underscores with spaces
     lastSegment = lastSegment.replace(/[-_]/g, ' ')
+    
+    // Decode percent-encoded characters (like Turkish letters)
+    try {
+      lastSegment = decodeURIComponent(lastSegment)
+    } catch {
+      // Ignore decoding errors
+    }
     
     // Capitalize words
     lastSegment = lastSegment

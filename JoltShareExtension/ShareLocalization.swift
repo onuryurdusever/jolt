@@ -12,7 +12,7 @@ import Foundation
 extension String {
     /// Returns the localized version of the string
     /// Share extensions run in their own process, so we need to explicitly load from the containing app's bundle
-    var localized: String {
+    var shareLocalized: String {
         // First try the extension's own bundle
         let extensionResult = NSLocalizedString(self, comment: "")
         if extensionResult != self { return extensionResult }
@@ -40,7 +40,18 @@ extension String {
     }
     
     /// Returns the localized string with format arguments
+    func shareLocalized(with arguments: CVarArg...) -> String {
+        String(format: self.shareLocalized, arguments: arguments)
+    }
+    
+    // MARK: - Legacy / Shared Code Compatibility
+    
+    /// Proxy for shared code (like Bookmark.swift) that expects .localized
+    var localized: String {
+        shareLocalized
+    }
+    
     func localized(with arguments: CVarArg...) -> String {
-        String(format: self.localized, arguments: arguments)
+        shareLocalized(with: arguments)
     }
 }

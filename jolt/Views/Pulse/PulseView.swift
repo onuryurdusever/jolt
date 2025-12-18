@@ -506,7 +506,7 @@ struct PulseView: View {
                 InsightRow(
                     icon: "timer",
                     title: "pulse.insight.avgRead".localized,
-                    value: String(format: "%.0f dakika", averageReadingTime)
+                    value: String(format: "reader.readingTime".localized, Int(averageReadingTime))
                 )
                 
                 if !contentMix.isEmpty {
@@ -527,14 +527,13 @@ struct PulseView: View {
     
     private var settingsSections: some View {
         VStack(spacing: 24) {
-            // Doz Sistemi - v2.1 Yeni Tasarım
-            SettingsBlock(title: "DOZ SİSTEMİ") {
+            SettingsBlock(title: "pulse.section.delivery".localized) {
                 // Sabah Dozu - Her zaman göster
                 DeliveryTimeRow(
                     slotNumber: 1,
                     icon: "sun.max.fill",
                     iconColor: .orange,
-                    title: "pulse.settings.morningDose".localized,
+                    title: "delivery.morningDose".localized,
                     time: morningRoutine?.timeString ?? "08:30",
                     isEnabled: morningRoutine?.isEnabled ?? false
                 ) {
@@ -547,7 +546,7 @@ struct PulseView: View {
                     slotNumber: 2,
                     icon: "moon.fill",
                     iconColor: .purple,
-                    title: "pulse.settings.eveningDose".localized,
+                    title: "delivery.eveningDose".localized,
                     time: eveningRoutine?.timeString ?? "21:00",
                     isEnabled: eveningRoutine?.isEnabled ?? false
                 ) {
@@ -560,7 +559,7 @@ struct PulseView: View {
             }
             
             // Sistem
-            SettingsBlock(title: "SİSTEM") {
+            SettingsBlock(title: "pulse.section.system".localized) {
                 SettingsRow(icon: "globe", title: "pulse.settings.language".localized, value: LanguageManager.shared.currentLanguage.displayName) {
                     showLanguagePicker = true
                 }
@@ -572,8 +571,8 @@ struct PulseView: View {
             }
             
             // Veri
-            SettingsBlock(title: "VERİ") {
-                SettingsRow(icon: "square.and.arrow.up", title: "pulse.settings.export".localized, value: "JSON") {
+            SettingsBlock(title: "pulse.section.data".localized) {
+                SettingsRow(icon: "square.and.arrow.up", title: "pulse.settings.export".localized, value: "data.format.json".localized) {
                     showSettings = true
                 }
                 SettingsRow(icon: "trash", title: "pulse.settings.clearCache".localized, isLast: true) {
@@ -582,11 +581,11 @@ struct PulseView: View {
             }
             
             // Abonelik
-            SettingsBlock(title: "ABONELİK") {
+            SettingsBlock(title: "pulse.section.subscription".localized) {
                 SettingsRow(
                     icon: "bolt.fill",
                     title: "premium.title".localized,
-                    value: StoreManager.shared.isPremium ? "PRO ⚡" : "FREE",
+                    value: StoreManager.shared.isPremium ? "premium.status.pro".localized : "premium.status.free".localized,
                     iconColor: .joltYellow
                 ) {
                     showPremiumView = true
@@ -597,7 +596,7 @@ struct PulseView: View {
             }
             
             // Danger Zone
-            SettingsBlock(title: "HESAP", isDanger: true) {
+            SettingsBlock(title: "pulse.section.account".localized, isDanger: true) {
                 SettingsRow(icon: "envelope.fill", title: "pulse.settings.support".localized) {
                     showMailComposer = true
                 }
@@ -625,7 +624,7 @@ struct PulseView: View {
     
     private var footerSection: some View {
         VStack(spacing: 8) {
-            Text("Jolt v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")")
+            Text("pulse.version".localized(with: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"))
                 .font(.system(size: 12))
                 .foregroundColor(.gray.opacity(0.6))
             
@@ -639,12 +638,15 @@ struct PulseView: View {
     // MARK: - Helpers
     
     private func formatReadingTime(_ minutes: Int) -> String {
+        let hourUnit = "time.hour".localized
+        let minuteUnit = "time.minute".localized
+        
         if minutes >= 60 {
             let hours = minutes / 60
             let mins = minutes % 60
-            return mins > 0 ? "\(hours)s \(mins)d" : "\(hours)s"
+            return mins > 0 ? "\(hours)\(hourUnit) \(mins)\(minuteUnit)" : "\(hours)\(hourUnit)"
         }
-        return "\(minutes)d"
+        return "\(minutes)\(minuteUnit)"
     }
     
     private func formatHour(_ hour: Int) -> String {
@@ -793,7 +795,7 @@ struct WeekDayBar: View {
     
     private var dayLetter: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "tr_TR")
+        formatter.locale = LanguageManager.shared.currentLanguage.locale
         formatter.dateFormat = "E"
         return String(formatter.string(from: date).prefix(2))
     }
@@ -1040,7 +1042,7 @@ struct DeliveryTimePickerSheet: View {
     @State private var showRescheduleWarning = false
     
     private var title: String {
-        slot == 1 ? "Sabah Dozu" : "Akşam Dozu"
+        slot == 1 ? "delivery.morningDose".localized : "delivery.eveningDose".localized
     }
     
     private var iconColor: Color {
@@ -1095,7 +1097,7 @@ struct DeliveryTimePickerSheet: View {
                 
                 // Day Selection
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Günler")
+                    Text("delivery.days".localized)
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.gray)
                     
@@ -1243,8 +1245,9 @@ struct DayPillButton: View {
     let action: () -> Void
     
     private var dayLabel: String {
-        let labels = ["Pz", "Pt", "Sa", "Ça", "Pe", "Cu", "Ct"]
-        return labels[day - 1]
+        let calendar = Calendar.current
+        let symbols = calendar.shortStandaloneWeekdaySymbols
+        return String(symbols[day - 1].prefix(2))
     }
     
     var body: some View {
@@ -1268,7 +1271,7 @@ struct MailComposerView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> MFMailComposeViewController {
         let vc = MFMailComposeViewController()
         vc.setToRecipients(["support@jolt.app"])
-        vc.setSubject("Jolt Destek")
+        vc.setSubject("pulse.support.subject".localized)
         vc.setMessageBody("Jolt v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")\n\n", isHTML: false)
         vc.mailComposeDelegate = context.coordinator
         return vc

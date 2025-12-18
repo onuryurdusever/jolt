@@ -66,11 +66,14 @@ class ActionViewController: UIViewController {
         for attachment in attachments {
             // URL tipini kontrol et
             if attachment.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-                attachment.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { [weak self] (url, error) in
+                attachment.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { [weak self] (item, error) in
+                    let extractedURL = item as? URL
+                    let extractedString = item as? String
+                    
                     DispatchQueue.main.async {
-                        if let shareURL = url as? URL {
+                        if let shareURL = extractedURL {
                             self?.saveBookmark(urlString: shareURL.absoluteString)
-                        } else if let urlString = url as? String {
+                        } else if let urlString = extractedString {
                             self?.saveBookmark(urlString: urlString)
                         } else {
                             self?.done()
@@ -82,9 +85,11 @@ class ActionViewController: UIViewController {
             
             // Plain text olarak URL
             if attachment.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
-                attachment.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { [weak self] (text, error) in
+                attachment.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { [weak self] (item, error) in
+                    let extractedString = item as? String
+                    
                     DispatchQueue.main.async {
-                        if let urlString = text as? String,
+                        if let urlString = extractedString,
                            let url = URL(string: urlString),
                            url.scheme == "http" || url.scheme == "https" {
                             self?.saveBookmark(urlString: urlString)

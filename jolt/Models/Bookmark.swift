@@ -54,6 +54,9 @@ final class Bookmark {
     var enrichmentAttempts: Int = 0
     var enrichmentNextAttemptAt: Date? = nil
     
+    // v3.2 Collections (Pro)
+    var collection: JoltCollection?
+    
     init(
         id: UUID = UUID(),
         userID: String,
@@ -90,7 +93,9 @@ final class Bookmark {
         needsEnrichment: Bool = false,
         enrichmentStatus: EnrichmentStatus = .done,
         enrichmentAttempts: Int = 0,
-        enrichmentNextAttemptAt: Date? = nil
+        enrichmentNextAttemptAt: Date? = nil,
+        // v3.2 Collections
+        collection: JoltCollection? = nil
     ) {
         self.id = id
         self.userID = userID
@@ -130,6 +135,16 @@ final class Bookmark {
         self.enrichmentStatus = enrichmentStatus
         self.enrichmentAttempts = enrichmentAttempts
         self.enrichmentNextAttemptAt = enrichmentNextAttemptAt
+        
+        // v3.2 Collections
+        self.collection = collection
+        
+        // Finalize expiresAt if not set
+        if self.expiresAt == nil {
+            let isPro = UserDefaults(suiteName: "group.com.jolt.shared")?.bool(forKey: "is_pro") ?? false
+            self.expiresAt = self.intent?.calculateExpiresAt(from: createdAt, isPro: isPro) 
+                ?? Calendar.current.date(byAdding: .day, value: 7, to: createdAt)
+        }
     }
 }
 
@@ -213,7 +228,7 @@ enum BookmarkIntent: String, Codable {
     }
     
     /// Calculate scheduledFor date based on intent and delivery times
-    func calculateScheduledDate(from date: Date = Date(), morningHour: Int = 8, morningMinute: Int = 30, eveningHour: Int = 21, eveningMinute: Int = 0) -> Date {
+    nonisolated func calculateScheduledDate(from date: Date = Date(), morningHour: Int = 8, morningMinute: Int = 30, eveningHour: Int = 21, eveningMinute: Int = 0) -> Date {
         let calendar = Calendar.current
         let currentHour = calendar.component(.hour, from: date)
         
@@ -251,11 +266,13 @@ enum BookmarkIntent: String, Codable {
         }
     }
     
-    /// Calculate expiresAt based on intent (7 days for free, 14 for premium)
-    func calculateExpiresAt(from date: Date = Date(), isPremium: Bool = false) -> Date {
-        let days = isPremium ? 14 : 7
+    /// Calculate expiresAt based on intent (7-30 days for pro, 7 for free)
+    nonisolated func calculateExpiresAt(from date: Date = Date(), isPro: Bool = false) -> Date {
+        let days = isPro ? (UserDefaults(suiteName: "group.com.jolt.shared")?.integer(forKey: "pro_expire_days") ?? 7) : 7
+        // Ensure days is at least 7
+        let effectiveDays = max(7, days)
         let scheduledDate = calculateScheduledDate(from: date)
-        return Calendar.current.date(byAdding: .day, value: days, to: scheduledDate)!
+        return Calendar.current.date(byAdding: .day, value: effectiveDays, to: scheduledDate)!
     }
     
     /// Check if content is locked (weekend items before Friday)
@@ -519,20 +536,20 @@ extension Bookmark {
     }
     
     /// Recover from archive
-    func recover(isPremium: Bool = false) {
+    func recover(isPro: Bool = false) {
         self.status = .active
         self.archivedAt = nil
         self.archivedReason = nil
         self.recoveredAt = Date()
         // Reset expiration with new 7/14 day window
-        self.expiresAt = Calendar.current.date(byAdding: .day, value: isPremium ? 14 : 7, to: Date())
+        self.expiresAt = Calendar.current.date(byAdding: .day, value: isPro ? 14 : 7, to: Date())
     }
     
     /// Snooze bookmark to new time
-    func snooze(to intent: BookmarkIntent, isPremium: Bool = false) {
+    func snooze(to intent: BookmarkIntent, isPro: Bool = false) {
         self.intent = intent
         self.scheduledFor = intent.calculateScheduledDate()
-        self.expiresAt = intent.calculateExpiresAt(isPremium: isPremium)
+        self.expiresAt = intent.calculateExpiresAt(isPro: isPro)
         self.snoozeCount = (self.snoozeCount ?? 0) + 1
     }
 }

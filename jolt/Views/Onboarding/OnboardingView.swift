@@ -430,7 +430,7 @@ struct HowToView: View {
                                     Image(systemName: "lock.fill")
                                         .font(.system(size: 9))
                                         .foregroundColor(.green)
-                                    Text("medium.com/article...")
+                                    Text("onboarding.howto.exampleUrl".localized)
                                         .font(.system(size: 11))
                                         .foregroundColor(.gray)
                                 }
@@ -470,11 +470,11 @@ struct HowToView: View {
                                     )
                                 
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("How to Build a Second Brain")
+                                    Text("onboarding.howto.exampleTitle".localized)
                                         .font(.system(size: 13, weight: .semibold))
                                         .foregroundColor(.white)
                                         .lineLimit(1)
-                                    Text("medium.com")
+                                    Text("onboarding.howto.exampleDomain".localized)
                                         .font(.system(size: 11))
                                         .foregroundColor(.gray)
                                 }

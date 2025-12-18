@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CoreSpotlight
+@preconcurrency import CoreSpotlight
 import MobileCoreServices
 import SwiftData
 
@@ -33,6 +33,7 @@ class SpotlightService {
         // Items expire after 30 days if not updated
         item.expirationDate = Date().addingTimeInterval(30 * 24 * 60 * 60)
         
+        let bookmarkTitle = bookmark.title
         searchableIndex.indexSearchableItems([item]) { error in
             if let error = error {
                 #if DEBUG
@@ -40,7 +41,7 @@ class SpotlightService {
                 #endif
             } else {
                 #if DEBUG
-                print("✅ Indexed: \(bookmark.title)")
+                print("✅ Indexed: \(bookmarkTitle)")
                 #endif
             }
         }
@@ -118,7 +119,7 @@ class SpotlightService {
         attributeSet.creator = bookmark.domain
         
         // Keywords for better search
-        var keywords = [bookmark.domain, bookmark.type.rawValue]
+        let keywords = [bookmark.domain, bookmark.type.rawValue]
      
         attributeSet.keywords = keywords
         

@@ -12,6 +12,7 @@ import AVFoundation
 @main
 struct joltApp: App {
     @StateObject private var authService = AuthService.shared
+    @StateObject private var languageManager = LanguageManager.shared
     @Environment(\.scenePhase) private var scenePhase
     
     var sharedModelContainer: ModelContainer = {
@@ -19,6 +20,7 @@ struct joltApp: App {
             Bookmark.self,
             SyncAction.self,
             Routine.self,
+            JoltCollection.self,
         ])
         
         // Configure with App Group container
@@ -38,14 +40,19 @@ struct joltApp: App {
     }()
     
     init() {
+        // Initialize RevenueCat
+        SubscriptionManager.shared.configure()
+        
         // KILL: Removed side-effects (Audio, Auth) for deterministic startup.
+        // SwiftData containers etc are managed via sharedModelContainer lazy prop
     }
-
-
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(authService)
+                .environment(\.locale, languageManager.currentLanguage.locale)
+                .id(languageManager.currentLanguage.rawValue) // Force re-render on language change
         }
         .modelContainer(sharedModelContainer)
         // KILL: Removed .onChange. Lifecycle managed by startupManager via ContentView.

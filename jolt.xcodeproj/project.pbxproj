@@ -19,6 +19,9 @@
 		2CC50C3E2EDDBA6F00197896 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 2CC50C3D2EDDBA6F00197896 /* PostgREST */; };
 		2CC50C402EDDBA6F00197896 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = 2CC50C3F2EDDBA6F00197896 /* Realtime */; };
 		2CC50C422EDDBA6F00197896 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 2CC50C412EDDBA6F00197896 /* Storage */; };
+		2CD17B052EF3C3B600A21BF7 /* ReceiptParser in Frameworks */ = {isa = PBXBuildFile; productRef = 2CD17B042EF3C3B600A21BF7 /* ReceiptParser */; };
+		2CD17B072EF3C3B600A21BF7 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 2CD17B062EF3C3B600A21BF7 /* RevenueCat */; };
+		2CD17B092EF3C3B600A21BF7 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = 2CD17B082EF3C3B600A21BF7 /* RevenueCatUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -101,6 +104,7 @@
 			membershipExceptions = (
 				"/Localized: Localizable.strings",
 				Models/Bookmark.swift,
+				Models/Collection.swift,
 				Models/Routine.swift,
 			);
 			target = 2C13DE252EE9E09F005BA699 /* JoltActionExtension */;
@@ -131,6 +135,7 @@
 			membershipExceptions = (
 				"/Localized: Localizable.strings",
 				Models/Bookmark.swift,
+				Models/Collection.swift,
 				Models/Routine.swift,
 				Utilities/AppGroup.swift,
 			);
@@ -226,6 +231,9 @@
 				2CC50C3E2EDDBA6F00197896 /* PostgREST in Frameworks */,
 				2CC50C3C2EDDBA6F00197896 /* Functions in Frameworks */,
 				2C68736F2EDDBBA4009482D2 /* Supabase in Frameworks */,
+				2CD17B052EF3C3B600A21BF7 /* ReceiptParser in Frameworks */,
+				2CD17B072EF3C3B600A21BF7 /* RevenueCat in Frameworks */,
+				2CD17B092EF3C3B600A21BF7 /* RevenueCatUI in Frameworks */,
 				2CC50C3A2EDDBA6F00197896 /* Auth in Frameworks */,
 				2CC50C422EDDBA6F00197896 /* Storage in Frameworks */,
 				2CC50C402EDDBA6F00197896 /* Realtime in Frameworks */,
@@ -368,6 +376,9 @@
 				2CC50C3F2EDDBA6F00197896 /* Realtime */,
 				2CC50C412EDDBA6F00197896 /* Storage */,
 				2C68736E2EDDBBA4009482D2 /* Supabase */,
+				2CD17B042EF3C3B600A21BF7 /* ReceiptParser */,
+				2CD17B062EF3C3B600A21BF7 /* RevenueCat */,
+				2CD17B082EF3C3B600A21BF7 /* RevenueCatUI */,
 			);
 			productName = jolt;
 			productReference = 2CC50BCB2EDDAF0100197896 /* jolt.app */;
@@ -481,18 +492,13 @@
 				Base,
 				tr,
 				de,
-				fr,
-				es,
 				ja,
-				ko,
-				"zh-Hans",
-				it,
-				"pt-BR",
 			);
 			mainGroup = 2CC50BC22EDDAF0100197896;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				2CC50C382EDDBA6F00197896 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				2CD17B032EF3C3B500A21BF7 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2CC50BCC2EDDAF0100197896 /* Products */;
@@ -634,13 +640,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = JoltActionExtension/JoltActionExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = H789J2ZW6B;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = JoltActionExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Jolt'la";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -654,7 +660,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -665,13 +671,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = JoltActionExtension/JoltActionExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = H789J2ZW6B;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = JoltActionExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Jolt'la";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -685,7 +691,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -703,7 +709,7 @@
 				INFOPLIST_FILE = JoltWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = JoltWidgets;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -717,7 +723,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -735,7 +741,7 @@
 				INFOPLIST_FILE = JoltWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = JoltWidgets;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -749,7 +755,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -807,7 +813,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -865,7 +871,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -888,7 +894,7 @@
 				INFOPLIST_FILE = jolt/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Jolt;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -901,7 +907,7 @@
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -919,7 +925,7 @@
 				INFOPLIST_FILE = jolt/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Jolt;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -932,7 +938,7 @@
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -942,10 +948,10 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = H789J2ZW6B;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.moments.joltTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -953,7 +959,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/jolt.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/jolt";
 			};
@@ -964,7 +970,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = H789J2ZW6B;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -975,7 +981,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/jolt.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/jolt";
 			};
@@ -985,7 +991,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = H789J2ZW6B;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
@@ -995,7 +1001,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = jolt;
 			};
@@ -1005,7 +1011,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = H789J2ZW6B;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
@@ -1015,7 +1021,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = jolt;
 			};
@@ -1032,7 +1038,7 @@
 				INFOPLIST_FILE = JoltShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = JoltShareExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1046,7 +1052,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -1158,6 +1164,14 @@
 				minimumVersion = 2.5.1;
 			};
 		};
+		2CD17B032EF3C3B500A21BF7 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.50.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1190,6 +1204,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2CC50C382EDDBA6F00197896 /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Storage;
+		};
+		2CD17B042EF3C3B600A21BF7 /* ReceiptParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2CD17B032EF3C3B500A21BF7 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = ReceiptParser;
+		};
+		2CD17B062EF3C3B600A21BF7 /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2CD17B032EF3C3B500A21BF7 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCat;
+		};
+		2CD17B082EF3C3B600A21BF7 /* RevenueCatUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2CD17B032EF3C3B500A21BF7 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCatUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

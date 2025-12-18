@@ -10,30 +10,79 @@ import Combine
 
 enum AppLanguage: String, CaseIterable, Identifiable {
     case turkish = "tr"
+    case english = "en"
+    case german = "de"
+    case japanese = "ja"
     
     var id: String { rawValue }
     
     var displayName: String {
-        return "Türkçe"
+        switch self {
+        case .turkish: return "Türkçe"
+        case .english: return "English"
+        case .german: return "Deutsch"
+        case .japanese: return "日本語"
+        }
     }
     
     var flag: String {
-        return "🇹🇷"
+        switch self {
+        case .turkish: return "🇹🇷"
+        case .english: return "🇺🇸"
+        case .german: return "🇩🇪"
+        case .japanese: return "🇯🇵"
+        }
+    }
+    
+    var locale: Locale {
+        return Locale(identifier: rawValue)
     }
 }
 
 // MARK: - Language Manager
 
+@MainActor
 class LanguageManager: ObservableObject {
     static let shared = LanguageManager()
     
-    // Turkish is the only supported language
-    var currentLanguage: AppLanguage = .turkish
+    @AppStorage("app_language", store: UserDefaults(suiteName: "group.com.jolt.shared")) private var storedLanguage: String = AppLanguage.turkish.rawValue
     
-    private init() {}
+    @Published var currentLanguage: AppLanguage = .turkish
     
-    // No-op for single language app
-    func setLanguage(_ language: AppLanguage) {}
+    var bundle: Bundle {
+        if let path = Bundle.main.path(forResource: currentLanguage.rawValue, ofType: "lproj"),
+           let bundle = Bundle(path: path) {
+            return bundle
+        }
+        return .main
+    }
+    
+    private init() {
+        if let lang = AppLanguage(rawValue: storedLanguage) {
+            self.currentLanguage = lang
+        }
+    }
+    
+    /// Non-isolated access to the current bundle for background thread localization
+    nonisolated static var currentBundle: Bundle {
+        let stored = UserDefaults(suiteName: "group.com.jolt.shared")?.string(forKey: "app_language") ?? "tr"
+        if let path = Bundle.main.path(forResource: stored, ofType: "lproj"),
+           let bundle = Bundle(path: path) {
+            return bundle
+        }
+        return .main
+    }
+    
+    func setLanguage(_ language: AppLanguage) {
+        currentLanguage = language
+        storedLanguage = language.rawValue
+        
+        // Notify the app that language has changed
+        NotificationCenter.default.post(name: .languageDidChange, object: nil)
+        
+        // Force UI update
+        objectWillChange.send()
+    }
 }
 
 // MARK: - Notification Name

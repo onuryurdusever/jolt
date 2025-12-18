@@ -37,6 +37,7 @@ struct CachedAsyncImage<Content: View, Placeholder: View>: View {
     }
 }
 
+@MainActor
 class ImageLoader: ObservableObject {
     @Published var image: UIImage?
     var url: URL?
@@ -60,15 +61,16 @@ class ImageLoader: ObservableObject {
         
         // Download
         cancellable = URLSession.shared.dataTaskPublisher(for: url)
-            .map { UIImage(data: $0.data) }
+            .receive(on: DispatchQueue.main) // Move to Main Immediately to satisfy Actor isolation
+            .map { $0.data } 
             .replaceError(with: nil)
-            .handleEvents(receiveOutput: { image in
-                if let image = image {
-                    ImageCacheService.shared.save(image, for: url)
-                }
-            })
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.image, on: self)
+            .sink { [weak self] data in
+                guard let self = self, let data = data, let image = UIImage(data: data) else { return }
+                
+                // Now we are on MainActor, and UIImage is created on Main Thread
+                self.image = image
+                ImageCacheService.shared.save(image, for: url)
+            }
     }
     
     func cancel() {

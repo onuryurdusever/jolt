@@ -27,8 +27,8 @@ struct FocusProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> FocusEntry {
         FocusEntry(
             date: Date(),
-            bookmarkTitle: "How to Build Better Habits",
-            bookmarkDomain: "medium.com",
+            bookmarkTitle: "onboarding.howto.exampleTitle".widgetLocalized,
+            bookmarkDomain: "onboarding.howto.exampleDomain".widgetLocalized,
             readingTime: 5,
             pendingCount: 12
         )
@@ -109,7 +109,7 @@ struct FocusWidgetEntryView: View {
                     .font(.system(size: 12))
                     .foregroundColor(.widgetJoltYellow)
                 
-                Text("widget.focus.nextUp".localized)
+                Text("widget.focus.nextUp".widgetLocalized)
                     .font(.system(size: 9, weight: .semibold))
                     .foregroundColor(.gray)
                     .tracking(1)
@@ -117,7 +117,7 @@ struct FocusWidgetEntryView: View {
                 Spacer()
                 
                 if entry.pendingCount > 0 {
-                    Text("widget.focus.morePending".localized(with: entry.pendingCount - 1))
+                    Text("widget.focus.morePending".widgetLocalized(with: entry.pendingCount - 1))
                         .font(.system(size: 10, weight: .medium))
                         .foregroundColor(.gray)
                 }
@@ -147,7 +147,7 @@ struct FocusWidgetEntryView: View {
                         HStack(spacing: 2) {
                             Image(systemName: "clock")
                                 .font(.system(size: 8))
-                            Text("widget.focus.minutesRead".localized(with: time))
+                            Text("widget.focus.minutesRead".widgetLocalized(with: time))
                                 .font(.system(size: 10, weight: .medium))
                         }
                         .foregroundColor(.widgetJoltYellow)
@@ -162,7 +162,7 @@ struct FocusWidgetEntryView: View {
                         .font(.system(size: 28))
                         .foregroundColor(.green)
                     
-                    Text("widget.focus.allCaughtUp".localized)
+                    Text("widget.focus.allCaughtUp".widgetLocalized)
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white)
                 }
@@ -188,7 +188,7 @@ struct FocusWidgetEntryView: View {
                             .font(.system(size: 12))
                             .foregroundColor(.widgetJoltYellow)
                         
-                        Text("widget.focus.nextUp".localized)
+                        Text("widget.focus.nextUp".widgetLocalized)
                             .font(.system(size: 9, weight: .semibold))
                             .foregroundColor(.gray)
                             .tracking(1)
@@ -219,7 +219,7 @@ struct FocusWidgetEntryView: View {
                             HStack(spacing: 3) {
                                 Image(systemName: "clock")
                                     .font(.system(size: 10))
-                                Text("time.minutes".localized(with: time))
+                                Text("time.minutes".widgetLocalized(with: time))
                                     .font(.system(size: 11, weight: .medium))
                             }
                             .foregroundColor(.widgetJoltYellow)
@@ -246,7 +246,7 @@ struct FocusWidgetEntryView: View {
                             .foregroundColor(.widgetJoltYellow)
                     }
                     
-                    Text("widget.focus.tapToRead".localized)
+                    Text("widget.focus.tapToRead".widgetLocalized)
                         .font(.system(size: 8, weight: .semibold))
                         .foregroundColor(.gray)
                         .tracking(0.5)
@@ -259,11 +259,11 @@ struct FocusWidgetEntryView: View {
                         .font(.system(size: 40))
                         .foregroundColor(.green)
                     
-                    Text("widget.focus.allCaughtUp".localized)
+                    Text("widget.focus.allCaughtUp".widgetLocalized)
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
                     
-                    Text("widget.focus.shareToAdd".localized)
+                    Text("widget.focus.shareToAdd".widgetLocalized)
                         .font(.system(size: 12))
                         .foregroundColor(.gray)
                 }
@@ -288,13 +288,13 @@ struct FocusWidgetEntryView: View {
                         .lineLimit(1)
                     
                     if let time = entry.readingTime {
-                        Text("widget.focus.minutesReadLong".localized(with: time))
+                        Text("widget.focus.minutesReadLong".widgetLocalized(with: time))
                             .font(.system(size: 10))
                             .foregroundColor(.secondary)
                     }
                 }
             } else {
-                Text("widget.focus.allCaughtUp".localized)
+                Text("widget.focus.allCaughtUp".widgetLocalized)
                     .font(.system(size: 12, weight: .semibold))
             }
         }
@@ -316,8 +316,8 @@ struct FocusWidget: Widget {
             FocusWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("widget.focus.name".localized)
-        .description("widget.focus.desc".localized)
+        .configurationDisplayName("widget.focus.name".widgetLocalized)
+        .description("widget.focus.desc".widgetLocalized)
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryRectangular])
     }
 }

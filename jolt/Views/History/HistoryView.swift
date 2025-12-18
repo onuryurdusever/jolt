@@ -8,10 +8,17 @@
 
 import SwiftUI
 import SwiftData
+import RevenueCat
+import RevenueCatUI
 
+@MainActor
 struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
+    @StateObject private var subManager = SubscriptionManager.shared
+    @State private var showPaywall = false
+    
     @Query(sort: \Bookmark.archivedAt, order: .reverse) private var allBookmarks: [Bookmark]
+    @Query(sort: \JoltCollection.createdAt, order: .reverse) private var collections: [JoltCollection]
     
     // Callback for iPad/Mac sidebar toggle
     var onToggleSidebar: (() -> Void)? = nil
@@ -21,8 +28,10 @@ struct HistoryView: View {
     @State private var searchText = ""
     @State private var selectedFilter: HistoryFilter = .all
     @State private var selectedBookmark: Bookmark?
+    @State private var selectedCollection: JoltCollection?
     @State private var showShareSheet = false
     @State private var bookmarkToShare: Bookmark?
+    @State private var showNewCollectionSheet = false
     
     // MARK: - Filter Enum
     
@@ -32,6 +41,7 @@ struct HistoryView: View {
         case twitter
         case instagram
         case web
+        case collections
         case expired
         
         var title: String {
@@ -41,6 +51,7 @@ struct HistoryView: View {
             case .twitter: return "X"
             case .instagram: return "Instagram"
             case .web: return "Web"
+            case .collections: return "history.filter.collections".localized
             case .expired: return "history.filter.expired".localized
             }
         }
@@ -52,6 +63,7 @@ struct HistoryView: View {
             case .twitter: return "at"
             case .instagram: return "camera"
             case .web: return "globe"
+            case .collections: return "folder.fill"
             case .expired: return "flame.fill"
             }
         }
@@ -63,6 +75,7 @@ struct HistoryView: View {
             case .twitter: return .white
             case .instagram: return .pink
             case .web: return .blue
+            case .collections: return Color.joltGreen
             case .expired: return .orange
             }
         }
@@ -95,6 +108,8 @@ struct HistoryView: View {
             bookmarks = completedBookmarks.filter { isInstagramDomain($0.domain) }
         case .web:
             bookmarks = completedBookmarks.filter { !isTwitterDomain($0.domain) && !isInstagramDomain($0.domain) }
+        case .collections:
+            bookmarks = [] // Handled by collectionsGrid
         case .expired:
             bookmarks = expiredBookmarks
         }
@@ -190,7 +205,9 @@ struct HistoryView: View {
                         .padding(.bottom, 16)
                     
                     // Timeline Content
-                    if filteredBookmarks.isEmpty {
+                    if selectedFilter == .collections {
+                        collectionsGrid
+                    } else if filteredBookmarks.isEmpty {
                         emptyState
                             .frame(maxHeight: .infinity)
                     } else {
@@ -199,15 +216,76 @@ struct HistoryView: View {
                 }
             }
             .navigationBarHidden(true)
+            .sheet(isPresented: $showPaywall) {
+                PaywallView(displayCloseButton: true)
+            }
             .navigationDestination(item: $selectedBookmark) { bookmark in
                 ReaderView(bookmark: bookmark, isArchived: true)
             }
-            .sheet(isPresented: $showShareSheet) {
-                if let bookmark = bookmarkToShare,
-                   let url = URL(string: bookmark.originalURL) {
-                    ShareSheet(activityItems: [url])
+            .sheet(isPresented: $showNewCollectionSheet) {
+                NewCollectionSheet()
+            }
+            .navigationDestination(item: $selectedCollection) { collection in
+                DetailedCollectionView(collection: collection)
+            }
+        }
+    }
+    
+    private var collectionsGrid: some View {
+        ScrollView {
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                // New Collection Button
+                Button {
+                    showNewCollectionSheet = true
+                } label: {
+                    VStack(spacing: 12) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 32))
+                            .foregroundColor(Color.joltGreen)
+                        Text("history.collections.add".localized)
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.joltForeground)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 140)
+                    .background(Color.joltCardBackground)
+                    .cornerRadius(16)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.joltGreen.opacity(0.3), style: StrokeStyle(lineWidth: 2, dash: [6]))
+                    )
+                }
+                
+                // Existing Collections
+                ForEach(collections) { collection in
+                    Button {
+                        selectedCollection = collection
+                    } label: {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text(collection.emoji ?? "📁")
+                                .font(.system(size: 32))
+                            
+                            Spacer()
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(collection.name)
+                                    .font(.system(size: 15, weight: .bold))
+                                    .foregroundColor(.joltForeground)
+                                    .lineLimit(1)
+                                
+                                Text("history.collections.itemCount".localized(with: collection.bookmarks?.count ?? 0))
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.joltMutedForeground)
+                            }
+                        }
+                        .padding(16)
+                        .frame(maxWidth: .infinity, minHeight: 140, alignment: .leading)
+                        .background(Color.joltCardBackground)
+                        .cornerRadius(16)
+                    }
                 }
             }
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
         }
     }
     
@@ -289,7 +367,11 @@ struct HistoryView: View {
                         count: getFilterCount(filter)
                     ) {
                         withAnimation(.easeInOut(duration: 0.2)) {
-                            selectedFilter = filter
+                            if filter == .collections && !subManager.isPro {
+                                showPaywall = true
+                            } else {
+                                selectedFilter = filter
+                            }
                         }
                     }
                 }
@@ -305,6 +387,7 @@ struct HistoryView: View {
         case .twitter: return completedBookmarks.filter { isTwitterDomain($0.domain) }.count
         case .instagram: return completedBookmarks.filter { isInstagramDomain($0.domain) }.count
         case .web: return completedBookmarks.filter { !isTwitterDomain($0.domain) && !isInstagramDomain($0.domain) }.count
+        case .collections: return collections.count
         case .expired: return expiredBookmarks.count
         }
     }
@@ -329,7 +412,10 @@ struct HistoryView: View {
                                     bookmarkToShare = bookmark
                                     showShareSheet = true
                                 },
-                                onDelete: { deleteBookmark(bookmark) }
+                                onDelete: { deleteBookmark(bookmark) },
+                                collections: collections,
+                                onAssign: { col in assignToCollection(bookmark, col) },
+                                onRemove: { removeFromCollection(bookmark) }
                             )
                             .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
                             .listRowSeparator(.hidden)
@@ -377,6 +463,20 @@ struct HistoryView: View {
             try? modelContext.save()
         }
     }
+    
+    private func assignToCollection(_ bookmark: Bookmark, _ collection: JoltCollection) {
+        withAnimation {
+            bookmark.collection = collection
+            try? modelContext.save()
+        }
+    }
+    
+    private func removeFromCollection(_ bookmark: Bookmark) {
+        withAnimation {
+            bookmark.collection = nil
+            try? modelContext.save()
+        }
+    }
 }
 
 // MARK: - Filter Chip
@@ -401,6 +501,12 @@ struct FilterChip: View {
                         .font(.system(size: 11, weight: .semibold, design: .rounded))
                         .foregroundColor(.joltMutedForeground)
                 }
+                
+                if filter == .collections && !SubscriptionManager.shared.isPro {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 10))
+                        .foregroundColor(.yellow)
+                }
             }
             .foregroundColor(isSelected ? .black : .joltForeground)
             .padding(.horizontal, 14)
@@ -419,6 +525,9 @@ struct HistoryItemRow: View {
     let onTap: () -> Void
     let onShare: () -> Void
     let onDelete: () -> Void
+    let collections: [JoltCollection]
+    let onAssign: (JoltCollection) -> Void
+    let onRemove: () -> Void
     
     var body: some View {
         Button(action: onTap) {
@@ -468,6 +577,28 @@ struct HistoryItemRow: View {
             .padding(12)
             .background(Color.joltCardBackground)
             .cornerRadius(12)
+            .contextMenu {
+                Menu {
+                    ForEach(collections) { collection in
+                        Button {
+                            onAssign(collection)
+                        } label: {
+                            Label(collection.name, systemImage: "folder")
+                        }
+                    }
+                    
+                    if bookmark.collection != nil {
+                        Divider()
+                        Button(role: .destructive) {
+                            onRemove()
+                        } label: {
+                            Label("history.collections.remove".localized, systemImage: "xmark.circle")
+                        }
+                    }
+                } label: {
+                    Label("history.collections.assign".localized, systemImage: "folder.badge.plus")
+                }
+            }
         }
         .buttonStyle(.plain)
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {

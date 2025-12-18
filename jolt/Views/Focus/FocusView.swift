@@ -613,8 +613,7 @@ struct FocusView: View {
         let nextDeliveryTime = calculateNextDeliveryTime()
         
         // v2.1: Track snooze count
-        let isPremium = UserDefaults.standard.bool(forKey: "isPremium")
-        bookmark.snooze(to: .tomorrow, isPremium: isPremium)
+        bookmark.snooze(to: .tomorrow, isPro: SubscriptionManager.shared.isPro)
         bookmark.scheduledFor = nextDeliveryTime
         
         withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
@@ -627,8 +626,7 @@ struct FocusView: View {
         let generator = UIImpactFeedbackGenerator(style: .rigid)
         generator.impactOccurred()
         
-        let isPremium = UserDefaults.standard.bool(forKey: "isPremium")
-        bookmark.snooze(to: .tomorrow, isPremium: isPremium)
+        bookmark.snooze(to: .tomorrow, isPro: SubscriptionManager.shared.isPro)
         bookmark.scheduledFor = Date().addingTimeInterval(TimeInterval(hours * 3600))
         
         withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
@@ -648,8 +646,7 @@ struct FocusView: View {
         components.minute = 0
         
         if let tomorrowMorning = calendar.date(from: components) {
-            let isPremium = UserDefaults.standard.bool(forKey: "isPremium")
-            bookmark.snooze(to: .tomorrow, isPremium: isPremium)
+            bookmark.snooze(to: .tomorrow, isPro: SubscriptionManager.shared.isPro)
             bookmark.scheduledFor = tomorrowMorning
             
             withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
@@ -1095,7 +1092,7 @@ struct HeroFocusCard: View {
                         HStack(spacing: 3) {
                             Image(systemName: "clock")
                                 .font(.system(size: 10))
-                            Text("\(bookmark.readingTimeMinutes) dk")
+                            Text("\(bookmark.readingTimeMinutes) \("time.minute".localized)")
                                 .font(.system(size: 12, weight: .medium))
                         }
                         .foregroundColor(.joltMutedForeground)
@@ -1213,7 +1210,7 @@ struct UltraCompactRow: View {
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(bookmark.expirationUrgency.color)
                     
-                    Text("\(bookmark.readingTimeMinutes) dk")
+                    Text("\(bookmark.readingTimeMinutes) \("time.minute".localized)")
                         .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundColor(.joltMutedForeground)
                 }

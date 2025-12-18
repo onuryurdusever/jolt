@@ -73,9 +73,11 @@ class WatchConnectivityService: NSObject, ObservableObject {
 
 extension WatchConnectivityService: WCSessionDelegate {
     nonisolated func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+        let isPaired = session.isPaired
+        let isReachable = session.isReachable
         Task { @MainActor in
-            self.isWatchPaired = session.isPaired
-            self.isWatchReachable = session.isReachable
+            self.isWatchPaired = isPaired
+            self.isWatchReachable = isReachable
         }
     }
     
@@ -89,8 +91,9 @@ extension WatchConnectivityService: WCSessionDelegate {
     }
     
     nonisolated func sessionReachabilityDidChange(_ session: WCSession) {
+        let isReachable = session.isReachable
         Task { @MainActor in
-            self.isWatchReachable = session.isReachable
+            self.isWatchReachable = isReachable
         }
     }
     

@@ -8,6 +8,7 @@
 import Foundation
 import SwiftData
 import Combine
+import UIKit
 
 @MainActor
 class EnrichmentService: ObservableObject {
@@ -162,18 +163,32 @@ class EnrichmentService: ObservableObject {
             
             print("🔄 Enrichment Batch Started: Processing \(batch.count) items...")
             
-            await withTaskGroup(of: (Bookmark, ParsedContent?).self) { group in
+            await withTaskGroup(of: (PersistentIdentifier, String, ParsedContent?).self) { group in
                 for bookmark in batch {
                     // Mark in-progress
                     bookmark.enrichmentStatus = .inProgress
+                    let id = bookmark.persistentModelID
+                    let url = bookmark.originalURL
                     
                     group.addTask {
-                        let parsed = await self.parseURL(bookmark.originalURL)
-                        return (bookmark, parsed)
+                        let parsed = await self.parseURL(url)
+                        return (id, url, parsed)
                     }
                 }
                 
-                for await (bookmark, parsed) in group {
+                for await (id, _, parsed) in group {
+                    // YIELD: Allow Main RunLoop to process UI events (Paywall dismissal, etc)
+                    await Task.yield()
+                    
+                    // SAFETY: Stop processing if app is backgrounded to prevent watchdog kills
+                    if UIApplication.shared.applicationState == .background {
+                        print("⚠️ Enrichment Paused: App is in background")
+                        break
+                    }
+                    
+                    // Fetch the bookmark back on the MainActor context
+                    guard let bookmark = context.model(for: id) as? Bookmark else { continue }
+                    
                     if let result = parsed, result.success != false {
                         // Success path
                         updateBookmark(bookmark, with: result, context: context)
@@ -342,7 +357,7 @@ class EnrichmentService: ObservableObject {
                 // Content too short - likely truncated, force webview for complete display
                 bookmark.type = .webview
                 bookmark.contentHTML = nil // Don't show truncated content
-                print("⚠️ Content too short (\(contentHTML.count) chars), forcing webview for \(bookmark.domain ?? "unknown")")
+                print("⚠️ Content too short (\(contentHTML.count) chars), forcing webview for \(bookmark.domain)")
             } else {
                 bookmark.type = parsedType
             }
@@ -394,8 +409,11 @@ class EnrichmentService: ObservableObject {
         let withSpaces = cleanSlug.replacingOccurrences(of: "-", with: " ")
                                    .replacingOccurrences(of: "_", with: " ")
         
+        // Decode percent-encoded characters (like Turkish letters)
+        let decoded = withSpaces.removingPercentEncoding ?? withSpaces
+        
         // Capitalize each word (Title Case)
-        let titleCased = withSpaces.split(separator: " ")
+        let titleCased = decoded.split(separator: " ")
                                    .map { $0.prefix(1).uppercased() + $0.dropFirst().lowercased() }
                                    .joined(separator: " ")
         

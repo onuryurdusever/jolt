@@ -116,7 +116,6 @@ struct ContentView: View {
         
         let currentHour = calendar.component(.hour, from: now)
         let currentMinute = calendar.component(.minute, from: now)
-        let currentWeekday = calendar.component(.weekday, from: now)
         let currentTimeMinutes = currentHour * 60 + currentMinute
         
         // Find next delivery today or future days

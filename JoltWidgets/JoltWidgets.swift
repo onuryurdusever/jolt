@@ -33,24 +33,24 @@ extension Color {
 // MARK: - Configuration Intents
 
 struct StreakWidgetConfigurationIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "Okuma Serisi"
-    static var description = IntentDescription("Günlük okuma serinizi takip edin")
+    static let title: LocalizedStringResource = "widget.streak.name"
+    static let description = IntentDescription("widget.streak.desc")
 }
 
 struct FocusWidgetConfigurationIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "Sıradaki"
-    static var description = IntentDescription("Bir sonraki içeriğinizi görün")
+    static let title: LocalizedStringResource = "widget.focus.name"
+    static let description = IntentDescription("widget.focus.desc")
 }
 
 
 
 struct StatsWidgetConfigurationIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "İstatistikler"
-    static var description = IntentDescription("Haftalık okuma performansınız")
+    static let title: LocalizedStringResource = "widget.stats.name"
+    static let description = IntentDescription("widget.stats.desc")
 }
 
 struct QuoteWidgetConfigurationIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "Günlük İlham"
-    static var description = IntentDescription("Günün motivasyon sözü")
+    static let title: LocalizedStringResource = "widget.quote.name"
+    static let description = IntentDescription("widget.quote.desc")
 }
 

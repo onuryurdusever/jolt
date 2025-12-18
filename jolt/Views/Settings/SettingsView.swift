@@ -1,5 +1,7 @@
 import SwiftUI
 import SwiftData
+import RevenueCat
+import RevenueCatUI
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
@@ -8,7 +10,9 @@ struct SettingsView: View {
     
     @State private var showClearImageCacheAlert = false
     @State private var showClearArticleCacheAlert = false
-    @State private var cacheSize: String = "Calculating..."
+    @StateObject private var subManager = SubscriptionManager.shared
+    @State private var showPaywall = false
+    @State private var showCustomerCenter = false
     
     // Export State
     @State private var isExporting = false
@@ -24,6 +28,57 @@ struct SettingsView: View {
                     .ignoresSafeArea()
                 
                 List {
+                    // MARK: - Premium Section
+                    Section {
+                        Button {
+                            if subManager.isPro {
+                                showCustomerCenter = true
+                            } else {
+                                showPaywall = true
+                            }
+                        } label: {
+                            HStack {
+                                Image(systemName: subManager.isPro ? "crown.fill" : "crown")
+                                    .foregroundColor(subManager.isPro ? .yellow : .gray)
+                                
+                                VStack(alignment: .leading) {
+                                    Text(subManager.isPro ? "settings.pro.active".localized : "settings.pro.upgrade".localized)
+                                        .foregroundColor(.joltForeground)
+                                        .font(.headline)
+                                    
+                                    if !subManager.isPro {
+                                        Text("settings.pro.unlockedFeatures".localized)
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
+                                    }
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        
+                        if subManager.isPro {
+                            NavigationLink {
+                                ProSettingsView()
+                            } label: {
+                                HStack {
+                                    Image(systemName: "timer")
+                                        .foregroundColor(.joltGreen)
+                                    Text("settings.pro.customExpiration".localized)
+                                        .foregroundColor(.joltForeground)
+                                    Spacer()
+                                }
+                            }
+                        }
+                    } header: {
+                        Text("settings.membership".localized)
+                            .foregroundColor(.gray)
+                    }
+                    
                     // MARK: - Storage & Cache Section
                     Section {
                         HStack {
@@ -118,6 +173,12 @@ struct SettingsView: View {
                 }
             } message: {
                 Text("alert.clearArticleCache.message".localized)
+            }
+            .sheet(isPresented: $showPaywall) {
+                PaywallView(displayCloseButton: true)
+            }
+            .sheet(isPresented: $showCustomerCenter) {
+                CustomerCenterView()
             }
         }
     }

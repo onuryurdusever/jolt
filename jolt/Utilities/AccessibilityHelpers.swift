@@ -7,28 +7,28 @@
 
 import SwiftUI
 
-// MARK: - Accessibility Labels (Türkçe)
+// MARK: - Accessibility Labels
 struct A11y {
     
     // MARK: - Focus View
     struct Focus {
         static func bookmarkCard(title: String, domain: String, readingTime: Int) -> String {
-            "\(title). \(domain) sitesinden. \(readingTime) dakikalık okuma."
+            "a11y.focus.bookmarkCard".localized(with: title, domain, readingTime)
         }
         
-        static let archiveHint = "Sola kaydırarak veya çift dokunarak okundu olarak işaretleyin"
-        static let snoozeHint = "Sağa kaydırarak daha sonraya erteleyin"
-        static let pullForwardHint = "Çift dokunarak şimdi okumak için öne alın"
-        static let openReaderHint = "Çift dokunarak okuyucuda açın"
+        static let archiveHint = "a11y.focus.archiveHint".localized
+        static let snoozeHint = "a11y.focus.snoozeHint".localized
+        static let pullForwardHint = "a11y.focus.pullForwardHint".localized
+        static let openReaderHint = "a11y.focus.openReaderHint".localized
         
         static func headerStats(count: Int, totalMinutes: Int) -> String {
             count == 0 
-                ? "Tüm okumalar tamamlandı. Tebrikler!" 
-                : "\(count) makale bekliyor. Toplam \(totalMinutes) dakikalık okuma."
+                ? "a11y.focus.headerStats.empty".localized
+                : "a11y.focus.headerStats.count".localized(with: count, totalMinutes)
         }
         
         static func filterButton(current: String) -> String {
-            "Süre filtresi. Şu an \(current) seçili. Değiştirmek için çift dokunun."
+            "a11y.focus.filterButton".localized(with: current)
         }
     }
     
@@ -36,22 +36,22 @@ struct A11y {
     struct Reader {
         static func content(title: String, progress: Int) -> String {
             progress > 0
-                ? "Okuma: \(title). Yüzde \(progress) tamamlandı."
-                : "Okuma: \(title)."
+                ? "a11y.reader.contentProgress".localized(with: title, progress)
+                : "a11y.reader.content".localized(with: title)
         }
         
-        static let joltButton = "Okumayı tamamla ve arşivle"
-        static let joltHint = "Çift dokunarak içeriği tamamlandı olarak işaretleyin. Bu seriyi artıracak."
+        static let joltButton = "a11y.reader.joltButton".localized
+        static let joltHint = "a11y.reader.joltHint".localized
         
-        static let settingsButton = "Okuma ayarları"
-        static let settingsHint = "Yazı boyutu, tema ve satır aralığını değiştirin"
-        static let shareButton = "İçeriği paylaş"
+        static let settingsButton = "a11y.reader.settingsButton".localized
+        static let settingsHint = "a11y.reader.settingsHint".localized
+        static let shareButton = "a11y.reader.shareButton".localized
 
-        static let starButton = "Favorilere ekle"
-        static let unstarButton = "Favorilerden çıkar"
+        static let starButton = "a11y.reader.starButton".localized
+        static let unstarButton = "a11y.reader.unstarButton".localized
         
         static func progressAnnouncement(percent: Int) -> String {
-            "Okuma ilerlemesi yüzde \(percent)"
+            "a11y.reader.progressAnnouncement".localized(with: percent)
         }
     }
     
@@ -61,71 +61,71 @@ struct A11y {
     struct Pulse {
         static func streak(days: Int) -> String {
             switch days {
-            case 0: return "Henüz okuma serisi başlamadı. Bugün ilk adımı atın!"
-            case 1: return "1 günlük okuma serisi. Harika başlangıç!"
-            default: return "\(days) günlük okuma serisi. Muhteşem gidiyorsunuz!"
+            case 0: return "a11y.pulse.streak.zero".localized
+            case 1: return "a11y.pulse.streak.one".localized
+            default: return "a11y.pulse.streak.multiple".localized(with: days)
             }
         }
         
         static func stat(label: String, value: String) -> String {
-            "\(label): \(value)"
+            "a11y.pulse.stat".localized(with: label, value)
         }
         
-        static let settingsSection = "Ayarlar bölümü"
-        static let routinesButton = "Okuma rutinlerini düzenle"
-        static let routinesHint = "Sabah ve akşam bildirim saatlerini ayarlayın"
-        static let notificationsButton = "Bildirim ayarları"
-        static let cacheButton = "Önbellek ve depolama"
-        static let logoutButton = "Çıkış yap"
-        static let logoutHint = "Bu cihazdan çıkış yapın. Verileriniz silinecek."
+        static let settingsSection = "a11y.pulse.settingsSection".localized
+        static let routinesButton = "a11y.pulse.routinesButton".localized
+        static let routinesHint = "a11y.pulse.routinesHint".localized
+        static let notificationsButton = "a11y.pulse.notificationsButton".localized
+        static let cacheButton = "a11y.pulse.cacheButton".localized
+        static let logoutButton = "a11y.pulse.logoutButton".localized
+        static let logoutHint = "a11y.pulse.logoutHint".localized
         
 
     }
     
     // MARK: - Onboarding
     struct Onboarding {
-        static let skipButton = "Adımı atla"
-        static let nextButton = "Devam et"
-        static let finishButton = "Tamamla"
+        static let skipButton = "a11y.onboarding.skipButton".localized
+        static let nextButton = "a11y.onboarding.nextButton".localized
+        static let finishButton = "a11y.onboarding.finishButton".localized
         
         static func step(current: Int, total: Int) -> String {
-            "Adım \(current) / \(total)"
+            "a11y.onboarding.step".localized(with: current, total)
         }
         
-        static let permissionPrimary = "Bildirimlere izin ver"
-        static let permissionSecondary = "Şimdilik izin verme, sonra ayarlardan açabilirsiniz"
+        static let permissionPrimary = "a11y.onboarding.permissionPrimary".localized
+        static let permissionSecondary = "a11y.onboarding.permissionSecondary".localized
     }
     
     // MARK: - Common
     struct Common {
-        static let closeButton = "Kapat"
-        static let backButton = "Geri"
-        static let doneButton = "Tamam"
-        static let cancelButton = "İptal"
-        static let deleteButton = "Sil"
-        static let saveButton = "Kaydet"
-        static let editButton = "Düzenle"
-        static let shareButton = "Paylaş"
-        static let moreOptions = "Daha fazla seçenek"
+        static let closeButton = "a11y.common.closeButton".localized
+        static let backButton = "a11y.common.backButton".localized
+        static let doneButton = "a11y.common.doneButton".localized
+        static let cancelButton = "a11y.common.cancelButton".localized
+        static let deleteButton = "a11y.common.deleteButton".localized
+        static let saveButton = "a11y.common.saveButton".localized
+        static let editButton = "a11y.common.editButton".localized
+        static let shareButton = "a11y.common.shareButton".localized
+        static let moreOptions = "a11y.common.moreOptions".localized
         
         static func loading(item: String) -> String {
-            "\(item) yükleniyor"
+            "a11y.common.loading".localized(with: item)
         }
         
         static func error(message: String) -> String {
-            "Hata: \(message)"
+            "a11y.common.error".localized(with: message)
         }
     }
     
     // MARK: - Share Extension
     struct ShareExtension {
-        static let noteField = "İçerik hakkında not ekleyin"
-        static let timeSelection = "Okuma zamanı seçin"
+        static let noteField = "a11y.shareExtension.noteField".localized
+        static let timeSelection = "a11y.shareExtension.timeSelection".localized
 
-        static let saveButton = "Kaydet ve kapat"
+        static let saveButton = "a11y.shareExtension.saveButton".localized
         
         static func timeOption(_ time: String) -> String {
-            "\(time) seçeneği. Çift dokunarak seçin."
+            "a11y.shareExtension.timeOption".localized(with: time)
         }
     }
 }
@@ -149,7 +149,7 @@ extension View {
     
     /// Makes any button accessible with label and optional hint
     func accessibleButton(label: String, hint: String? = nil) -> some View {
-        var view = self
+        let view = self
             .accessibilityLabel(label)
             .accessibilityAddTraits(.isButton)
         

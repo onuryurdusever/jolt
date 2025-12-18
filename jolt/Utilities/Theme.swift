@@ -9,6 +9,7 @@ import SwiftUI
 
 extension Color {
     static let joltYellow = Color(hex: "#CCFF00")
+    static let joltGreen = Color(hex: "#00FF66") // Brand green
     
     // MARK: - Dark Mode Colors (Original)
     static let joltBackground = Color(red: 0, green: 0, blue: 0) // Pure black like iOS

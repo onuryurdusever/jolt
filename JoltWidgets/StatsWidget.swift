@@ -75,7 +75,7 @@ struct StatsWidgetEntryView: View {
     
     private var weekDays: [String] {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "tr_TR")
+        formatter.locale = Locale(identifier: "locale.identifier".widgetLocalized)
         var days: [String] = []
         let calendar = Calendar.current
         
@@ -116,7 +116,7 @@ struct StatsWidgetEntryView: View {
                 Text("\(todayJolts)")
                     .font(.system(size: 22, weight: .bold, design: .rounded))
                 
-                Text("widget.stats.jolt".localized)
+                Text("widget.stats.jolt".widgetLocalized)
                     .font(.system(size: 8, weight: .medium))
             }
         }
@@ -133,10 +133,10 @@ struct StatsWidgetEntryView: View {
                 .font(.system(size: 14))
             
             VStack(alignment: .leading, spacing: 2) {
-                Text("widget.stats.todayJolts".localized(with: todayJolts))
+                Text("widget.stats.todayJolts".widgetLocalized(with: todayJolts))
                     .font(.system(size: 12, weight: .semibold))
                 
-                Text("widget.stats.weeklyTotal".localized(with: weeklyTotal))
+                Text("widget.stats.weeklyTotal".widgetLocalized(with: weeklyTotal))
                     .font(.system(size: 10))
                     .foregroundColor(.secondary)
             }
@@ -154,7 +154,7 @@ struct StatsWidgetEntryView: View {
                     .font(.system(size: 12))
                     .foregroundColor(.widgetJoltYellow)
                 
-                Text("widget.stats.weekly".localized)
+                Text("widget.stats.weekly".widgetLocalized)
                     .font(.system(size: 9, weight: .semibold))
                     .foregroundColor(.gray)
                     .tracking(1)
@@ -185,7 +185,7 @@ struct StatsWidgetEntryView: View {
             .frame(height: 60)
             
             // Total
-            Text("widget.stats.thisWeek".localized(with: entry.weeklyActivity.reduce(0, +)))
+            Text("widget.stats.thisWeek".widgetLocalized(with: entry.weeklyActivity.reduce(0, +)))
                 .font(.system(size: 10, weight: .medium))
                 .foregroundColor(.gray)
         }
@@ -204,7 +204,7 @@ struct StatsWidgetEntryView: View {
                         .font(.system(size: 12))
                         .foregroundColor(.widgetJoltYellow)
                     
-                    Text("widget.stats.weekly".localized)
+                    Text("widget.stats.weekly".widgetLocalized)
                         .font(.system(size: 9, weight: .semibold))
                         .foregroundColor(.gray)
                         .tracking(0.5)
@@ -248,21 +248,21 @@ struct StatsWidgetEntryView: View {
                 StatItem(
                     icon: "bolt.fill",
                     value: "\(entry.totalJolts)",
-                    label: "widget.stats.total".localized,
+                    label: "widget.stats.total".widgetLocalized,
                     color: .widgetJoltYellow
                 )
                 
                 StatItem(
                     icon: "flame.fill",
                     value: "\(entry.currentStreak)",
-                    label: "widget.stats.streak".localized,
+                    label: "widget.stats.streak".widgetLocalized,
                     color: .orange
                 )
                 
                 StatItem(
                     icon: "trophy.fill",
                     value: "\(entry.longestStreak)",
-                    label: "widget.stats.best".localized,
+                    label: "widget.stats.best".widgetLocalized,
                     color: .yellow
                 )
             }
@@ -334,8 +334,8 @@ struct StatsWidget: Widget {
             StatsWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("widget.stats.name".localized)
-        .description("widget.stats.desc".localized)
+        .configurationDisplayName("widget.stats.name".widgetLocalized)
+        .description("widget.stats.desc".widgetLocalized)
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryRectangular])
     }
 }

@@ -1,12 +1,16 @@
 import UIKit
 import Combine
 
+@MainActor
 class ImageCacheService {
     static let shared = ImageCacheService()
     
     private let memoryCache = NSCache<NSString, UIImage>()
     private let fileManager = FileManager.default
-    private let diskCacheDirectory: URL
+    
+    // SAFETY: Mark as nonisolated to allow access from background queues without MainActor warnings/crashes
+    nonisolated private let diskCacheDirectory: URL
+    
     private let ioQueue = DispatchQueue(label: "com.jolt.imagecache.io", qos: .background)
     
     init() {
@@ -25,11 +29,7 @@ class ImageCacheService {
             return image
         }
         
-        // 2. Check Disk (Synchronous read on calling thread - usually main for UI, but fast enough for small images)
-        // Ideally we should load async, but for a simple cache check, this might be okay if images are small.
-        // However, for scrolling performance, we should probably rely on the loader to call this async.
-        // Let's keep this simple: The Loader will call this.
-        
+        // 2. Check Disk
         let filename = cacheKey(for: url)
         let fileURL = diskCacheDirectory.appendingPathComponent(filename)
         
@@ -52,28 +52,28 @@ class ImageCacheService {
         memoryCache.setObject(image, forKey: key)
         
         // 2. Save to Disk (Async)
-        ioQueue.async { [weak self] in
-            guard let self = self else { return }
-            let filename = self.cacheKey(for: url)
-            let fileURL = self.diskCacheDirectory.appendingPathComponent(filename)
-            
-            // Compress and write
-            if let data = image.jpegData(compressionQuality: 0.8) {
-                try? data.write(to: fileURL)
-            }
+        // Capture necessary values to avoid "self" usage for properties that might trigger isolation checks
+        let filename = cacheKey(for: url)
+        let fileURL = diskCacheDirectory.appendingPathComponent(filename)
+        // Copy data on main thread/caller to avoid accessing UIImage (MainActor-ish) on background
+        let imageData = image.jpegData(compressionQuality: 0.8)
+        
+        ioQueue.async {
+            guard let data = imageData else { return }
+            try? data.write(to: fileURL)
         }
     }
     
     func clearCache() {
         memoryCache.removeAllObjects()
-        ioQueue.async { [weak self] in
-            guard let self = self else { return }
-            try? self.fileManager.removeItem(at: self.diskCacheDirectory)
-            try? self.fileManager.createDirectory(at: self.diskCacheDirectory, withIntermediateDirectories: true)
+        let directory = diskCacheDirectory
+        ioQueue.async {
+            try? FileManager.default.removeItem(at: directory)
+            try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         }
     }
     
-    private func cacheKey(for url: URL) -> String {
+    nonisolated private func cacheKey(for url: URL) -> String {
         // Simple hash or encoding
         return String(url.absoluteString.hashValue)
     }
