@@ -16,6 +16,7 @@ struct DetailedCollectionView: View {
     @State private var selectedBookmark: Bookmark?
     @State private var showShareSheet = false
     @State private var bookmarkToShare: Bookmark?
+    @State private var showDeleteConfirmation = false
     
     var body: some View {
         ZStack {
@@ -59,12 +60,11 @@ struct DetailedCollectionView: View {
             }
         }
         .navigationTitle(collection.name)
-        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button(role: .destructive) {
-                        deleteCollection()
+                        showDeleteConfirmation = true
                     } label: {
                         Label("history.collections.delete".localized, systemImage: "trash")
                     }
@@ -72,6 +72,14 @@ struct DetailedCollectionView: View {
                     Image(systemName: "ellipsis.circle")
                 }
             }
+        }
+        .alert("history.collections.delete".localized, isPresented: $showDeleteConfirmation) {
+            Button("common.cancel".localized, role: .cancel) { }
+            Button("common.delete".localized, role: .destructive) {
+                deleteCollection()
+            }
+        } message: {
+            Text("alert.deleteConfirm.message".localized)
         }
         .navigationDestination(item: $selectedBookmark) { bookmark in
             ReaderView(bookmark: bookmark, isArchived: true)

@@ -609,3 +609,6 @@
 // MARK: - Share Extension
 "share.collection.title" = "KOLEKSİYON";
 "share.collection.none" = "Gelen Kutusu";
+"premium.restore.complete" = "Geri Yükleme Tamamlandı";
+"premium.restore.success" = "Pro üyeliğiniz başarıyla geri yüklendi.";
+"premium.restore.noActiveSubscription" = "Bu hesap için aktif bir abonelik bulunamadı.";

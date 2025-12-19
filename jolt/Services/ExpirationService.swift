@@ -26,8 +26,7 @@ class ExpirationService {
     
     /// Check if user has premium subscription
     func isPremium() -> Bool {
-        // TODO: Integrate with StoreKit/PremiumService
-        return UserDefaults.standard.bool(forKey: "isPremium")
+        return SubscriptionManager.shared.isPro
     }
     
     /// Get expiration duration in days (7 for free, 14 for premium)

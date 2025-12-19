@@ -609,3 +609,6 @@
 // MARK: - Share Extension
 "share.collection.title" = "COLLECTION";
 "share.collection.none" = "Inbox";
+"premium.restore.complete" = "Restore Complete";
+"premium.restore.success" = "Your Pro membership has been successfully restored.";
+"premium.restore.noActiveSubscription" = "No active subscription found for this account.";

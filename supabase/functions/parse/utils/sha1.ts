@@ -55,3 +55,4 @@ export function sha1(ascii: string): string {
 
   return toHex(a) + toHex(b) + toHex(c) + toHex(d) + toHex(e);
 }
+

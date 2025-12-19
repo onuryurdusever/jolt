@@ -39,8 +39,7 @@ final class SubscriptionManager: ObservableObject {
     func updateStatus() async {
         do {
             let customerInfo = try await Purchases.shared.customerInfo()
-            self.isPro = customerInfo.entitlements["Jolt Pro"]?.isActive ?? false
-            UserDefaults(suiteName: "group.com.jolt.shared")?.set(self.isPro, forKey: "is_pro")
+            updateProStatus(customerInfo)
             
             #if DEBUG
             print("💎 Pro Status: \(isPro)")
@@ -50,6 +49,19 @@ final class SubscriptionManager: ObservableObject {
         }
     }
     
+    func updateProStatus(_ customerInfo: CustomerInfo) {
+        let active = customerInfo.entitlements["Jolt Pro"]?.isActive ?? false
+        self.isPro = active
+        
+        // Save to Shared App Group for Widgets and Extensions
+        if let sharedDefaults = UserDefaults(suiteName: "group.com.jolt.shared") {
+            sharedDefaults.set(active, forKey: "is_pro")
+            // Also keep isPremium for compatibility during migration if needed, 
+            // but we'll move everything to is_pro
+            sharedDefaults.set(active, forKey: "isPremium")
+        }
+    }
+
     /// Teklifleri (Offerings) getir
     func fetchOfferings() async {
         do {
@@ -67,7 +79,7 @@ final class SubscriptionManager: ObservableObject {
         do {
             let result = try await Purchases.shared.purchase(package: package)
             if !result.userCancelled {
-                await updateStatus()
+                updateProStatus(result.customerInfo)
                 return isPro
             }
             return false
@@ -79,9 +91,12 @@ final class SubscriptionManager: ObservableObject {
     
     /// Satın alma geri yükleme (Restore)
     func restorePurchases() async {
+        isPurchasing = true
+        defer { isPurchasing = false }
+        
         do {
-            _ = try await Purchases.shared.restorePurchases()
-            await updateStatus()
+            let customerInfo = try await Purchases.shared.restorePurchases()
+            updateProStatus(customerInfo)
         } catch {
             print("❌ RevenueCat: Restore failed: \(error.localizedDescription)")
         }
@@ -94,9 +109,7 @@ class PurchasesDelegateHandler: NSObject, PurchasesDelegate {
     
     func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
         Task { @MainActor in
-            let isPro = customerInfo.entitlements["Jolt Pro"]?.isActive ?? false
-            SubscriptionManager.shared.isPro = isPro
-            UserDefaults(suiteName: "group.com.jolt.shared")?.set(isPro, forKey: "is_pro")
+            SubscriptionManager.shared.updateProStatus(customerInfo)
         }
     }
 }

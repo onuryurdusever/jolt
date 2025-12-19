@@ -9,6 +9,8 @@
 import SwiftUI
 import SwiftData
 import WidgetKit
+import RevenueCat
+import RevenueCatUI
 import MessageUI
 
 // MARK: - User Status Tier
@@ -56,6 +58,7 @@ enum UserStatusTier {
 struct PulseView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var allBookmarks: [Bookmark]
+    @StateObject private var subManager = SubscriptionManager.shared
 
     @Query private var allRoutines: [Routine]
     
@@ -78,6 +81,7 @@ struct PulseView: View {
     @State private var showSettings = false
     @State private var showRoutinesSettings = false
     @State private var showLanguagePicker = false
+    @State private var showRestoreAlert = false
     @State private var showPremiumView = false
     @State private var showShareSheet = false
 
@@ -241,9 +245,14 @@ struct PulseView: View {
             .sheet(isPresented: $showSettings) { SettingsView() }
             .sheet(isPresented: $showRoutinesSettings) { NavigationStack { RoutinesSettingsView() } }
             .sheet(isPresented: $showLanguagePicker) { LanguagePickerView() }
-            .sheet(isPresented: $showPremiumView) { PremiumView() }
+            .sheet(isPresented: $showPremiumView) { PaywallView(displayCloseButton: true) }
             .sheet(isPresented: $showShareSheet) {
                 ShareSheet(activityItems: [URL(string: "https://apps.apple.com/app/jolt")!])
+            }
+            .alert("premium.restore.complete".localized, isPresented: $showRestoreAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(subManager.isPro ? "premium.restore.success".localized : "premium.restore.noActiveSubscription".localized)
             }
             .sheet(isPresented: $showMailComposer) { MailComposerView() }
 
@@ -585,13 +594,24 @@ struct PulseView: View {
                 SettingsRow(
                     icon: "bolt.fill",
                     title: "premium.title".localized,
-                    value: StoreManager.shared.isPremium ? "premium.status.pro".localized : "premium.status.free".localized,
+                    value: subManager.isPro ? "premium.status.pro".localized : "premium.status.free".localized,
                     iconColor: .joltYellow
                 ) {
                     showPremiumView = true
                 }
                 SettingsRow(icon: "arrow.clockwise", title: "pulse.settings.restore".localized, isLast: true) {
-                    Task { await StoreManager.shared.restorePurchases() }
+                    if !subManager.isPurchasing {
+                        Task {
+                            await subManager.restorePurchases()
+                            showRestoreAlert = true
+                        }
+                    }
+                }
+                .overlay {
+                    if subManager.isPurchasing {
+                        ProgressView()
+                            .tint(.white)
+                    }
                 }
             }
             

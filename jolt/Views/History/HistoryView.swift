@@ -26,32 +26,29 @@ struct HistoryView: View {
     
     // MARK: - State
     @State private var searchText = ""
-    @State private var selectedFilter: HistoryFilter = .all
+    @State private var selectedFilter: FilterSelection = .standard(.all)
     @State private var selectedBookmark: Bookmark?
     @State private var selectedCollection: JoltCollection?
     @State private var showShareSheet = false
     @State private var bookmarkToShare: Bookmark?
     @State private var showNewCollectionSheet = false
+    @State private var showCollectionsList = false
     
     // MARK: - Filter Enum
     
     enum HistoryFilter: String, CaseIterable {
         case all
-        case favorites
         case twitter
         case instagram
         case web
-        case collections
         case expired
         
         var title: String {
             switch self {
             case .all: return "history.filter.all".localized
-            case .favorites: return "history.filter.favorites".localized
             case .twitter: return "X"
             case .instagram: return "Instagram"
             case .web: return "Web"
-            case .collections: return "history.filter.collections".localized
             case .expired: return "history.filter.expired".localized
             }
         }
@@ -59,11 +56,9 @@ struct HistoryView: View {
         var icon: String {
             switch self {
             case .all: return "clock.arrow.circlepath"
-            case .favorites: return "star.fill"
             case .twitter: return "at"
             case .instagram: return "camera"
             case .web: return "globe"
-            case .collections: return "folder.fill"
             case .expired: return "flame.fill"
             }
         }
@@ -71,14 +66,17 @@ struct HistoryView: View {
         var color: Color {
             switch self {
             case .all: return .joltYellow
-            case .favorites: return .yellow
             case .twitter: return .white
             case .instagram: return .pink
             case .web: return .blue
-            case .collections: return Color.joltGreen
             case .expired: return .orange
             }
         }
+    }
+    
+    enum FilterSelection: Equatable {
+        case standard(HistoryFilter)
+        case collection(PersistentIdentifier)
     }
     
     // MARK: - Computed Properties
@@ -98,20 +96,21 @@ struct HistoryView: View {
         var bookmarks: [Bookmark]
         
         switch selectedFilter {
-        case .all:
-            bookmarks = completedBookmarks
-        case .favorites:
-            bookmarks = completedBookmarks.filter { $0.isStarred == true }
-        case .twitter:
-            bookmarks = completedBookmarks.filter { isTwitterDomain($0.domain) }
-        case .instagram:
-            bookmarks = completedBookmarks.filter { isInstagramDomain($0.domain) }
-        case .web:
-            bookmarks = completedBookmarks.filter { !isTwitterDomain($0.domain) && !isInstagramDomain($0.domain) }
-        case .collections:
-            bookmarks = [] // Handled by collectionsGrid
-        case .expired:
-            bookmarks = expiredBookmarks
+        case .standard(let filter):
+            switch filter {
+            case .all:
+                bookmarks = completedBookmarks
+            case .twitter:
+                bookmarks = completedBookmarks.filter { isTwitterDomain($0.domain) }
+            case .instagram:
+                bookmarks = completedBookmarks.filter { isInstagramDomain($0.domain) }
+            case .web:
+                bookmarks = completedBookmarks.filter { !isTwitterDomain($0.domain) && !isInstagramDomain($0.domain) }
+            case .expired:
+                bookmarks = expiredBookmarks
+            }
+        case .collection(let id):
+            bookmarks = completedBookmarks.filter { $0.collection?.persistentModelID == id }
         }
         
         // Search filter
@@ -205,9 +204,7 @@ struct HistoryView: View {
                         .padding(.bottom, 16)
                     
                     // Timeline Content
-                    if selectedFilter == .collections {
-                        collectionsGrid
-                    } else if filteredBookmarks.isEmpty {
+                    if filteredBookmarks.isEmpty {
                         emptyState
                             .frame(maxHeight: .infinity)
                     } else {
@@ -225,69 +222,15 @@ struct HistoryView: View {
             .sheet(isPresented: $showNewCollectionSheet) {
                 NewCollectionSheet()
             }
+            .sheet(isPresented: $showCollectionsList) {
+                CollectionsListView()
+            }
             .navigationDestination(item: $selectedCollection) { collection in
                 DetailedCollectionView(collection: collection)
             }
         }
     }
     
-    private var collectionsGrid: some View {
-        ScrollView {
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                // New Collection Button
-                Button {
-                    showNewCollectionSheet = true
-                } label: {
-                    VStack(spacing: 12) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 32))
-                            .foregroundColor(Color.joltGreen)
-                        Text("history.collections.add".localized)
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.joltForeground)
-                    }
-                    .frame(maxWidth: .infinity, minHeight: 140)
-                    .background(Color.joltCardBackground)
-                    .cornerRadius(16)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.joltGreen.opacity(0.3), style: StrokeStyle(lineWidth: 2, dash: [6]))
-                    )
-                }
-                
-                // Existing Collections
-                ForEach(collections) { collection in
-                    Button {
-                        selectedCollection = collection
-                    } label: {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(collection.emoji ?? "📁")
-                                .font(.system(size: 32))
-                            
-                            Spacer()
-                            
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(collection.name)
-                                    .font(.system(size: 15, weight: .bold))
-                                    .foregroundColor(.joltForeground)
-                                    .lineLimit(1)
-                                
-                                Text("history.collections.itemCount".localized(with: collection.bookmarks?.count ?? 0))
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.joltMutedForeground)
-                            }
-                        }
-                        .padding(16)
-                        .frame(maxWidth: .infinity, minHeight: 140, alignment: .leading)
-                        .background(Color.joltCardBackground)
-                        .cornerRadius(16)
-                    }
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 12)
-        }
-    }
     
     // MARK: - Header
     
@@ -318,14 +261,36 @@ struct HistoryView: View {
             
             Spacer()
             
-            // Stats Badge
-            VStack(alignment: .trailing, spacing: 2) {
-                Text("\(completedBookmarks.count)")
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
-                    .foregroundColor(.joltYellow)
-                Text("history.completed".localized)
-                    .font(.system(size: 10))
-                    .foregroundColor(.joltMutedForeground)
+            // Stats Badge or Collections Icon
+            if subManager.isPro {
+                Button {
+                    showCollectionsList = true
+                } label: {
+                    VStack(alignment: .trailing, spacing: 4) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.joltYellow.opacity(0.1))
+                                .frame(width: 40, height: 40)
+                            
+                            Image(systemName: "folder.badge.plus")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.joltYellow)
+                        }
+                        
+                        Text("\(completedBookmarks.count) " + "history.completed".localized)
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(.joltMutedForeground)
+                    }
+                }
+            } else {
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text("\(completedBookmarks.count)")
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundColor(.joltYellow)
+                    Text("history.completed".localized)
+                        .font(.system(size: 10))
+                        .foregroundColor(.joltMutedForeground)
+                }
             }
         }
     }
@@ -362,15 +327,34 @@ struct HistoryView: View {
             HStack(spacing: 10) {
                 ForEach(HistoryFilter.allCases, id: \.self) { filter in
                     FilterChip(
-                        filter: filter,
-                        isSelected: selectedFilter == filter,
-                        count: getFilterCount(filter)
+                        title: filter.title,
+                        icon: filter.icon,
+                        isSelected: selectedFilter == .standard(filter),
+                        count: getFilterCount(.standard(filter)),
+                        color: filter.color,
+                        isLocked: false
                     ) {
                         withAnimation(.easeInOut(duration: 0.2)) {
-                            if filter == .collections && !subManager.isPro {
+                            selectedFilter = .standard(filter)
+                        }
+                    }
+                }
+                
+                // Collection Chips
+                ForEach(collections) { collection in
+                    FilterChip(
+                        title: collection.name,
+                        emoji: collection.emoji ?? "📁",
+                        isSelected: selectedFilter == .collection(collection.persistentModelID),
+                        count: collection.bookmarks?.count ?? 0,
+                        color: Color.joltGreen,
+                        isLocked: !subManager.isPro
+                    ) {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            if !subManager.isPro {
                                 showPaywall = true
                             } else {
-                                selectedFilter = filter
+                                selectedFilter = .collection(collection.persistentModelID)
                             }
                         }
                     }
@@ -380,15 +364,18 @@ struct HistoryView: View {
         }
     }
     
-    private func getFilterCount(_ filter: HistoryFilter) -> Int {
-        switch filter {
-        case .all: return completedBookmarks.count
-        case .favorites: return completedBookmarks.filter { $0.isStarred == true }.count
-        case .twitter: return completedBookmarks.filter { isTwitterDomain($0.domain) }.count
-        case .instagram: return completedBookmarks.filter { isInstagramDomain($0.domain) }.count
-        case .web: return completedBookmarks.filter { !isTwitterDomain($0.domain) && !isInstagramDomain($0.domain) }.count
-        case .collections: return collections.count
-        case .expired: return expiredBookmarks.count
+    private func getFilterCount(_ selection: FilterSelection) -> Int {
+        switch selection {
+        case .standard(let filter):
+            switch filter {
+            case .all: return completedBookmarks.count
+            case .twitter: return completedBookmarks.filter { isTwitterDomain($0.domain) }.count
+            case .instagram: return completedBookmarks.filter { isInstagramDomain($0.domain) }.count
+            case .web: return completedBookmarks.filter { !isTwitterDomain($0.domain) && !isInstagramDomain($0.domain) }.count
+            case .expired: return expiredBookmarks.count
+            }
+        case .collection(let id):
+            return completedBookmarks.filter { $0.collection?.persistentModelID == id }.count
         }
     }
     
@@ -399,7 +386,7 @@ struct HistoryView: View {
             ForEach(timelineGroups, id: \.title) { group in
                 Section {
                     ForEach(group.bookmarks) { bookmark in
-                        if selectedFilter == .expired {
+                        if case .standard(let filter) = selectedFilter, filter == .expired {
                             ExpiredItemRow(bookmark: bookmark)
                                 .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
                                 .listRowSeparator(.hidden)
@@ -439,20 +426,27 @@ struct HistoryView: View {
     
     private var emptyState: some View {
         VStack(spacing: 16) {
-            Image(systemName: selectedFilter == .expired ? "flame" : "checkmark.circle")
+            Image(systemName: isExpiredSelected ? "flame" : "checkmark.circle")
                 .font(.system(size: 48))
                 .foregroundColor(.joltMutedForeground.opacity(0.5))
             
-            Text(selectedFilter == .expired ? "history.empty.expired".localized : "history.empty.title".localized)
+            Text(isExpiredSelected ? "history.empty.expired".localized : "history.empty.title".localized)
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundColor(.joltForeground)
             
-            Text(selectedFilter == .expired ? "history.empty.expiredSubtitle".localized : "history.empty.subtitle".localized)
+            Text(isExpiredSelected ? "history.empty.expiredSubtitle".localized : "history.empty.subtitle".localized)
                 .font(.system(size: 14))
                 .foregroundColor(.joltMutedForeground)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
         }
+    }
+    
+    private var isExpiredSelected: Bool {
+        if case .standard(let filter) = selectedFilter {
+            return filter == .expired
+        }
+        return false
     }
     
     // MARK: - Actions
@@ -482,18 +476,27 @@ struct HistoryView: View {
 // MARK: - Filter Chip
 
 struct FilterChip: View {
-    let filter: HistoryView.HistoryFilter
+    let title: String
+    var icon: String? = nil
+    var emoji: String? = nil
     let isSelected: Bool
     let count: Int
+    let color: Color
+    let isLocked: Bool
     let action: () -> Void
     
     var body: some View {
         Button(action: action) {
             HStack(spacing: 6) {
-                Image(systemName: filter.icon)
-                    .font(.system(size: 12))
+                if let emoji = emoji {
+                    Text(emoji)
+                        .font(.system(size: 14))
+                } else if let icon = icon {
+                    Image(systemName: icon)
+                        .font(.system(size: 12))
+                }
                 
-                Text(filter.title)
+                Text(title)
                     .font(.system(size: 13, weight: .medium))
                 
                 if count > 0 && !isSelected {
@@ -502,7 +505,7 @@ struct FilterChip: View {
                         .foregroundColor(.joltMutedForeground)
                 }
                 
-                if filter == .collections && !SubscriptionManager.shared.isPro {
+                if isLocked {
                     Image(systemName: "lock.fill")
                         .font(.system(size: 10))
                         .foregroundColor(.yellow)
@@ -511,7 +514,7 @@ struct FilterChip: View {
             .foregroundColor(isSelected ? .black : .joltForeground)
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .background(isSelected ? filter.color : Color.joltCardBackground)
+            .background(isSelected ? color : Color.joltCardBackground)
             .cornerRadius(20)
         }
         .buttonStyle(.plain)
